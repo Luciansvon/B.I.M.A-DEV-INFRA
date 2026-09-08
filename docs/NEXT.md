@@ -1,0 +1,8 @@
+# Next implementation and activation steps
+
+1. Review and publish `codex/infra-audit-foundation` when authorized. Run hosted Ubuntu and Windows CI; inspect test logs and audit artifacts, including the symlink fixture on Linux. Then exercise `repository-audit.yml` from a separate fixture repository using the same reviewed SHA for both pins. Do not label the module stable before this evidence exists.
+2. Activate the `main` ruleset after check names exist. Require both platform audit checks, prevent force pushes/deletion, and choose a solo-maintainer review/bypass policy. Add repository-level SHA pin enforcement after verifying Actions compatibility.
+3. Decide the license for this infrastructure repository. A public repository does not by itself provide an explicit reusable code license. Do not inherit another project's license without an owner decision.
+4. Implement `research-update` and `workflow-audit` skills described in the retained governance research, with bounded procedures and validators. A procedure document must not claim to enforce repository settings.
+5. Integrate one real consumer through pinned workflow plus policy, retain its evidence, and add a lightweight project registry entry. Keep project source and application-specific architecture in that project.
+6. Choose the next reusable module from a demonstrated consumer need: build/test adapter, benchmark result processing, or release evidence. Review current research and contracts before expanding architecture. Keep the general evidence schema open until at least one additional module supplies concrete requirements.
