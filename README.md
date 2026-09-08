@@ -6,6 +6,18 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 > The repo is intentionally project-agnostic. It should not become tightly coupled to one application, product, language, or device.
 
+## Implementation status
+
+The capability map below describes the research roadmap, not shipped modules. The first executable module is now **experimental repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence and has local regression tests.
+
+- [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
+- [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
+- [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
+- [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
+- [Next steps](docs/NEXT.md)
+
+Hosted CI evidence is linked from the audit record. Protected checks and a published consumer reference remain pending. Passing repository hygiene does not establish application or production readiness.
+
 ## Core idea
 
 GitHub can be treated as more than source control:
@@ -368,11 +380,11 @@ Also avoid workflows that simply add another network hop without improving safet
 
 ### Phase 1 — Shared workflow foundation
 
-- [ ] reusable workflow conventions
-- [ ] security baseline
+- [x] reusable workflow conventions (documented contract and first experimental implementation)
+- [x] security baseline (workflow defaults implemented; repository protection pending)
 - [ ] standard artifact/report schema
-- [ ] workflow versioning strategy
-- [ ] runner policy
+- [x] workflow versioning strategy (paired full SHA pins; experimental contract)
+- [x] runner policy (hosted audit baseline; specialized hardware policies pending)
 
 ### Phase 2 — Workflow modules
 

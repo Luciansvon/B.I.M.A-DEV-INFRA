@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "required_files": [
+    "README.md",
+    "AGENTS.md",
+    "docs/architecture/ARCHITECTURE.md",
+    "docs/architecture/PROJECT-CONTRACT.md",
+    "docs/standards/WORKFLOW-CONTRACT.md",
+    "docs/standards/SECURITY-BASELINE.md",
+    "docs/standards/REPOSITORY-AUDIT.md"
+  ],
+  "max_file_bytes": 1048576
+}
