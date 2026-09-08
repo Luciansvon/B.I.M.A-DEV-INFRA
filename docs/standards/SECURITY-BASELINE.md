@@ -6,6 +6,7 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 
 - Declare `permissions: contents: read`; add write scopes only for a documented module that needs them.
 - Pin external Actions and consumed infrastructure to full commit SHAs. Dependabot proposes Actions updates; humans review them and their check results.
+- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint` archive is versioned and digest-checked.
 - Use GitHub-hosted ephemeral runners for untrusted pull requests. No `pull_request_target` execution of PR code, self-hosted runner, deployment environment, or inherited secrets in the initial audit module.
 - Disable persisted checkout credentials. Pass configurable strings through environment variables or action inputs; never interpolate them into shell source.
 - Keep caller checkout (`subject`) separate from executable infrastructure (`infra`). The shared audit never executes caller scripts, installs caller dependencies, or imports caller Python modules. Python runs with `-I`.
@@ -26,7 +27,7 @@ Repository hygiene checks do not scan secrets, discover vulnerable dependencies,
 
 ## Runner and version policy
 
-The initial reusable workflow supports `ubuntu-24.04` GitHub-hosted runners. Infrastructure tests also target `windows-2025`; actual hosted execution is required before claiming either CI job green. Neither OS label makes the rolling hosted image immutable. Python is pinned to `3.13.15`, matching local validation and an available `actions/python-versions` release; refresh it deliberately with regression evidence. Action pins were resolved against upstream GitHub refs on 2026-09-08.
+The initial reusable workflow supports `ubuntu-24.04` GitHub-hosted runners. Infrastructure tests also target `windows-2025`. Neither OS label makes the rolling hosted image immutable. Python is pinned to `3.13.15`, matching local validation and an available `actions/python-versions` release; refresh it deliberately with regression evidence. Action pins were resolved against upstream GitHub refs on 2026-09-08. Repository text policies force LF for stable validator and policy byte hashes across hosted operating systems.
 
 Self-hosted, GPU, ARM, macOS, private network, and hardware workflows need their own documented trust boundary before activation.
 

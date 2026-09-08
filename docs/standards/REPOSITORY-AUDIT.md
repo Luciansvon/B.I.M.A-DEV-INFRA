@@ -79,7 +79,7 @@ Workflow output `artifact-id` identifies the uploaded artifact on successful com
 
 GitHub-hosted Ubuntu 24.04; Git, Bash, and pinned Python 3.13.15. No hardware/device requirements. `contents: read` only, no OIDC or external credentials. Ten-minute job timeout; individual Git commands time out at 30 seconds. Expected runtime: seconds for the script on a small documentation repository, plus hosted runner/setup/upload time.
 
-The reusable workflow has no shared concurrency group that could cancel its caller. The caller owns cancellation. This repo's CI cancels outdated runs on the same workflow/ref and tests on Ubuntu/Windows. Evidence retention is 14 days. Each invocation needs its own `artifact-name` to avoid upload collisions.
+The reusable workflow has no shared concurrency group that could cancel its caller. The caller owns cancellation. This repo's CI cancels outdated runs on the same workflow/ref and tests on Ubuntu/Windows. Branch pushes run through pull-request CI; direct `push` CI is limited to `main` to avoid duplicate branch and PR runs. Evidence retention is 14 days. Each invocation needs its own `artifact-name` to avoid upload collisions.
 
 ## Consuming from another repository
 

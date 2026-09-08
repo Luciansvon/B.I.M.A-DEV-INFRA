@@ -16,7 +16,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Next steps](docs/NEXT.md)
 
-Hosted workflow execution, protected checks, and a published consumer reference remain pending. A local passing report does not establish CI or production readiness.
+Hosted CI evidence is linked from the audit record. Protected checks and a published consumer reference remain pending. Passing repository hygiene does not establish application or production readiness.
 
 ## Core idea
 

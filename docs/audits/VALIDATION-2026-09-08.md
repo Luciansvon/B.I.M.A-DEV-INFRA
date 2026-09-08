@@ -2,7 +2,9 @@
 
 Environment: Windows, Python 3.13.15, Git CLI, actionlint 1.7.12. Base commit: `f4d0d1538c6b7ecdc5c1c6cb1b32fa74c49fce14`; branch: `codex/infra-audit-foundation`; changes are local and uncommitted.
 
-Final regression run: **19 tests run, 18 passed, 1 skipped**, in 11.153 seconds. Both workflow files passed actionlint with exit 0. The completed repository hygiene run returned `pass` with zero findings; exact counters and hashes are in `result.json`. Remote `origin/main` was fetched/pruned again and remained at the audited base commit.
+Pre-publication local regression run: **19 tests run, 18 passed, 1 skipped**, in 11.153 seconds. Both workflow files passed actionlint with exit 0. The completed repository hygiene run returned `pass` with zero findings; exact counters and hashes are in `result.json`. Remote `origin/main` was fetched/pruned again and remained at the audited base commit.
+
+The first hosted pull-request run was [34225893583](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34225893583) at commit `9722c420202dafc0733fb536e9c46b1d2b9db625`. Ubuntu and Windows each ran all 19 tests with no skip, including the real symlink fixture; both audits passed with zero findings. Downloaded artifacts showed different validator and policy byte hashes between operating systems because Windows checkout converted LF to CRLF. That evidence led to `.gitattributes` LF enforcement. Final hosted results after the correction supersede this initial run and must be inspected before merge.
 
 ## Evidence paths and interpretation
 
