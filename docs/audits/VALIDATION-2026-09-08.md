@@ -6,6 +6,8 @@ Pre-publication local regression run: **19 tests run, 18 passed, 1 skipped**, in
 
 The first hosted pull-request run was [34225893583](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34225893583) at commit `9722c420202dafc0733fb536e9c46b1d2b9db625`. Ubuntu and Windows each ran all 19 tests with no skip, including the real symlink fixture; both audits passed with zero findings. Downloaded artifacts showed different validator and policy byte hashes between operating systems because Windows checkout converted LF to CRLF. That evidence led to `.gitattributes` LF enforcement. Final hosted results after the correction supersede this initial run and must be inspected before merge.
 
+The corrected hosted pull-request run was [34226270454](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34226270454). Both operating systems again ran all 19 tests and passed with zero audit findings. Validator SHA-256 `4820e569910dbd41c5765e4d291a9e3600f2ebe67a4d93a017f0ba5a04e05805` and policy SHA-256 `6cc5dd19b28e341c110496b107cabd43ce27ac769013a820ddc6acb0326e9cf0` matched across platforms, proving the line-ending correction. The workflow-lint check passed, but its downloaded log was empty because actionlint is silent on success; the final follow-up writes tool version, pass status, and workflow count into that evidence artifact.
+
 ## Evidence paths and interpretation
 
 | Check | Local evidence | Interpretation |
