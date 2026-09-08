@@ -11,24 +11,27 @@ PROJECT / HUMAN / API / SCHEDULE
          GitHub Event
               |
               v
-      Reusable Workflow
-              |
-      +-------+-------+
-      |               |
-      v               v
-GitHub Runner    Self-hosted Runner
-      |               |
-      +-------+-------+
+      Thin GitHub Workflow
               |
               v
-    Shared Module / Adapter
+    GitHub-hosted Dagger Engine
               |
               v
- Test / Benchmark / Audit / Build / Deploy
+      B.I.M.A core module
+  audit / lint / test / security
+  build / package / benchmark
               |
               v
- Evidence: report / artifact / status / release
+       Normalized evidence
+              |
+       +------+------+
+       |             |
+       v             v
+ GitHub adapter   Windows adapter
+ release/upload   build/sign/package
 ```
+
+Initial execution scope is GitHub-hosted only. A local Dagger runtime, Azure Pipelines, GitLab CI, and self-hosted execution remain deferred until a demonstrated workload justifies their operational cost.
 
 ## Layers
 
@@ -38,16 +41,17 @@ Events from Git, manual dispatch, API/webhooks, schedules, issues, pull requests
 
 ### 2. Orchestration layer
 
-Reusable GitHub workflows coordinate execution. They should remain project-agnostic and accept configuration through explicit inputs.
+Thin GitHub workflows trigger pinned Dagger commands and preserve their evidence. Pipeline logic belongs in reusable modules rather than duplicated workflow YAML.
 
 ### 3. Execution layer
 
-- GitHub-hosted runner for generic reproducible jobs.
-- Self-hosted runner when local hardware, persistent model/cache, devices, operating systems, or private infrastructure matter.
+- GitHub-hosted Ubuntu runner and its Dagger Engine for the initial portable core.
+- Native GitHub-hosted Windows jobs are platform adapters when Windows packaging or signing cannot run inside the portable core.
+- Self-hosted runners remain future adapters for local hardware, persistent model/cache, devices, or private infrastructure.
 
 ### 4. Adapter layer
 
-Project-specific commands are passed through a documented contract instead of hard-coding application architecture into shared infrastructure.
+Project inputs are passed through documented contracts instead of hard-coding application architecture into shared infrastructure. Publishing, signing, store upload, and deployment remain explicit platform adapters because their credentials and APIs differ.
 
 ### 5. Evidence layer
 

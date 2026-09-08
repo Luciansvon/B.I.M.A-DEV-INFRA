@@ -1,0 +1,4 @@
+ignore = [".artifacts", ".tools", "**/__pycache__", "**/*.pyc"]
+
+[modules.bima-infra]
+source = "."

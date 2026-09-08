@@ -1,0 +1,44 @@
+pub description = "Portable, evidence-producing checks for B.I.M.A repositories"
+
+"""
+Project-agnostic audit, test, and workflow-lint execution.
+
+The functions return evidence directories instead of publishing or deploying.
+Platform release adapters remain outside this core module.
+"""
+type BimaInfra {
+  """Run repository hygiene and return its evidence."""
+  pub audit(ws: Workspace!): Directory! {
+    runner(ws)
+      .withExec(["sh", "automation/dagger_ci.sh", "audit", "/evidence"])
+      .directory("/evidence")
+  }
+
+  """Run the repository-audit regression suite and return its evidence."""
+  pub unitTests(ws: Workspace!): Directory! {
+    runner(ws)
+      .withExec(["sh", "automation/dagger_ci.sh", "tests", "/evidence"])
+      .directory("/evidence")
+  }
+
+  """Run actionlint against repository workflows and return its evidence."""
+  pub workflowLint(ws: Workspace!): Directory! {
+    runner(ws)
+      .withExec(["sh", "automation/dagger_ci.sh", "workflow-lint", "/evidence"])
+      .directory("/evidence")
+  }
+
+  """Run audit, regression tests, and workflow lint; return all evidence."""
+  pub ci(ws: Workspace!): Directory! {
+    runner(ws)
+      .withExec(["sh", "automation/dagger_ci.sh", "ci", "/evidence"])
+      .directory("/evidence")
+  }
+
+  let runner(ws: Workspace!): Container! {
+    container
+      .from("python:3.13.15-bookworm@sha256:933b46a028fd786c9c3d426ebabc237e29a15912231ea8de576e95f0e4f41a4c")
+      .withWorkdir("/workspace")
+      .withDirectory(".", ws.directory("/"))
+  }
+}

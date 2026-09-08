@@ -8,12 +8,14 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 ## Implementation status
 
-The capability map below describes the research roadmap, not shipped modules. The first executable module is now **experimental repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence and has local regression tests.
+The capability map below describes the research roadmap, not shipped modules. The first executable module is **experimental repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence and has local regression tests. A GitHub-hosted Dagger adapter is under validation; Azure Pipelines and GitLab CI are deliberately deferred.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
+- [Dagger execution decision](docs/decisions/ADR-0002-github-hosted-dagger.md)
+- [Dagger CI contract](docs/standards/DAGGER-CI.md)
 - [Next steps](docs/NEXT.md)
 
 Hosted CI evidence is linked from the audit record. Protected checks and a published consumer reference remain pending. Passing repository hygiene does not establish application or production readiness.
