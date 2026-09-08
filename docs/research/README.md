@@ -16,4 +16,25 @@
 =160 total unique retained/reviewed sources
 ```
 
-Future research passes should create dated ledgers instead of silently replacing these files. That preserves how conclusions changed as GitHub features, pricing, community practices, and deprecations evolve.
+## 2026-09-08 — Agent Governance, Rules, Skills, and Enforcement
+
+A separate focused pass tested whether B.I.M.A-DEV-INFRA should use Agent Skills and how they should interact with repository rules, architecture/error memory, hooks, scripts, and CI gates.
+
+| Document | Purpose | Sources |
+|---|---|---:|
+| [`AGENT-GOVERNANCE-2026-09-08.md`](./AGENT-GOVERNANCE-2026-09-08.md) | Findings and recommended layered agent-governance architecture | synthesis |
+| [`SOURCES-AGENT-GOVERNANCE-2026-09-08.md`](./SOURCES-AGENT-GOVERNANCE-2026-09-08.md) | Community + official + real-repository source ledger | 69 |
+
+Key conclusion:
+
+```text
+GUIDANCE    -> AGENTS.md / path instructions
+PROCEDURE   -> Agent Skills
+ENFORCEMENT -> hooks / scripts / CI / repository rules
+MEMORY      -> architecture / ADR / incidents
+EVIDENCE    -> tests / logs / reports / artifacts
+```
+
+The 69-source focused pass overlaps thematically with the earlier 160-source GitHub research and is tracked as its own research set rather than being added arithmetically to the prior unique-source count.
+
+Future research passes should create dated ledgers instead of silently replacing these files. That preserves how conclusions changed as GitHub features, agent tooling, pricing, community practices, and deprecations evolve.
