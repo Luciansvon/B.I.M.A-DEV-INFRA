@@ -2,7 +2,7 @@
 
 ## Identity and purpose
 
-Name: `repository-audit`. Stability: **experimental**. Implements the existing shared execution/evidence architecture for inexpensive, offline repository hygiene. It does not implement application builds, release gates, benchmarks, or general security scanning.
+Name: `repository-audit`. Stability: **beta**. Implements the existing shared execution/evidence architecture for inexpensive, offline repository hygiene. Its published interface has been exercised from a separate data-only fixture, but no real project adoption is proven yet. It does not implement application builds, release gates, benchmarks, or general security scanning.
 
 Implementation: [`automation/repository_audit.py`](../../automation/repository_audit.py). Reusable entry point: [workflow](../../.github/workflows/repository-audit.yml). No third-party Python packages.
 
@@ -105,8 +105,10 @@ jobs:
 
 The second SHA is explicit because caller context/checkout does not identify the reusable workflow implementation. The workflow validates SHA syntax but does not prove the two pins match; code review must verify that pairing. Do not consume mutable branches for executable infrastructure.
 
+The live [consumer fixture](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE/blob/68af54df8610b14bdd2954bc079317dca4b1e2a6/.github/workflows/repository-audit.yml) demonstrates both pins set to reviewed infrastructure commit `cb220412bf3d7be0e67cc364572eaf0183cda286`. Its [main run](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE/actions/runs/34357477215) and downloaded artifact were inspected; see the [validation record](../audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md).
+
 ## Compatibility and security
 
-First experimental contract: no existing consumers to migrate. Input/status/policy changes require an ADR and updated regression fixtures. Raw result version 1 remains scoped to this module; `bima-evidence.v1` is the shared envelope, with only the repository-audit adapter implemented so far.
+First beta contract: one data-only fixture consumer exists, with no real project consumers to migrate yet. Input/status/policy changes require an ADR and updated regression fixtures. Raw result version 1 remains scoped to this module; `bima-evidence.v1` is the shared envelope, with only the repository-audit adapter implemented so far.
 
 Follow the [security baseline](SECURITY-BASELINE.md). The module treats the caller as data and never executes its scripts. This does not make a malicious infrastructure SHA safe: review the pinned implementation. Caller-owned policies and workflow pins require protected review. GitHub-hosted Actions support is targeted; GHES and self-hosted integration are unverified.
