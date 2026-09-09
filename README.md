@@ -11,6 +11,7 @@ This repository is a laboratory and shared foundation for discovering, validatin
 The capability map below describes the research roadmap, not shipped modules. The first executable module is now **experimental repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence and has local regression tests.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
+- [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)

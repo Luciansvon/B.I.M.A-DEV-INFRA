@@ -1,6 +1,6 @@
 # ADR-0002 — Cost-aware deterministic command contract
 
-Status: Accepted for experimental implementation.
+Status: Accepted as experimental; initial hosted validation passed.
 Date: 2026-09-09.
 
 ## Context
@@ -29,7 +29,7 @@ Task becomes one small local prerequisite for the unified command surface. Pytho
 - [Cost-aware architecture baseline](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/issues/3)
 - [Command contract](../standards/COMMAND-CONTRACT.md)
 - [Task documentation](https://taskfile.dev/docs/)
-- Hosted workflow evidence must be added before this increment is called validated.
+- [Task command validation](../audits/VALIDATION-2026-09-09-TASKFILE.md)
 
 ## Supersedes / Superseded by
 
