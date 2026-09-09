@@ -6,7 +6,8 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 
 - Declare `permissions: contents: read`; add write scopes only for a documented module that needs them.
 - Pin external Actions and consumed infrastructure to full commit SHAs. Dependabot proposes Actions updates; humans review them and their check results.
-- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint`, prek, and action-validator release binaries are versioned and digest-checked.
+- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint`, prek, action-validator, and pinact release binaries are versioned and digest-checked.
+- Enforce full-length commit SHAs for remote Actions and reusable workflows with pinact's read-only offline mode. This baseline does not yet verify version comments, SHA provenance, or minimum release age.
 - Use GitHub-hosted ephemeral runners for untrusted pull requests. No `pull_request_target` execution of PR code, self-hosted runner, deployment environment, or inherited secrets in the initial audit module.
 - Disable persisted checkout credentials. Pass configurable strings through environment variables or action inputs; never interpolate them into shell source.
 - Keep caller checkout (`subject`) separate from executable infrastructure (`infra`). The shared audit never executes caller scripts, installs caller dependencies, or imports caller Python modules. Python runs with `-I`.

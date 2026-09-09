@@ -19,3 +19,7 @@ Started the next bounded Issue #3 increment from merged `main`. Added prek v0.5.
 ## 2026-09-09 — Cost-aware P0 workflow schema validation
 
 Started the next bounded Issue #3 increment from merged `main`. Added action-validator v0.9.0 to the existing prek and workflow-lint path without another job. The Linux release binary is checksum-verified in CI; because upstream publishes no Windows binary, local Windows evidence uses the pinned crates.io package. Both current workflow schemas passed locally, while an isolated unmatched-path fixture failed with the expected code. PR #6 run `34298864689` passed workflow/pre-flight plus both audit jobs; downloaded artifacts confirmed action-validator execution, 19/19 tests on both operating systems, matching audit hashes/counters, and zero findings. Exact results and limitations are recorded in the [action-validator validation record](audits/VALIDATION-2026-09-09-ACTION-VALIDATOR.md).
+
+## 2026-09-09 — Cost-aware P0 immutable Action references
+
+Started the next bounded Issue #3 increment from merged `main`. Added pinact v4.1.1 as a read-only, offline prek hook and reused the existing workflow-lint job. Both Linux and Windows release checksums passed; current workflows passed the full-SHA check, while an isolated mutable-tag fixture failed on the exact line. Hosted evidence remains pending; exact results and limitations are recorded in the [pinact validation record](audits/VALIDATION-2026-09-09-PINACT.md).
