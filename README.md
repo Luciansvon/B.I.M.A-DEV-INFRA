@@ -8,7 +8,7 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 ## Implementation status
 
-The capability map below describes the research roadmap, not shipped modules. The first executable module is now **experimental repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence and has local regression tests.
+The capability map below describes the research roadmap, not shipped modules. The first executable module is now **beta repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence, has regression tests, and has been exercised from a separate data-only consumer fixture.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
@@ -18,6 +18,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Zizmor validation](docs/audits/VALIDATION-2026-09-09-ZIZMOR.md)
 - [Canonical evidence validation](docs/audits/VALIDATION-2026-09-09-CANONICAL-EVIDENCE.md)
 - [Agent packet validation](docs/audits/VALIDATION-2026-09-09-AGENT-PACKET.md)
+- [External consumer fixture validation](docs/audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md)
 - [Pre-flight hook contract](docs/standards/PRE-FLIGHT.md)
 - [GitHub Action pinning contract](docs/standards/ACTION-PINNING.md)
 - [GitHub automation security contract](docs/standards/WORKFLOW-SECURITY.md)
@@ -50,7 +51,7 @@ task verify
 
 Commands without a real implementation, including generic build and nightly pipelines, are intentionally not advertised yet.
 
-Hosted CI evidence is linked from the audit record. Protected checks and a published consumer reference remain pending. Passing repository hygiene does not establish application or production readiness.
+Hosted CI evidence is linked from the audit records, including a published fixture consumer. Protected checks and a real project consumer remain pending. Passing repository hygiene does not establish application or production readiness.
 
 ## Core idea
 
