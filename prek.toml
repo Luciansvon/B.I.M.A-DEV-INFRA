@@ -28,3 +28,14 @@ id = "detect-private-key"
 
 [[repos.hooks]]
 id = "forbid-new-submodules"
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "action-validator"
+name = "validate GitHub Actions schemas and path globs"
+entry = "action-validator --verbose"
+language = "system"
+files = "^\\.github/(workflows/[^/]+\\.ya?ml|actions/.+/action\\.ya?ml)$"
+verbose = true
