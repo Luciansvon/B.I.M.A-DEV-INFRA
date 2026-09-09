@@ -39,3 +39,11 @@ entry = "action-validator --verbose"
 language = "system"
 files = "^\\.github/(workflows/[^/]+\\.ya?ml|actions/.+/action\\.ya?ml)$"
 verbose = true
+
+[[repos.hooks]]
+id = "pinact"
+name = "require full-SHA GitHub Action pins"
+entry = "pinact run --fix=false --no-api"
+language = "system"
+files = "^\\.github/(workflows/[^/]+\\.ya?ml|actions/.+/action\\.ya?ml)$"
+verbose = true
