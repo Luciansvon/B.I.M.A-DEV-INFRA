@@ -3,8 +3,10 @@
   "required_files": [
     "README.md",
     "AGENTS.md",
+    "Taskfile.yml",
     "docs/architecture/ARCHITECTURE.md",
     "docs/architecture/PROJECT-CONTRACT.md",
+    "docs/standards/COMMAND-CONTRACT.md",
     "docs/standards/WORKFLOW-CONTRACT.md",
     "docs/standards/SECURITY-BASELINE.md",
     "docs/standards/REPOSITORY-AUDIT.md"

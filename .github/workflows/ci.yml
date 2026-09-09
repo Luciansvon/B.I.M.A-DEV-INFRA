@@ -30,13 +30,18 @@ jobs:
             https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
           echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  '"$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
           tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Install pinned Task
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.53.1
+          checksum: a54a408f6861ff921f6e87774180db31bacd8c1e7c944ca696db9fea49a82fc7
       - name: Validate workflows
         shell: bash
         run: |
           mkdir -p .artifacts
           set -o pipefail
-          "$RUNNER_TEMP/actionlint" -version > .artifacts/actionlint.log
-          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= 2>&1 | tee -a .artifacts/actionlint.log
+          task workflow-lint 2>&1 | tee .artifacts/actionlint.log
           printf 'status=pass\nfiles=%s\n' "$(find .github/workflows -maxdepth 1 -type f -name '*.yml' | wc -l)" | tee -a .artifacts/actionlint.log
       - name: Preserve workflow lint evidence
         if: ${{ !cancelled() }}
@@ -62,15 +67,20 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13.15'
+      - name: Install pinned Task
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.53.1
+          checksum: ${{ runner.os == 'Linux' && 'a54a408f6861ff921f6e87774180db31bacd8c1e7c944ca696db9fea49a82fc7' || '27c0cd248c12cba03d8958d954a3df981c900be885ec9ce5f6a3cdc4e9a19316' }}
       - name: Regression tests
         shell: bash
         run: |
           mkdir -p .artifacts
           set -o pipefail
-          python -I -m unittest discover -s tests -v 2>&1 | tee .artifacts/tests.log
+          task test 2>&1 | tee .artifacts/tests.log
       - name: Audit repository
         if: ${{ !cancelled() }}
-        run: python -I automation/repository_audit.py --root . --policy .bima/audit.json --output .artifacts/audit
+        run: task audit
       - name: Preserve evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
