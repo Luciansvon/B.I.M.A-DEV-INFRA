@@ -2,13 +2,15 @@
 
 ## Verdict
 
-Local Windows validation passed. Hosted evidence is pending and must pass before this increment is merged or described as fully validated.
+Local Windows validation and the initial GitHub-hosted run passed. A final hosted run after recording this evidence remains required before merge.
 
 ## Source
 
 - Base revision: `352227e5d0f1b0c9b9142a05fc2042e9781dd8f6`.
 - Branch: `codex/cost-aware-p0-action-validator`.
-- Pull request and hosted run: pending.
+- Source commit: `8e3e67f7b63ee94321af3204dac64c4184893b00`.
+- Pull request: [#6](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/pull/6).
+- Initial hosted run: [`34298864689`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34298864689).
 
 ## Local Windows evidence
 
@@ -22,6 +24,16 @@ Local Windows validation passed. Hosted evidence is pending and must pass before
 - `task verify`: pass; 19 tests ran, 18 passed, and the real-symlink test skipped because this Windows session lacks symlink privilege.
 - Repository audit: pass; 44 files checked and zero findings.
 - actionlint v1.7.12 and both Git diff whitespace checks: pass.
+
+## Initial hosted evidence
+
+| Check | Result | Evidence inspected |
+|---|---|---|
+| Pre-flight and workflow lint | pass, 10 s | action-validator 0.9.0 classified and accepted both workflows; prek hooks and actionlint 1.7.12 passed |
+| Ubuntu audit | pass, 9 s | 19/19 tests; 44 files, 41 links, zero findings |
+| Windows audit | pass, 29 s | 19/19 tests including symlink handling; 44 files, 41 links, zero findings |
+
+Both hosted audit artifacts reported validator SHA-256 `4820e569910dbd41c5765e4d291a9e3600f2ebe67a4d93a017f0ba5a04e05805` and policy SHA-256 `916fb275934dfe2aaf75f054e32a74fa07208bdd640a3b355926403e042a19b5`. The pre-flight/action-validator log, actionlint log, both test logs, and both JSON/Markdown audit pairs were downloaded and inspected.
 
 ## Boundary
 
