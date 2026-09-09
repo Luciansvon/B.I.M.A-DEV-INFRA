@@ -46,3 +46,9 @@ Use templates from:
 
 - `templates/project/ARCHITECTURE.md`
 - `templates/project/INCIDENTS.md`
+
+## Registered consumers
+
+| Project | Repository | Type | Shared workflow | Runner | Project source of truth | Last integration review |
+|---|---|---|---|---|---|---|
+| AI-COLOR-COMPARE | [Repository](https://github.com/Luciansvon/AI-COLOR-COMPARE) | React/Vite/Tauri Studio Color QC with an Android pilot | `repository-audit` beta, pinned to `dc7a96cf885f41bd665270c4a77ef0e7c12d313b` | GitHub-hosted Ubuntu 24.04 | [README](https://github.com/Luciansvon/AI-COLOR-COMPARE/blob/main/README.md), [project issues](https://github.com/Luciansvon/AI-COLOR-COMPARE/issues) | 2026-09-09; [evidence](../docs/audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md) |
