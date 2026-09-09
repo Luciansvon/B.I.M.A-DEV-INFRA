@@ -11,7 +11,7 @@ Final bounded P0 increment from Issue #3: `bima-agent-packet.v1`, its repository
 - 35 tests ran: 34 passed and the Windows privilege-dependent symlink case skipped; all 8 agent-packet tests passed.
 - Pre-flight hooks and workflow lint passed; zizmor reported no findings and one documented suppression.
 - Repository audit checked 63 files and 68 supported local links with zero findings.
-- Dirty-tree canonical evidence hash: `cf3e2590d504ded7482b01d7675ad85a810eb3ffb29f09d8a59abf146a91c0a2`.
+- Dirty-tree canonical evidence hash after implementation commit `e9c5ced`: `8900fde7e095e0d8d7c7454dd7b5677b85285f175826c98a31334d8504e7657b`.
 - The pass route printed `agent-packet: not-needed; status=pass` and left no owned packet files.
 - Synthetic unit fixtures verified deterministic `fail -> machine` and `error -> agent` output, exact hashes, list/string caps, stale-output cleanup, strict canonical input, and sanitized invalid-input failure.
 
@@ -19,7 +19,16 @@ The dirty-tree hash is local implementation evidence only. It is not expected to
 
 ## Hosted pull-request evidence
 
-Pending pull-request run.
+PR [#12](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/pull/12), implementation commit `e9c5ced`, run [`34322360536`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34322360536) passed all three jobs. GitHub evaluated synthetic merge revision `dae938aacdf021c8351ad9618c0a64fff4fe0bb2`.
+
+- Workflow lint/pre-flight passed with the pinned tools and retained logs.
+- Ubuntu 24.04 and Windows 2025 each ran 35/35 tests successfully.
+- Both audits checked 63 files and 68 supported local links with zero findings.
+- Both exact `canonical.json` files had SHA-256 `892b30ea18bc9efea96c391b68fc858a14e8b749c2547a337be14ec9be346b57`.
+- Both packet steps logged `agent-packet: not-needed; status=pass`.
+- Downloaded artifacts contained zero `packet.json` and zero `packet.sha256` files, confirming the pass-path absence contract rather than merely trusting step success.
+
+Artifact snapshot retained locally under `work/evidence/agent-packet-pr12-run-34322360536/` outside the repository.
 
 ## Hosted main evidence
 

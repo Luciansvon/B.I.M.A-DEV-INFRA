@@ -1,6 +1,6 @@
 # ADR-0008 — Route bounded failures before agent escalation
 
-Status: Accepted as experimental; hosted validation pending.
+Status: Accepted as experimental; initial hosted validation passed.
 Date: 2026-09-09.
 
 ## Context
