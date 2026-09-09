@@ -2,7 +2,7 @@
 
 ## Identity and purpose
 
-Name: `repository-audit`. Stability: **beta**. Implements the existing shared execution/evidence architecture for inexpensive, offline repository hygiene. Its published interface has been exercised from a separate data-only fixture, but no real project adoption is proven yet. It does not implement application builds, release gates, benchmarks, or general security scanning.
+Name: `repository-audit`. Stability: **beta**. Implements the existing shared execution/evidence architecture for inexpensive, offline repository hygiene. Its published interface has been exercised from a data-only fixture and the real AI-COLOR-COMPARE project. One project does not establish broad compatibility. The module does not implement application builds, release gates, benchmarks, or general security scanning.
 
 Implementation: [`automation/repository_audit.py`](../../automation/repository_audit.py). Reusable entry point: [workflow](../../.github/workflows/repository-audit.yml). No third-party Python packages.
 
@@ -107,8 +107,10 @@ The second SHA is explicit because caller context/checkout does not identify the
 
 The live [consumer fixture](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE/blob/68af54df8610b14bdd2954bc079317dca4b1e2a6/.github/workflows/repository-audit.yml) demonstrates both pins set to reviewed infrastructure commit `cb220412bf3d7be0e67cc364572eaf0183cda286`. Its [main run](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE/actions/runs/34357477215) and downloaded artifact were inspected; see the [validation record](../audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md).
 
+The real [AI-COLOR-COMPARE consumer](https://github.com/Luciansvon/AI-COLOR-COMPARE/blob/534bb77461e1f475a096cb54954fb03176a210d6/.github/workflows/bima-shared-audit.yml) uses matching pins for infrastructure commit `dc7a96cf885f41bd665270c4a77ef0e7c12d313b`. Its [main audit run](https://github.com/Luciansvon/AI-COLOR-COMPARE/actions/runs/34361197673) produced the complete canonical evidence set; see the [consumer validation record](../audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md).
+
 ## Compatibility and security
 
-First beta contract: one data-only fixture consumer exists, with no real project consumers to migrate yet. Input/status/policy changes require an ADR and updated regression fixtures. Raw result version 1 remains scoped to this module; `bima-evidence.v1` is the shared envelope, with only the repository-audit adapter implemented so far.
+First beta contract: one data-only fixture and one real project consumer exist. Input/status/policy changes require an ADR, updated regression fixtures, and a migration check against registered consumers. Raw result version 1 remains scoped to this module; `bima-evidence.v1` is the shared envelope, with only the repository-audit adapter implemented so far.
 
 Follow the [security baseline](SECURITY-BASELINE.md). The module treats the caller as data and never executes its scripts. This does not make a malicious infrastructure SHA safe: review the pinned implementation. Caller-owned policies and workflow pins require protected review. GitHub-hosted Actions support is targeted; GHES and self-hosted integration are unverified.

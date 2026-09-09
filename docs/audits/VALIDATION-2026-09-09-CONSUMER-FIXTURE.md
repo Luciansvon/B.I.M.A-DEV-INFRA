@@ -2,7 +2,7 @@
 
 ## Scope
 
-Phase 0 consumer proof for the beta `repository-audit` reusable workflow. A separate public, data-only repository calls the published workflow without copying its implementation or executing project code. This validates the cross-repository interface, matching reviewed SHA pins, least-privilege caller, policy input, evidence upload, and pass-path packet behavior. It is not real project adoption, application testing, or production-readiness evidence.
+Phase 0 regression-fixture proof for the beta `repository-audit` reusable workflow. A separate public, data-only repository calls the published workflow without copying its implementation or executing project code. This validates the cross-repository interface, matching reviewed SHA pins, least-privilege caller, policy input, evidence upload, and pass-path packet behavior. It is not real project adoption, application testing, or production-readiness evidence.
 
 ## Published subjects
 
@@ -42,11 +42,10 @@ The downloaded artifact contained `result.json`, `report.md`, `canonical.json`, 
 
 ## Stability decision
 
-The external interface is promoted from `experimental` to `beta`. It is not `stable`: only a synthetic data-only fixture has consumed it, and compatibility under a real project's repository shape and operating constraints is still unproven.
+The fixture supports promoting the external interface from `experimental` to `beta`, but does not justify `stable`. The separate [AI-COLOR-COMPARE validation](VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md) now proves one real project consumer; broader compatibility remains unproven.
 
 ## Remaining Phase 0 work
 
 - activate the selected `main` ruleset and bypass policy;
 - choose an explicit repository license;
-- integrate one real project through the pinned workflow and policy;
-- retain and inspect that project's evidence before considering stable status.
+- retain additional real-project evidence before considering stable status.
