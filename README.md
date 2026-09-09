@@ -26,6 +26,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Canonical evidence contract](docs/standards/EVIDENCE-CONTRACT.md)
 - [Bounded agent packet contract](docs/standards/AGENT-PACKET.md)
+- [Proposed verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
