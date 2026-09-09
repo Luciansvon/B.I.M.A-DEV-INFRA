@@ -16,16 +16,19 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Action-validator validation](docs/audits/VALIDATION-2026-09-09-ACTION-VALIDATOR.md)
 - [Pinact validation](docs/audits/VALIDATION-2026-09-09-PINACT.md)
 - [Zizmor validation](docs/audits/VALIDATION-2026-09-09-ZIZMOR.md)
+- [Canonical evidence validation](docs/audits/VALIDATION-2026-09-09-CANONICAL-EVIDENCE.md)
 - [Pre-flight hook contract](docs/standards/PRE-FLIGHT.md)
 - [GitHub Action pinning contract](docs/standards/ACTION-PINNING.md)
 - [GitHub automation security contract](docs/standards/WORKFLOW-SECURITY.md)
 - [Workflow schema validation contract](docs/standards/WORKFLOW-SCHEMA.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
+- [Canonical evidence contract](docs/standards/EVIDENCE-CONTRACT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
 - [Offline workflow-security decision](docs/decisions/ADR-0006-zizmor-offline.md)
+- [Canonical evidence decision](docs/decisions/ADR-0007-canonical-evidence.md)
 - [Next steps](docs/NEXT.md)
 
 Current deterministic entry points use [Task](https://taskfile.dev/):
@@ -33,6 +36,7 @@ Current deterministic entry points use [Task](https://taskfile.dev/):
 ```text
 task test
 task audit
+task evidence
 task preflight
 task workflow-lint
 task check
@@ -407,7 +411,7 @@ Also avoid workflows that simply add another network hop without improving safet
 
 - [x] reusable workflow conventions (documented contract and first experimental implementation)
 - [x] security baseline (workflow defaults implemented; repository protection pending)
-- [ ] standard artifact/report schema
+- [x] standard artifact/report schema (experimental repository-audit adapter)
 - [x] workflow versioning strategy (paired full SHA pins; experimental contract)
 - [x] runner policy (hosted audit baseline; specialized hardware policies pending)
 

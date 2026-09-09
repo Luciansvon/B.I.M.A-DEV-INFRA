@@ -62,6 +62,18 @@ Every meaningful workflow should produce inspectable evidence such as:
 - release metadata
 - provenance/SBOM where relevant
 
+The initial normalization path keeps semantic comparison separate from execution-specific details:
+
+```text
+module result.json
+       |
+       +--> canonical.json ------> stable SHA-256 comparison
+       |
+       +--> execution.json ------> timestamp, runtime, raw-input SHA-256
+```
+
+The current adapter covers repository audit evidence. Other modules must map into the versioned envelope explicitly rather than copying raw runner metadata into canonical fields.
+
 ## Knowledge ownership
 
 ```text

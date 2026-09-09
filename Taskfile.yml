@@ -30,6 +30,15 @@ tasks:
         --output "{{.EVIDENCE_DIR}}/audit"
     timeout: 2m
 
+  evidence:
+    desc: Normalize repository-audit output into canonical and execution evidence
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/canonical_evidence.py
+        --input "{{.EVIDENCE_DIR}}/audit/result.json"
+        --output "{{.EVIDENCE_DIR}}/evidence"
+    timeout: 1m
+
   preflight:
     desc: Run fast, non-mutating repository pre-flight hooks
     cmds:
@@ -54,6 +63,7 @@ tasks:
       - task: preflight
       - task: test
       - task: audit
+      - task: evidence
       - task: workflow-lint
     timeout: 7m
 

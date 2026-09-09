@@ -20,6 +20,7 @@ CLI inputs: `--root` is a Git top-level working tree with a HEAD commit; `--poli
 
 ```powershell
 python -I automation/repository_audit.py --root . --policy .bima/audit.json --output .artifacts/audit
+python -I automation/canonical_evidence.py --input .artifacts/audit/result.json --output .artifacts/evidence
 python -I -m unittest discover -s tests -v
 ```
 
@@ -67,6 +68,8 @@ Workflow output `artifact-id` identifies the uploaded artifact on successful com
 
 `report.md` is a human-readable rendering of the result. Reports never include input document bodies. Paths/messages are escaped for Markdown/HTML display. Findings have no auto-fix side effects.
 
+The workflow also runs the repository-audit adapter for [`bima-evidence.v1`](EVIDENCE-CONTRACT.md). Its artifact includes `canonical.json`, `canonical.sha256`, and execution-specific `execution.json` alongside the raw module result and report.
+
 ## Failure contract
 
 - Exit `0`: checks completed with no findings.
@@ -103,6 +106,6 @@ The second SHA is explicit because caller context/checkout does not identify the
 
 ## Compatibility and security
 
-First experimental contract: no existing consumers to migrate. Input/status/policy changes require an ADR and updated regression fixtures. The result version is scoped to this module; it is not yet a universal benchmark/build schema.
+First experimental contract: no existing consumers to migrate. Input/status/policy changes require an ADR and updated regression fixtures. Raw result version 1 remains scoped to this module; `bima-evidence.v1` is the shared envelope, with only the repository-audit adapter implemented so far.
 
 Follow the [security baseline](SECURITY-BASELINE.md). The module treats the caller as data and never executes its scripts. This does not make a malicious infrastructure SHA safe: review the pinned implementation. Caller-owned policies and workflow pins require protected review. GitHub-hosted Actions support is targeted; GHES and self-hosted integration are unverified.
