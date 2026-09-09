@@ -5,6 +5,7 @@ output: prefixed
 vars:
   PYTHON: '{{default "python" .PYTHON}}'
   ACTIONLINT: '{{default "actionlint" .ACTIONLINT}}'
+  PREK: '{{default "prek" .PREK}}'
   EVIDENCE_DIR: '{{default ".artifacts" .EVIDENCE_DIR}}'
 
 tasks:
@@ -29,6 +30,14 @@ tasks:
         --output "{{.EVIDENCE_DIR}}/audit"
     timeout: 2m
 
+  preflight:
+    desc: Run fast, non-mutating repository pre-flight hooks
+    cmds:
+      - '"{{.PREK}}" --version'
+      - '"{{.PREK}}" validate-config prek.toml'
+      - '"{{.PREK}}" run --all-files --show-diff-on-failure --color=never'
+    timeout: 2m
+
   workflow-lint:
     desc: Validate GitHub workflow syntax with actionlint
     cmds:
@@ -37,8 +46,9 @@ tasks:
     timeout: 2m
 
   check:
-    desc: Run deterministic tests, audit, and workflow lint
+    desc: Run deterministic pre-flight, tests, audit, and workflow lint
     cmds:
+      - task: preflight
       - task: test
       - task: audit
       - task: workflow-lint

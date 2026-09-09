@@ -12,6 +12,8 @@ The capability map below describes the research roadmap, not shipped modules. Th
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
+- [Pre-flight validation](docs/audits/VALIDATION-2026-09-09-PREK.md)
+- [Pre-flight hook contract](docs/standards/PRE-FLIGHT.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
@@ -24,6 +26,7 @@ Current deterministic entry points use [Task](https://taskfile.dev/):
 ```text
 task test
 task audit
+task preflight
 task workflow-lint
 task check
 task verify

@@ -36,6 +36,23 @@ jobs:
         with:
           version: 3.53.1
           checksum: a54a408f6861ff921f6e87774180db31bacd8c1e7c944ca696db9fea49a82fc7
+      - name: Install verified prek
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/prek.tar.gz" \
+            https://github.com/j178/prek/releases/download/v0.5.2/prek-x86_64-unknown-linux-gnu.tar.gz
+          echo 'a4d51a463cb15ee2929368cc4884eec4ef33dce3ff5101b40e8ad7e1205b8f40  '"$RUNNER_TEMP/prek.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/prek.tar.gz" -C "$RUNNER_TEMP" --strip-components=1 \
+            prek-x86_64-unknown-linux-gnu/prek
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Validate pre-flight hooks
+        shell: bash
+        run: |
+          mkdir -p .artifacts
+          set -o pipefail
+          task preflight 2>&1 | tee .artifacts/prek.log
+          printf 'status=pass\nconfig=prek.toml\n' | tee -a .artifacts/prek.log
       - name: Validate workflows
         shell: bash
         run: |
@@ -48,7 +65,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workflow-lint-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .artifacts/actionlint.log
+          path: |
+            .artifacts/actionlint.log
+            .artifacts/prek.log
           if-no-files-found: error
           retention-days: 14
 
