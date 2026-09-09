@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-1. Continue Issue #3 P0 sequentially with zizmor, then canonical evidence and the agent packet. Add one bounded tool increment at a time with measured value.
+1. Continue Issue #3 P0 sequentially with canonical evidence, then the agent packet. Add one bounded increment at a time with measured value.
 2. Keep closed PR #2 Dagger work deferred on its retained branch until the deterministic baseline is stable and a portability need is demonstrated.
 3. Exercise `repository-audit.yml` from a separate fixture repository using the same reviewed SHA for both pins. Do not label the module stable before this evidence exists.
 4. Activate the `main` ruleset after the final hosted run. Require workflow lint and both platform audit checks, prevent force pushes/deletion, and choose a solo-maintainer review/bypass policy. Add repository-level SHA pin enforcement after verifying Actions compatibility.

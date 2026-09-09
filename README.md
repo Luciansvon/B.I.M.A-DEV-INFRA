@@ -15,14 +15,17 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Pre-flight validation](docs/audits/VALIDATION-2026-09-09-PREK.md)
 - [Action-validator validation](docs/audits/VALIDATION-2026-09-09-ACTION-VALIDATOR.md)
 - [Pinact validation](docs/audits/VALIDATION-2026-09-09-PINACT.md)
+- [Zizmor validation](docs/audits/VALIDATION-2026-09-09-ZIZMOR.md)
 - [Pre-flight hook contract](docs/standards/PRE-FLIGHT.md)
 - [GitHub Action pinning contract](docs/standards/ACTION-PINNING.md)
+- [GitHub automation security contract](docs/standards/WORKFLOW-SECURITY.md)
 - [Workflow schema validation contract](docs/standards/WORKFLOW-SCHEMA.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
+- [Offline workflow-security decision](docs/decisions/ADR-0006-zizmor-offline.md)
 - [Next steps](docs/NEXT.md)
 
 Current deterministic entry points use [Task](https://taskfile.dev/):

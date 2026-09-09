@@ -47,3 +47,11 @@ entry = "pinact run --fix=false --no-api"
 language = "system"
 files = "^\\.github/(workflows/[^/]+\\.ya?ml|actions/.+/action\\.ya?ml)$"
 verbose = true
+
+[[repos.hooks]]
+id = "zizmor"
+name = "analyze GitHub automation security offline"
+entry = "zizmor --offline --strict-collection --no-progress --color=never --render-links=never --show-audit-urls=always"
+language = "system"
+files = "^\\.github/(workflows/[^/]+\\.ya?ml|actions/.+/action\\.ya?ml|dependabot\\.ya?ml)$"
+verbose = true

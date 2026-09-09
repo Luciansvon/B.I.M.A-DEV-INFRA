@@ -62,6 +62,14 @@ jobs:
             https://github.com/suzuki-shunsuke/pinact/releases/download/v4.1.1/pinact_linux_amd64.tar.gz
           echo 'd1cffebe5704b74e2e5f8a864efb9f7e54768972dc686188c008033fb1797841  '"$RUNNER_TEMP/pinact.tar.gz" | sha256sum --check
           tar -xzf "$RUNNER_TEMP/pinact.tar.gz" -C "$RUNNER_TEMP" pinact
+      - name: Install verified zizmor
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/zizmor.tar.gz" \
+            https://github.com/zizmorcore/zizmor/releases/download/v1.30.0/zizmor-x86_64-unknown-linux-gnu.tar.gz
+          echo 'ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed  '"$RUNNER_TEMP/zizmor.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/zizmor.tar.gz" -C "$RUNNER_TEMP" zizmor
       - name: Validate pre-flight hooks
         shell: bash
         run: |
