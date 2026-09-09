@@ -39,6 +39,15 @@ tasks:
         --output "{{.EVIDENCE_DIR}}/evidence"
     timeout: 1m
 
+  agent-packet:
+    desc: Generate a bounded routing packet when canonical evidence is non-pass
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/agent_packet.py
+        --input "{{.EVIDENCE_DIR}}/evidence/canonical.json"
+        --output "{{.EVIDENCE_DIR}}/agent"
+    timeout: 1m
+
   preflight:
     desc: Run fast, non-mutating repository pre-flight hooks
     cmds:
@@ -64,6 +73,7 @@ tasks:
       - task: test
       - task: audit
       - task: evidence
+      - task: agent-packet
       - task: workflow-lint
     timeout: 7m
 

@@ -70,9 +70,13 @@ module result.json
        +--> canonical.json ------> stable SHA-256 comparison
        |
        +--> execution.json ------> timestamp, runtime, raw-input SHA-256
+       |
+       +--> non-pass only -------> bounded routing packet
 ```
 
 The current adapter covers repository audit evidence. Other modules must map into the versioned envelope explicitly rather than copying raw runner metadata into canonical fields.
+
+The routing packet separates deterministic findings from errors that may need reasoning. It never invokes an agent: `fail` stays in the machine lane, `error` only marks agent-escalation eligibility, and `pass` creates no packet.
 
 ## Knowledge ownership
 
