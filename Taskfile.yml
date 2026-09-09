@@ -36,6 +36,7 @@ tasks:
       - '"{{.PREK}}" --version'
       - action-validator --version
       - pinact version
+      - zizmor --version
       - '"{{.PREK}}" validate-config prek.toml'
       - '"{{.PREK}}" run --all-files --show-diff-on-failure --color=never'
     timeout: 2m

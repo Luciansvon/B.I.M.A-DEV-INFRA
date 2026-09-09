@@ -6,8 +6,10 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 
 - Declare `permissions: contents: read`; add write scopes only for a documented module that needs them.
 - Pin external Actions and consumed infrastructure to full commit SHAs. Dependabot proposes Actions updates; humans review them and their check results.
-- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint`, prek, action-validator, and pinact release binaries are versioned and digest-checked.
+- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint`, prek, action-validator, pinact, and zizmor release binaries are versioned and digest-checked.
 - Enforce full-length commit SHAs for remote Actions and reusable workflows with pinact's read-only offline mode. This baseline does not yet verify version comments, SHA provenance, or minimum release age.
+- Run zizmor's regular-persona offline audits without automatic fixes. The gate covers locally decidable GitHub workflow, local Action, and Dependabot risks; online-only audits remain explicitly outside this increment.
+- Delay routine Dependabot version updates for seven days. GitHub security updates are not delayed by this cooldown.
 - Use GitHub-hosted ephemeral runners for untrusted pull requests. No `pull_request_target` execution of PR code, self-hosted runner, deployment environment, or inherited secrets in the initial audit module.
 - Disable persisted checkout credentials. Pass configurable strings through environment variables or action inputs; never interpolate them into shell source.
 - Keep caller checkout (`subject`) separate from executable infrastructure (`infra`). The shared audit never executes caller scripts, installs caller dependencies, or imports caller Python modules. Python runs with `-I`.
@@ -24,7 +26,7 @@ The token default was already read-only and workflow PR approval was disabled. R
 
 ## What this does not prove
 
-Repository hygiene checks do not scan secrets, discover vulnerable dependencies, analyze application source, validate all workflow security properties, or establish release readiness. Keep those gates explicit when their modules are added. A policy change can weaken a check; review policy changes together with workflow and validator changes.
+Repository hygiene and offline workflow checks do not provide platform-side repository analysis, discover vulnerable application dependencies, analyze application source, validate every workflow security property, or establish release readiness. Keep those gates explicit when their modules are added. A policy or ignore change can weaken a check; review it together with workflow and validator changes.
 
 ## Runner and version policy
 

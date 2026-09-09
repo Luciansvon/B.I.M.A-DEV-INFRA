@@ -10,7 +10,7 @@ Name: `Taskfile.yml`. Stability: **experimental**. Purpose: give humans, CI, and
 |---|---|---|---|
 | `task test` | Python 3.11+ | unittest console output; CI preserves `tests.log` | any failed/error test or timeout |
 | `task audit` | Python 3.11+, Git | `.artifacts/audit/result.json` and `report.md` | audit finding, configuration error, or timeout |
-| `task preflight` | prek 0.5.2, action-validator 0.9.0, pinact 4.1.1, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, unsafe filename/content, missing tool, or timeout |
+| `task preflight` | prek 0.5.2, action-validator 0.9.0, pinact 4.1.1, zizmor 1.30.0, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, workflow-security finding, unsafe filename/content, missing tool, or timeout |
 | `task workflow-lint` | actionlint 1.7.12 | version and findings; CI preserves `actionlint.log` | lint finding, missing tool, or timeout |
 | `task check` | dependencies above | combined pre-flight, test, audit, and lint results | any component fails |
 | `task diff-check` | Git | command status | staged or unstaged whitespace error |
@@ -35,8 +35,8 @@ GitHub Actions installs Task v3.53.1 with the upstream archive checksum, then ca
 
 ## Local use
 
-Install the pinned Task, prek, action-validator, pinact, and actionlint versions, then run `task verify`. Run `prek install` once to enable staged-file hooks before commits. Python-only checks remain directly runnable when Task/prek/action-validator/pinact/actionlint are absent. A local pass is not hosted CI proof.
+Install the pinned Task, prek, action-validator, pinact, zizmor, and actionlint versions, then run `task verify`. Run `prek install` once to enable staged-file hooks before commits. Python-only checks remain directly runnable when those tools are absent. A local pass is not hosted CI proof.
 
 ## Security and compatibility
 
-Task setup is pinned to a full Action commit and verifies the selected Task archive checksum. Prek, action-validator, pinact, and actionlint release binaries are versioned and checksum-verified by the GitHub adapter. Tool updates require checksum review, local parsing/execution, actionlint, repository audit, and hosted evidence. Task commands do not download tools or create release side effects, automatic fixes, or agent invocations.
+Task setup is pinned to a full Action commit and verifies the selected Task archive checksum. Prek, action-validator, pinact, zizmor, and actionlint release binaries are versioned and checksum-verified by the GitHub adapter. Tool updates require checksum review, local parsing/execution, actionlint, repository audit, and hosted evidence. Task commands do not download tools or create release side effects, automatic fixes, or agent invocations.
