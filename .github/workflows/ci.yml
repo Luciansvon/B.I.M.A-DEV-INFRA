@@ -46,6 +46,14 @@ jobs:
           tar -xzf "$RUNNER_TEMP/prek.tar.gz" -C "$RUNNER_TEMP" --strip-components=1 \
             prek-x86_64-unknown-linux-gnu/prek
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Install verified action-validator
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/action-validator" \
+            https://github.com/mpalmer/action-validator/releases/download/v0.9.0/action-validator_linux_amd64
+          echo '9f42f94fca5b8d04c13bccfbb331104b37a9250650d89ae58dc888d46206f9b9  '"$RUNNER_TEMP/action-validator" | sha256sum --check
+          chmod +x "$RUNNER_TEMP/action-validator"
       - name: Validate pre-flight hooks
         shell: bash
         run: |

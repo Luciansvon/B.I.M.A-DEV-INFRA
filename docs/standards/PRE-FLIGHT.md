@@ -6,7 +6,7 @@ Name: `prek.toml`. Stability: **experimental**. Purpose: reject cheap, determini
 
 ## Scope
 
-Prek v0.5.2 runs only its bundled hooks. The configuration has no remote hook repositories, runtime environments, containers, project-specific commands, or automatic fixers.
+Prek v0.5.2 runs bundled hooks plus one local system hook for action-validator v0.9.0. The configuration has no remote hook repositories, managed hook environments, containers, project-specific application commands, or automatic fixers.
 
 The current hooks check:
 
@@ -16,8 +16,9 @@ The current hooks check:
 - merge-conflict markers even outside an active merge;
 - common private-key headers;
 - newly added Git submodules.
+- GitHub workflow and local Action schemas, including referenced path globs.
 
-JSON validation, file-size limits, symlink policy, tests, and GitHub workflow semantics remain owned by the existing audit, test, and actionlint commands. Prek does not duplicate those checks.
+JSON validation, file-size limits, symlink policy, tests, and actionlint's syntax/expression checks remain owned by their existing commands. Action-validator adds schema and path-glob validation rather than replacing actionlint.
 
 ## Commands
 
@@ -27,10 +28,10 @@ JSON validation, file-size limits, symlink policy, tests, and GitHub workflow se
 
 ## GitHub adapter and evidence
 
-The existing workflow-lint job downloads the prek v0.5.2 Linux amd64 archive, verifies SHA-256 `a4d51a463cb15ee2929368cc4884eec4ef33dce3ff5101b40e8ad7e1205b8f40`, and calls `task preflight`. It preserves `.artifacts/prek.log` in the existing workflow-lint artifact, avoiding another runner job.
+The existing workflow-lint job downloads the prek v0.5.2 and action-validator v0.9.0 Linux amd64 binaries, verifies their fixed SHA-256 digests, and calls `task preflight`. It preserves `.artifacts/prek.log` in the existing workflow-lint artifact, avoiding another runner job.
 
 The job has `contents: read`, no secrets, a ten-minute timeout, and no publish side effects. Failure means invalid configuration or any failed hook. The private-key hook is heuristic and does not replace secret scanning.
 
 ## Compatibility
 
-`prek.toml` is prek-specific and intentionally not compatible with Python `pre-commit`. Prek is a single binary; Docker is not required. Hook behavior and minimum supported version are pinned together. A version update requires checksum review and local plus hosted evidence.
+`prek.toml` is prek-specific and intentionally not compatible with Python `pre-commit`. Prek and action-validator are standalone tools; Docker is not required. Windows users install action-validator through Cargo or NPM because v0.9.0 has no official Windows release binary. Hook behavior and minimum supported versions are pinned together. A version update requires checksum review and local plus hosted evidence.

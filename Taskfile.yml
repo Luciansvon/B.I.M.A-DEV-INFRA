@@ -34,6 +34,7 @@ tasks:
     desc: Run fast, non-mutating repository pre-flight hooks
     cmds:
       - '"{{.PREK}}" --version'
+      - action-validator --version
       - '"{{.PREK}}" validate-config prek.toml'
       - '"{{.PREK}}" run --all-files --show-diff-on-failure --color=never'
     timeout: 2m
