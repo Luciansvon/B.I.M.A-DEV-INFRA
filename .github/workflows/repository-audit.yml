@@ -74,6 +74,13 @@ jobs:
           python -I infra/automation/canonical_evidence.py \
             --input "$RUNNER_TEMP/bima-audit/result.json" \
             --output "$RUNNER_TEMP/bima-evidence"
+      - name: Build bounded failure packet
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          python -I infra/automation/agent_packet.py \
+            --input "$RUNNER_TEMP/bima-evidence/canonical.json" \
+            --output "$RUNNER_TEMP/bima-agent"
       - name: Preserve evidence even when audit fails
         id: evidence
         if: ${{ !cancelled() }}
@@ -86,5 +93,7 @@ jobs:
             ${{ runner.temp }}/bima-evidence/canonical.json
             ${{ runner.temp }}/bima-evidence/execution.json
             ${{ runner.temp }}/bima-evidence/canonical.sha256
+            ${{ runner.temp }}/bima-agent/packet.json
+            ${{ runner.temp }}/bima-agent/packet.sha256
           if-no-files-found: error
           retention-days: 14

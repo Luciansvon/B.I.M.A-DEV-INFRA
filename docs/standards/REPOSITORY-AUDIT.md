@@ -21,6 +21,7 @@ CLI inputs: `--root` is a Git top-level working tree with a HEAD commit; `--poli
 ```powershell
 python -I automation/repository_audit.py --root . --policy .bima/audit.json --output .artifacts/audit
 python -I automation/canonical_evidence.py --input .artifacts/audit/result.json --output .artifacts/evidence
+python -I automation/agent_packet.py --input .artifacts/evidence/canonical.json --output .artifacts/agent
 python -I -m unittest discover -s tests -v
 ```
 
@@ -68,7 +69,7 @@ Workflow output `artifact-id` identifies the uploaded artifact on successful com
 
 `report.md` is a human-readable rendering of the result. Reports never include input document bodies. Paths/messages are escaped for Markdown/HTML display. Findings have no auto-fix side effects.
 
-The workflow also runs the repository-audit adapter for [`bima-evidence.v1`](EVIDENCE-CONTRACT.md). Its artifact includes `canonical.json`, `canonical.sha256`, and execution-specific `execution.json` alongside the raw module result and report.
+The workflow also runs the repository-audit adapter for [`bima-evidence.v1`](EVIDENCE-CONTRACT.md). Its artifact includes `canonical.json`, `canonical.sha256`, and execution-specific `execution.json` alongside the raw module result and report. For non-pass canonical evidence it additionally emits the bounded [`bima-agent-packet.v1`](AGENT-PACKET.md) routing artifact; passing evidence intentionally emits no packet.
 
 ## Failure contract
 
@@ -76,7 +77,7 @@ The workflow also runs the repository-audit adapter for [`bima-evidence.v1`](EVI
 - Exit `1`: checks completed with findings (missing file, size budget, malformed JSON, unsupported file, bad local link).
 - Exit `2`: root/Git/policy configuration prevents the audit.
 - Pass/fail/error audit outcomes all produce reports. An invalid CLI, unwritable output, cancelled job, checkout/setup failure, or process kill may prevent reports; CI must not treat missing reports as success.
-- No warning-only pass, automatic retries, or silent policy fallback.
+- No warning-only pass, automatic retries, automatic agent invocation, or silent policy fallback.
 
 ## Runner, permissions, and limits
 

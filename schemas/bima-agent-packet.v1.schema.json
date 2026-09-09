@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A bounded agent routing packet v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "stage",
+    "commit",
+    "dirty",
+    "failed_check",
+    "route",
+    "routing_reason",
+    "error_codes",
+    "affected_paths",
+    "repeatable",
+    "retries",
+    "artifact_hash",
+    "total_findings",
+    "evidence_truncated",
+    "relevant_evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-agent-packet.v1"},
+    "status": {"enum": ["fail", "error"]},
+    "stage": {"const": "repository-audit"},
+    "commit": {"type": ["string", "null"], "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+    "dirty": {"type": ["boolean", "null"]},
+    "failed_check": {"const": "repository-audit"},
+    "route": {"enum": ["machine", "agent"]},
+    "routing_reason": {"enum": ["known-deterministic-findings", "unclassified-audit-error"]},
+    "error_codes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 64}
+    },
+    "affected_paths": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 512}
+    },
+    "repeatable": {"type": ["boolean", "null"]},
+    "retries": {"type": "integer", "minimum": 0},
+    "artifact_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "total_findings": {"type": "integer", "minimum": 1},
+    "evidence_truncated": {"type": "boolean"},
+    "relevant_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["code", "path", "line", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "maxLength": 64},
+          "path": {"type": "string", "minLength": 1, "maxLength": 512},
+          "line": {"type": ["integer", "null"], "minimum": 1},
+          "message": {"type": "string", "minLength": 1, "maxLength": 512}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "fail"}}},
+      "then": {
+        "properties": {
+          "route": {"const": "machine"},
+          "routing_reason": {"const": "known-deterministic-findings"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "error"}}},
+      "then": {
+        "properties": {
+          "route": {"const": "agent"},
+          "routing_reason": {"const": "unclassified-audit-error"}
+        }
+      }
+    }
+  ]
+}

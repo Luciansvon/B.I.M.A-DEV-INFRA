@@ -17,6 +17,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Pinact validation](docs/audits/VALIDATION-2026-09-09-PINACT.md)
 - [Zizmor validation](docs/audits/VALIDATION-2026-09-09-ZIZMOR.md)
 - [Canonical evidence validation](docs/audits/VALIDATION-2026-09-09-CANONICAL-EVIDENCE.md)
+- [Agent packet validation](docs/audits/VALIDATION-2026-09-09-AGENT-PACKET.md)
 - [Pre-flight hook contract](docs/standards/PRE-FLIGHT.md)
 - [GitHub Action pinning contract](docs/standards/ACTION-PINNING.md)
 - [GitHub automation security contract](docs/standards/WORKFLOW-SECURITY.md)
@@ -24,11 +25,13 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Canonical evidence contract](docs/standards/EVIDENCE-CONTRACT.md)
+- [Bounded agent packet contract](docs/standards/AGENT-PACKET.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
 - [Offline workflow-security decision](docs/decisions/ADR-0006-zizmor-offline.md)
 - [Canonical evidence decision](docs/decisions/ADR-0007-canonical-evidence.md)
+- [Agent packet routing decision](docs/decisions/ADR-0008-agent-packet-routing.md)
 - [Next steps](docs/NEXT.md)
 
 Current deterministic entry points use [Task](https://taskfile.dev/):
@@ -37,6 +40,7 @@ Current deterministic entry points use [Task](https://taskfile.dev/):
 task test
 task audit
 task evidence
+task agent-packet
 task preflight
 task workflow-lint
 task check
