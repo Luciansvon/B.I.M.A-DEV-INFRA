@@ -12,9 +12,23 @@ The capability map below describes the research roadmap, not shipped modules. Th
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Run locally or integrate the reusable workflow](docs/standards/REPOSITORY-AUDIT.md)
+- [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
+- [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
 - [Next steps](docs/NEXT.md)
+
+Current deterministic entry points use [Task](https://taskfile.dev/):
+
+```text
+task test
+task audit
+task workflow-lint
+task check
+task verify
+```
+
+Commands without a real implementation, including generic build and nightly pipelines, are intentionally not advertised yet.
 
 Hosted CI evidence is linked from the audit record. Protected checks and a published consumer reference remain pending. Passing repository hygiene does not establish application or production readiness.
 

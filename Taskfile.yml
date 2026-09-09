@@ -1,0 +1,59 @@
+version: '3'
+
+output: prefixed
+
+vars:
+  PYTHON: '{{default "python" .PYTHON}}'
+  ACTIONLINT: '{{default "actionlint" .ACTIONLINT}}'
+  EVIDENCE_DIR: '{{default ".artifacts" .EVIDENCE_DIR}}'
+
+tasks:
+  default:
+    desc: List the available deterministic commands
+    cmds:
+      - echo "Run task --list to see the deterministic command contract"
+
+  test:
+    desc: Run repository-audit regression tests
+    cmds:
+      - '"{{.PYTHON}}" -I -m unittest discover -s tests -v'
+    timeout: 2m
+
+  audit:
+    desc: Run repository hygiene and write JSON/Markdown evidence
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/repository_audit.py
+        --root .
+        --policy .bima/audit.json
+        --output "{{.EVIDENCE_DIR}}/audit"
+    timeout: 2m
+
+  workflow-lint:
+    desc: Validate GitHub workflow syntax with actionlint
+    cmds:
+      - '"{{.ACTIONLINT}}" -version'
+      - '"{{.ACTIONLINT}}" -shellcheck= -pyflakes='
+    timeout: 2m
+
+  check:
+    desc: Run deterministic tests, audit, and workflow lint
+    cmds:
+      - task: test
+      - task: audit
+      - task: workflow-lint
+    timeout: 7m
+
+  diff-check:
+    desc: Validate unstaged and staged patch whitespace
+    cmds:
+      - git diff --check
+      - git diff --cached --check
+    timeout: 1m
+
+  verify:
+    desc: Run the complete current verification contract
+    cmds:
+      - task: check
+      - task: diff-check
+    timeout: 8m
