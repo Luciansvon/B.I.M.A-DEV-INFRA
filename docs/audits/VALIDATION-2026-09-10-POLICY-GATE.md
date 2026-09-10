@@ -4,11 +4,11 @@ Date: 2026-09-10
 
 Scope: first executable project/policy/request/decision contract and bounded `repository-audit.v1` integration.
 
-Branch: `codex/policy-contract-v1`, based on merged `main` at `f43814e9ab3d25015767db48b2885ab7fab3f5ea`.
+Merged revision: `60ec750974f922805ef418a5adef3f992603f8e3` through PR #19.
 
 ## Result
 
-Status: **LOCAL PASS; HOSTED EVIDENCE PENDING.**
+Status: **LOCAL AND HOSTED DEV-INFRA PASS; REAL-CONSUMER COMPATIBILITY PENDING.**
 
 The implementation validates exact v1 JSON contracts, binds a request to exact trusted policy bytes, denies unapproved resource scope, and launches only the reviewed repository audit after revision, clean-worktree, output-containment and timeout checks. This result does not prove an OS sandbox, arbitrary project-command safety, application correctness or consumer compatibility.
 
@@ -28,6 +28,21 @@ The implementation validates exact v1 JSON contracts, binds a request to exact t
 | Canonical v1 compatibility | `pass`; SHA-256 `1a833d98c010ab94aafcb5bb112117899d59541b4a9437f18285fc1a728f4d5a` |
 | Agent packet pass behavior | `not-needed`; no pass-path packet |
 
+## Hosted evidence
+
+[Infrastructure CI run `34442172182`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34442172182) completed successfully after PR #19 merged. Downloaded artifacts were inspected independently:
+
+| Evidence | Ubuntu 24.04 | Windows 2025 |
+|---|---:|---:|
+| Regression tests | 49 passed | 49 passed |
+| Repository files / local links | 83 / 140 | 83 / 140 |
+| Audit findings | 0 | 0 |
+| Revision / dirty | `60ec750`, false | `60ec750`, false |
+| Canonical SHA-256 | `c671edefe36c6d865b9b6099032f6f9ad82ac7c61faba21e87f9e577c5677afe` | identical |
+| Agent packet | absent as required for pass | absent as required for pass |
+
+Workflow-lint evidence reports `actionlint` and pre-flight status `pass`. This proves the merged DEV-INFRA increment on both hosted operating systems; it does not prove a consuming project's compatibility.
+
 Commands:
 
 ```text
@@ -38,7 +53,7 @@ python -I automation/canonical_evidence.py --input .artifacts/policy-gate-valida
 python -I automation/agent_packet.py --input .artifacts/policy-gate-validation/evidence/canonical.json --output .artifacts/policy-gate-validation/agent
 ```
 
-The repository audit records the committed base revision and `dirty=true`, so it is local implementation evidence rather than hosted reviewed-commit proof. GitHub Actions remains the authoritative publication path; do not change the fixture or AI-COLOR-COMPARE consumer pins until the branch is reviewed and both hosted operating-system jobs pass.
+The local repository audit recorded the then-committed base revision and `dirty=true`, so it remains labeled local implementation evidence. The hosted artifacts above provide reviewed-commit proof for DEV-INFRA. Do not change the fixture or AI-COLOR-COMPARE consumer pins until a separate real-consumer compatibility run passes.
 
 ## Repository governance observed
 
@@ -46,7 +61,7 @@ The GitHub branch-protection API was inspected after PR #18 merged. `main` requi
 
 ## Remaining boundary
 
-- No hosted run exists for this increment yet.
+- No real-consumer Policy Gate compatibility run exists yet.
 - The trusted wrapper must provide policy bytes/hash, actor and validity window independently of subject-controlled content.
 - The local developer shell is not an isolation boundary and inherited OS/network capabilities are not removed by this Python module.
 - Only `repository-audit.v1` is supported; unknown commands and providers deny.
