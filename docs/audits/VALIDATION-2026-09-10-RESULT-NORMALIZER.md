@@ -1,10 +1,10 @@
-# Result normalizer v2 local validation
+# Result normalizer v2 validation
 
 Date: 2026-09-10
 
 Scope: additive Rust libtest normalization plus bounded TypeScript diagnostic extraction.
 
-Status: **LOCAL PASS; HOSTED AND REAL-CONSUMER MIGRATION PENDING.**
+Status: **LOCAL AND HOSTED REGRESSION PASS; REAL-CONSUMER MIGRATION PENDING.**
 
 ## Evidence
 
@@ -28,6 +28,16 @@ Direct CLI fixture result: `PASS`, reason `ALL_EXPECTED_TESTS_PASSED`, zero diag
 
 Repository audit of the implementation tree: 92 files, 143 supported local links, zero findings. Canonical audit evidence remained v1 `pass`, SHA-256 `f7a663ca39b696fabd9b786c978eb2ba6b754e8d990f25b92e19ea74054240e4`; the tree was correctly labeled dirty at the prior committed revision.
 
+Hosted post-merge command path: `task test`, `task audit`, canonicalization and bounded packet generation in Infrastructure CI run [`34444750180`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34444750180) at revision `828ae9000dee8ce28f9c26c81efda34f34c1240b`.
+
+Hosted artifact inspection:
+
+- Ubuntu 24.04: 61 tests passed; repository audit passed with 92 files, 143 local links and zero findings;
+- Windows 2025: 61 tests passed, including the symlink rejection test skipped by the unprivileged local Windows account; repository audit passed with the same counts and zero findings;
+- canonical evidence SHA-256 matched across both systems: `b59f01ce717346072d329c998434fbb1106cff194d28f2b315bd947b5dcb321f`;
+- both PASS artifacts contained zero agent packet files;
+- workflow lint passed for two workflow files; prek, action-validator, pinact and zizmor passed, with one declared zizmor suppression.
+
 Covered behavior:
 
 - AI-COLOR-COMPARE success fixture retains three suite summaries and totals 29 observed passes;
@@ -44,4 +54,4 @@ Covered behavior:
 
 ## Evidence boundary
 
-The successful and failed source runs are real AI-COLOR-COMPARE history, but the committed fixtures are bounded and sanitized reproductions. This local result does not prove current consumer compatibility, hosted cross-platform behavior, retry equivalence, flakiness classification or v1-to-v2 migration. Existing v1 consumers remain unchanged.
+The successful and failed source runs are real AI-COLOR-COMPARE history, but the committed fixtures are bounded and sanitized reproductions. Hosted cross-platform regression is proven for DEV-INFRA itself; it does not prove current consumer opt-in, a hosted consumer FAIL result, retry equivalence, flakiness classification or v1-to-v2 rollback. Existing v1 consumers remain unchanged.
