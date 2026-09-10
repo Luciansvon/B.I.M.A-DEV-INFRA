@@ -48,7 +48,7 @@ Authorization happens before every consequential operation, including a retry or
 | Capability | Current baseline at `006d782` | Accepted next direction |
 |---|---|---|
 | Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
-| Verification | Beta repository hygiene plus additive Rust libtest normalization from a real AI-COLOR-COMPARE result; DEV-INFRA two-OS regression passes | Migrate one justified adapter at a time |
+| Verification | Beta repository hygiene plus additive Rust libtest normalization and a consumer action that never executes the declared command | Host and migrate the action through one justified consumer |
 | Evidence | `bima-evidence.v1` remains active; `bima-verification-result.v2` pilot preserves attempts/counts and fail-closed unknowns | Hosted consumer PASS/FAIL and rollback proof before v2 activation |
 | Failure routing | `bima-agent-packet.v1`; exact-match known-failure classification with owner/reviewer, expiry, retry denial and DEV-INFRA two-OS regression | Hosted consumer routing proof before integration or retry policy |
 | Policy Gate | Strict v1 project/policy/request/decision validation and one bounded `repository-audit.v1` executor; DEV-INFRA two-OS evidence passed, consumer compatibility pending | Add operation classes only from measured consumers |

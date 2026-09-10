@@ -15,6 +15,10 @@ MAX_MESSAGE_CHARS = 240
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 REVISION = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+CONFIG_FIELDS = {
+    "schema", "project", "check", "adapter", "command", "policy_revision",
+    "environment", "equivalence_key",
+}
 RUST_SUMMARY = re.compile(
     r"test result:\s*(?P<status>ok|FAILED)\.\s*"
     r"(?P<passed>\d+) passed;\s*(?P<failed>\d+) failed;\s*"
@@ -129,6 +133,72 @@ def validate_request(value):
     if value["sources"]["failure_log_sha256"] is not None:
         _sha(value["sources"]["failure_log_sha256"], "failure_log_sha256")
     return value
+
+
+def validate_config(value):
+    _exact(value, CONFIG_FIELDS, "config")
+    if value["schema"] != "bima-normalization-config.v1":
+        raise NormalizationError("unsupported config schema")
+    _exact(value["project"], {"id", "repository"}, "config project")
+    _identifier(value["project"]["id"], "config project id")
+    _string(value["project"]["repository"], "config repository")
+    _exact(value["check"], {"id", "required", "expected_tests"}, "config check")
+    _identifier(value["check"]["id"], "config check id")
+    if type(value["check"]["required"]) is not bool:
+        raise NormalizationError("config check required must be boolean")
+    _integer(value["check"]["expected_tests"], "config expected_tests", 1, 1000000)
+    if value["adapter"] != "rust-libtest-text.v1":
+        raise NormalizationError("unsupported config adapter")
+    _exact(value["command"], {"id", "value"}, "config command")
+    _identifier(value["command"]["id"], "config command id")
+    _string(value["command"]["value"], "config command value", 1024)
+    _string(value["policy_revision"], "config policy revision", 256)
+    _exact(value["environment"], {"os", "arch", "toolchain"}, "config environment")
+    for field in ("os", "arch", "toolchain"):
+        _string(value["environment"][field], f"config environment {field}")
+    _string(value["equivalence_key"], "config equivalence_key", 128)
+    return value
+
+
+def build_request(config, subject_revision, subject_dirty, attempt_id,
+                  attempt_sequence, exit_code, native_raw, failure_raw=None):
+    validate_config(config)
+    if not isinstance(subject_revision, str) or not REVISION.fullmatch(subject_revision):
+        raise NormalizationError("subject revision must be a full Git SHA")
+    if type(subject_dirty) is not bool:
+        raise NormalizationError("subject dirty must be boolean")
+    _identifier(attempt_id, "attempt id")
+    _integer(attempt_sequence, "attempt sequence", 1, 100)
+    _integer(exit_code, "exit_code", 0, 255)
+    return {
+        "schema": "bima-normalization-request.v1",
+        "project": dict(config["project"]),
+        "subject": {"revision": subject_revision, "dirty": subject_dirty},
+        "check": dict(config["check"]),
+        "adapter": config["adapter"],
+        "command": {
+            "id": config["command"]["id"],
+            "sha256": hashlib.sha256(config["command"]["value"].encode("utf-8")).hexdigest(),
+        },
+        "policy": {
+            "revision": config["policy_revision"],
+            "sha256": hashlib.sha256(canonical_bytes(config)).hexdigest(),
+        },
+        "environment": dict(config["environment"]),
+        "attempt": {
+            "id": attempt_id,
+            "sequence": attempt_sequence,
+            "equivalence_key": config["equivalence_key"],
+        },
+        "exit_code": exit_code,
+        "sources": {
+            "native_output_sha256": hashlib.sha256(native_raw).hexdigest(),
+            "failure_log_sha256": (
+                hashlib.sha256(failure_raw).hexdigest()
+                if failure_raw is not None else None
+            ),
+        },
+    }
 
 
 def canonical_bytes(value):
@@ -267,15 +337,42 @@ def normalize(request, native_raw, failure_raw=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--request", type=Path, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--request", type=Path)
+    source.add_argument("--config", type=Path)
+    parser.add_argument("--subject-revision")
+    parser.add_argument("--subject-dirty", choices=("true", "false"))
+    parser.add_argument("--attempt-id")
+    parser.add_argument("--attempt-sequence", type=int)
+    parser.add_argument("--exit-code", type=int)
     parser.add_argument("--native-output", type=Path, required=True)
     parser.add_argument("--failure-log", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
-        request = strict_json(load_bytes(args.request))
         native_raw = load_bytes(args.native_output)
         failure_raw = load_bytes(args.failure_log) if args.failure_log else None
+        if args.request:
+            runtime_values = (
+                args.subject_revision, args.subject_dirty, args.attempt_id,
+                args.attempt_sequence, args.exit_code,
+            )
+            if any(value is not None for value in runtime_values):
+                raise NormalizationError("runtime identity arguments require --config")
+            request = strict_json(load_bytes(args.request))
+        else:
+            runtime_values = (
+                args.subject_revision, args.subject_dirty, args.attempt_id,
+                args.attempt_sequence, args.exit_code,
+            )
+            if any(value is None for value in runtime_values):
+                raise NormalizationError("--config requires complete runtime identity arguments")
+            config = strict_json(load_bytes(args.config))
+            request = build_request(
+                config, args.subject_revision, args.subject_dirty == "true",
+                args.attempt_id, args.attempt_sequence, args.exit_code,
+                native_raw, failure_raw,
+            )
         result = normalize(request, native_raw, failure_raw)
         args.output.mkdir(parents=True, exist_ok=True)
         (args.output / "result.json").write_bytes(canonical_bytes(result))
