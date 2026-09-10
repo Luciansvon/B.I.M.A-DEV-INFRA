@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A authorization decision v1",
+  "type": "object",
+  "required": ["schema", "decision_id", "request_digest", "project_id", "subject_revision", "policy", "rule_ids", "decision", "reason_code", "obligations", "approval_ref", "budget", "actor", "issued_at", "expires_at"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-decision.v1"},
+    "decision_id": {"type": "string", "pattern": "^dec-[0-9a-f]{32}$"},
+    "request_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "subject_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "policy": {
+      "type": "object",
+      "required": ["revision", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "revision": {"type": "string", "minLength": 1, "maxLength": 256},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "rule_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "decision": {"enum": ["ALLOW", "HUMAN_REQUIRED", "DENY"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "obligations": {
+      "type": "object",
+      "required": ["output_root", "timeout_seconds", "network_destinations", "credential_names"],
+      "additionalProperties": false,
+      "properties": {
+        "output_root": {"type": "string", "minLength": 1},
+        "timeout_seconds": {"type": "integer", "minimum": 1},
+        "network_destinations": {"type": "array", "items": {"type": "string"}},
+        "credential_names": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "approval_ref": {"type": ["string", "null"]},
+    "budget": {
+      "type": "object",
+      "required": ["max_calls", "max_runtime_seconds", "attempt"],
+      "additionalProperties": false,
+      "properties": {
+        "max_calls": {"type": "integer", "minimum": 1},
+        "max_runtime_seconds": {"type": "integer", "minimum": 1},
+        "attempt": {"type": "integer", "minimum": 1}
+      }
+    },
+    "actor": {"type": "string", "minLength": 1},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"}
+  }
+}

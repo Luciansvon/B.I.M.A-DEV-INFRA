@@ -12,16 +12,17 @@ Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verificat
 ## 0. Governance activation — owner decisions
 
 - [ ] Select license. No license is chosen implicitly by an architecture decision.
-- [ ] Activate main protection after selecting solo-maintainer approval/bypass rules. Require actual workflow-lint and Ubuntu/Windows checks and prevent force-push/deletion. Inspect resulting platform enforcement.
+- [x] Activate main protection with solo-maintainer approval count `0`. Require workflow-lint and Ubuntu/Windows checks, strict update, admin enforcement, linear history and conversation resolution; prevent force-push/deletion. API state inspected 2026-09-10.
 - [ ] Verify compatibility before repository-level SHA enforcement.
 
 These decisions gate claims of protected/governed publication, not unprivileged local design or validation work. Retain Dagger PR #2 on its existing closed/deferred branch.
 
 ## 1. Small executable project and policy contract
 
-- [ ] Implement strict versioned JSON project/policy/request/decision schemas and pure deterministic validation.
-- [ ] Record trusted policy source, exact operation scope, approval reference, obligations and budget; unknown policy fails closed.
-- [ ] Integrate one existing operation with runner enforcement and decision evidence. No generic provider loader or permanent service.
+- [x] Implement strict versioned JSON project/policy/request/decision schemas and pure deterministic validation.
+- [x] Record trusted policy source, exact operation scope, approval reference, obligations and budget; unknown policy fails closed.
+- [x] Integrate `repository-audit.v1` with revision/cleanliness checks, output containment, subprocess timeout and decision evidence. No generic provider loader or permanent service.
+- [ ] Publish hosted Ubuntu/Windows evidence for this increment before changing any consumer pin.
 - [ ] Prove malicious declarations cannot elevate permission; prove policy edits in a subject branch cannot authorize that branch.
 
 Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.

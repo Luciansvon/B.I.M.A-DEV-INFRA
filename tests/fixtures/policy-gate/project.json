@@ -1,0 +1,15 @@
+{
+  "schema": "bima-project.v1",
+  "project_id": "fixture",
+  "repository": "example/fixture",
+  "operations": [
+    {
+      "id": "repository-audit",
+      "command_ref": "repository-audit.v1",
+      "required": true,
+      "timeout_seconds": 120,
+      "output_root": ".artifacts/gate",
+      "audit_policy": ".bima/audit.json"
+    }
+  ]
+}
