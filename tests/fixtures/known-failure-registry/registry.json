@@ -1,0 +1,39 @@
+{
+  "schema": "bima-known-failure-registry.v1",
+  "entries": [
+    {
+      "id": "dev-infra-synthetic-known-failure-2026-09",
+      "owner": "dev-infra-maintainer",
+      "reviewed_by": "bima",
+      "reason": "Synthetic same-attempt fixture for deterministic registry contract tests only.",
+      "issue_ref": "docs/audits/VALIDATION-2026-09-10-KNOWN-FAILURE-REGISTRY.md",
+      "created_at": "2026-09-10T00:00:00Z",
+      "expires_at": "2026-10-10T00:00:00Z",
+      "scope": {
+        "project_id": "dev-infra-fixture",
+        "repository": "Luciansvon/B.I.M.A-DEV-INFRA",
+        "check_id": "fixture-rust-tests",
+        "subject_dirty": false,
+        "adapter": "rust-libtest-text.v1",
+        "command_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "environment": {
+          "os": "windows-2025",
+          "arch": "x86_64",
+          "toolchain": "rust-fixture-v1"
+        },
+        "equivalence_key": "ai-color-rust-core-windows-v1",
+        "expected_tests": 29
+      },
+      "outcome_reason_code": "TEST_FAILURE_REPORTED",
+      "diagnostic_signatures": [
+        {
+          "tool": "typescript",
+          "code": "TS9001",
+          "path": "tests/known_failure.ts",
+          "message_sha256": "b477a1ae6da6c4f1486815acba0a3fd7419ff521e89525698b0336e1f537ad5f"
+        }
+      ]
+    }
+  ]
+}

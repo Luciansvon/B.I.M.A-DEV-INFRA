@@ -1,0 +1,1 @@
+tests/known_failure.ts(12,4): error TS9001: Synthetic deterministic known-failure fixture.

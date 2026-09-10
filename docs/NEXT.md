@@ -31,7 +31,7 @@ Exit evidence: bounded positive/negative fixtures, decision report and one enfor
 
 - [x] Select AI-COLOR-COMPARE Rust libtest output plus a bounded, sanitized TypeScript diagnostic format from real successful/failed workflow runs.
 - [x] Preserve per-attempt outcomes, source/command/policy/environment identity, expected test counts and missing-output semantics in additive local v2 evidence.
-- [ ] Implement a narrow known-failure registry with owner/expiry before adding automatic retry.
+- [x] Implement a local narrow exact-match known-failure registry with mandatory owner/reviewer, maximum 90-day expiry and explicit `automatic_retry_allowed=false`. Hosted and consumer integration remain pending.
 - [ ] Complete the additive v2 migration: local adapter, deterministic single-check aggregation and DEV-INFRA hosted cross-platform regression proof exist; hosted consumer PASS/FAIL, consumer opt-in and rollback evidence remain pending. v1 is unchanged.
 - [ ] Keep v1 readers/pins working; prove fixture and AI-COLOR-COMPARE migration/rollback with hosted artifacts before updating callers.
 

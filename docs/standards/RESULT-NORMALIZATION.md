@@ -1,6 +1,6 @@
 # Result normalization v2
 
-Status: **Executable local Rust libtest adapter; hosted and consumer migration pending.**
+Status: **Executable Rust libtest adapter with DEV-INFRA hosted regression; consumer migration pending.**
 
 ## Scope
 
@@ -44,6 +44,8 @@ For the initial required-check adapter:
 | Nonzero exit without a reported test failure | `UNKNOWN` |
 
 Ignored tests count as observed but remain explicit. Filtered-out tests do not count as executed. Every suite summary remains in the result, including zero-test binary/doc-test suites. `FLAKY` is not an aggregate verdict: stability remains `unassessed` until equivalent attempts or a reviewed registry establish it.
+
+The additive [known failure registry](KNOWN-FAILURE-REGISTRY.md) classifies exact reviewed diagnostic signatures separately. It does not rewrite the verdict or stability and always denies automatic retry.
 
 ## Failure diagnostics
 
