@@ -8,6 +8,8 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 ## Implementation status
 
+The accepted target is the [capability-based verification architecture](docs/architecture/ARCHITECTURE.md), established in [ADR-0009](docs/decisions/ADR-0009-capability-verification-architecture.md). Its [design contract](docs/architecture/CAPABILITY-CONTRACT.md) and [single delivery order](docs/NEXT.md) reconcile the prior plans. The [plan audit](docs/audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) distinguishes accepted design from implemented capabilities.
+
 The capability map below describes the research roadmap, not shipped modules. The first executable module is now **beta repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence, has regression tests, and has been exercised from both a data-only fixture and the real AI-COLOR-COMPARE project.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
@@ -28,7 +30,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Canonical evidence contract](docs/standards/EVIDENCE-CONTRACT.md)
 - [Bounded agent packet contract](docs/standards/AGENT-PACKET.md)
-- [Proposed verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
+- [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)

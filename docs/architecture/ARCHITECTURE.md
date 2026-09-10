@@ -1,112 +1,91 @@
 # Shared Architecture
 
-## Scope
+Status: **Accepted target architecture**, 2026-09-10, through [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md). Implementation status is listed separately below.
 
-This document describes the architecture of **B.I.M.A-DEV-INFRA itself**, not the internals of every project that consumes it.
+## Scope and decision authority
 
-```text
-PROJECT / HUMAN / API / SCHEDULE
-              |
-              v
-         GitHub Event
-              |
-              v
-      Reusable Workflow
-              |
-      +-------+-------+
-      |               |
-      v               v
-GitHub Runner    Self-hosted Runner
-      |               |
-      +-------+-------+
-              |
-              v
-    Shared Module / Adapter
-              |
-              v
- Test / Benchmark / Audit / Build / Deploy
-              |
-              v
- Evidence: report / artifact / status / release
+B.I.M.A-DEV-INFRA is project-agnostic shared verification infrastructure. Projects own their application source, commands, domain assertions, architecture and incidents. Infrastructure owns reusable execution, policy, evidence and compatibility contracts.
+
+The core uses small CLI modules invoked by Task and GitHub Actions. Logical layers are responsibility boundaries, not mandatory services. Local execution supports development; reviewed GitHub Actions workflows publish authoritative CI evidence. Specialized hardware/GUI evidence must identify its actual runner and cannot be inferred from generic CI success.
+
+This document and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md) define the accepted target. [NEXT](../NEXT.md) defines delivery order. Issue #3 tracks work, #17 records the architecture proposal, #15 retains provider research, and #8/#9 track gated extensions. Historical proposals do not override the accepted ADR.
+
+## Runtime flow
+
+```mermaid
+flowchart TD
+    A[Task and project declaration] --> B[Validate declaration against trusted policy]
+    B --> C[Authorize operation and reserve budget]
+    C -->|Allowed| D[Execute reviewed verifier in approved runner]
+    C -->|Denied or approval needed| E[Record decision and blocked work]
+    D --> F[Collect and validate native evidence]
+    F --> G[Evaluate required checks and preserve attempts]
+    G -->|All requirements satisfied| H[PASS for declared scope]
+    G -->|Unresolved result| I[Rules and reviewed failure retrieval]
+    I -->|Reasoning needed and authorized| J[Optional SLM or strong agent]
+    I -->|Known remedy| K[Proposed bounded action]
+    J --> K
+    K --> C
+    I -->|No permitted next action| L[FAIL / UNKNOWN / BLOCKED with reasons]
 ```
 
-## Layers
+Authorization happens before every consequential operation, including a retry or patch. Verification runs within execution. After a proposed fix, the same gate controls a new verification sequence. A passing verification does not itself authorize release/publication.
 
-### 1. Trigger layer
+## Responsibility map
 
-Events from Git, manual dispatch, API/webhooks, schedules, issues, pull requests, or external integrations.
+| Boundary | Owns | Never substitutes for |
+|---|---|---|
+| Project contract | Required checks, commands, expected artifacts, environment constraints | Trusted execution permission |
+| Policy and budget | Scope, approval, limits, deterministic decisions | OS/runner enforcement |
+| Execution | Scoped process, timeout, isolation, cleanup, usage | Verification truth from a job exit alone |
+| Verifier adapter | Interpret native results against declared assertions | Application-specific test design |
+| Evidence | Subject identity, semantic result, native refs, history | Authentic producer proof from a hash alone |
+| Failure routing | Exact rules, reviewed history, bounded relevant context | Automatic fix approval |
+| Optional intelligence | Candidate diagnosis/action with evidence refs | Deterministic verdict or release authority |
 
-### 2. Orchestration layer
+## Implemented versus target
 
-Reusable GitHub workflows coordinate execution. They should remain project-agnostic and accept configuration through explicit inputs.
+| Capability | Current baseline at `006d782` | Accepted next direction |
+|---|---|---|
+| Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
+| Verification | Beta repository hygiene; fixture and real AI-COLOR-COMPARE consumer | Add one justified adapter at a time |
+| Evidence | `bima-evidence.v1`, canonical hash + execution metadata | Explicit v2 migration after real multi-result requirements |
+| Failure routing | `bima-agent-packet.v1`; machine findings or agent eligibility | Deterministic log/test normalization, known-failure rules |
+| Policy Gate | Existing workflow permissions and audit policy; no generic runtime gate | Small versioned policy evaluator plus executor enforcement |
+| Memory | Human-readable project/shared incident documents | Reviewed case records + rebuildable SQLite/FTS5 index |
+| Models/context graph | No model runtime or Graphify integration | Optional measured experiments |
+| Sandboxes/durable workflows/DB branching/security response | No shared implementation | Disabled until a real consumer demonstrates need |
+| Repository governance | Rulesets API returned empty; license is unset at audit time | Explicit owner decisions; not silently activated by this ADR |
 
-### 3. Execution layer
-
-- GitHub-hosted runner for generic reproducible jobs.
-- Self-hosted runner when local hardware, persistent model/cache, devices, operating systems, or private infrastructure matter.
-
-### 4. Adapter layer
-
-Project-specific commands are passed through a documented contract instead of hard-coding application architecture into shared infrastructure.
-
-### 5. Evidence layer
-
-Every meaningful workflow should produce inspectable evidence such as:
-
-- checks/status
-- logs
-- `result.json`
-- benchmark data
-- test reports
-- artifacts
-- release metadata
-- provenance/SBOM where relevant
-
-The initial normalization path keeps semantic comparison separate from execution-specific details:
+Current evidence flow remains:
 
 ```text
-module result.json
-       |
-       +--> canonical.json ------> stable SHA-256 comparison
-       |
-       +--> execution.json ------> timestamp, runtime, raw-input SHA-256
-       |
-       +--> non-pass only -------> bounded routing packet
+repository audit result.json
+  -> canonical.json + canonical.sha256
+  -> execution.json (volatile metadata)
+  -> packet.json only for fail/error
 ```
 
-The current adapter covers repository audit evidence. Other modules must map into the versioned envelope explicitly rather than copying raw runner metadata into canonical fields.
+`pass` emits no packet. `fail` routes to machine. `error` marks agent eligibility only. No existing command launches a model. [EVIDENCE-CONTRACT](../standards/EVIDENCE-CONTRACT.md) and [AGENT-PACKET](../standards/AGENT-PACKET.md) remain the executable v1 definitions.
 
-The routing packet separates deterministic findings from errors that may need reasoning. It never invokes an agent: `fail` stays in the machine lane, `error` only marks agent-escalation eligibility, and `pass` creates no packet.
+## Results and trust
 
-## Knowledge ownership
+Target aggregate verdicts are PASS, FAIL, UNKNOWN and BLOCKED for a declared required-check set. Flakiness is separately derived from equivalent attempt history. Preserve native outcomes, warnings, skips, waivers and all unresolved reasons. A successful normalization command is not proof the source check passed.
 
-```text
-GLOBAL / SHARED                       PROJECT LOCAL
-----------------                      ----------------
-workflow architecture                 app architecture
-runner policy                         domain modules
-security baseline                     app constraints
-result schemas                        project test cases
-cross-project incident patterns       project incidents
-shared ADRs                           project ADRs
-```
+Only a complete verified required scope maps to a successful required CI check. A provider outage, missing evidence, exhausted budget or model absence cannot manufacture a pass. Optional context/memory/model failures may fall back to native tools within policy; all required checks still apply. See [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md) for exact aggregation and migration rules.
 
-## Promotion rule
+## Knowledge and storage ownership
 
-A project-specific lesson becomes global when:
+| Shared infrastructure | Owning project |
+|---|---|
+| Workflow/runner/evidence contracts and ADRs | Application/domain architecture and commands |
+| Reusable failure schemas and reviewed cross-project patterns | Case details, private logs, expected artifact behavior |
+| Benchmark protocol and approved reusable fixtures | Sensitive datasets, model caches, production data |
 
-1. the same root cause appears in at least 2 projects; or
-2. the root cause belongs to shared infrastructure; or
-3. prevention requires changing a shared workflow, runner, contract, or security rule.
+A lesson becomes shared only when its confirmed cause belongs to shared infrastructure or recurs in at least two projects. Mere symptom similarity is insufficient. Retained reviewed records need reproduction, scoped fix verification and provenance. SQLite is a derived local index; live databases/caches stay outside OneDrive/network sync folders. Replication is not immutable history or backup.
 
-Do not promote merely because an error looks similar. Root cause must match.
+## Provider policy
 
-## Non-goals
+Native search and reviewed incident records are the baselines. Graphify is a code-only context experiment. Local SLMs, sandbox providers, PostgreSQL branches, durable workflows, security-response systems and external project UIs remain optional. No candidate brand appears in mandatory core policy.
 
-B.I.M.A-DEV-INFRA is not:
-
-- a monorepo containing every application
-- a production database
-- a model registry for multi-GB weights
-- a media archive
-- a replacement for project-specific architecture documentation
+Build/sign/package transformations are explicitly linked by digest; release verification covers both provenance and behavior of the final distributed artifact. Release/signing/deployment remain separately authorized adapters. See the [plan audit](../audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) for the disposition of every plan and tool group.
