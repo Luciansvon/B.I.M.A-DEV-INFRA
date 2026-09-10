@@ -14,7 +14,7 @@ The capability map below describes the research roadmap, not shipped modules. Th
 
 The first Policy Gate increment is also executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only the existing `repository-audit.v1` operation. It has no generic command/provider loader, network access, credentials or model calls. Local and two-OS DEV-INFRA evidence pass; real-consumer compatibility evidence is still required before consumer pins change.
 
-An additive result-normalization pilot now parses bounded Rust libtest summaries from a real AI-COLOR-COMPARE run into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted cross-platform regression passes; real-consumer migration proof remains pending. A separate local known-failure classifier requires an exact owner-reviewed, expiring diagnostic signature and never authorizes retry.
+An additive result-normalization pilot now parses bounded Rust libtest summaries from a real AI-COLOR-COMPARE run into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted cross-platform regression passes; real-consumer migration proof remains pending. A separate known-failure classifier also passes DEV-INFRA cross-platform regression, requires an exact owner-reviewed expiring signature, and never authorizes retry.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
