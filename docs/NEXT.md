@@ -29,10 +29,10 @@ Exit evidence: bounded positive/negative fixtures, decision report and one enfor
 
 ## 2. Real failure normalization and explicit result migration
 
-- [ ] Select one actual project's native test result plus a bounded, sanitized failure-log excerpt format; reuse its current runner/parser where available.
-- [ ] Preserve per-attempt outcomes, source/command/policy identity, expected test counts and missing-output semantics.
+- [x] Select AI-COLOR-COMPARE Rust libtest output plus a bounded, sanitized TypeScript diagnostic format from real successful/failed workflow runs.
+- [x] Preserve per-attempt outcomes, source/command/policy/environment identity, expected test counts and missing-output semantics in additive local v2 evidence.
 - [ ] Implement a narrow known-failure registry with owner/expiry before adding automatic retry.
-- [ ] Introduce v2 evidence alongside v1 only when this adapter requires it; preserve native files and define deterministic aggregation.
+- [ ] Complete the additive v2 migration: local adapter and deterministic single-check aggregation exist; hosted positive/negative proof, consumer opt-in and rollback evidence remain pending. v1 is unchanged.
 - [ ] Keep v1 readers/pins working; prove fixture and AI-COLOR-COMPARE migration/rollback with hosted artifacts before updating callers.
 
 Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
