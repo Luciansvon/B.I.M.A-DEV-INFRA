@@ -123,7 +123,7 @@ jobs:
           task test 2>&1 | tee .artifacts/tests.log
       - name: Verify result normalization action
         id: normalize-result
-        uses: ./.github/actions/normalize-rust-libtest
+        uses: $/.github/actions/normalize-rust-libtest
         with:
           config-path: tests/fixtures/result-normalizer/config-pass.json
           native-output-path: tests/fixtures/result-normalizer/rust-pass.log
