@@ -22,7 +22,7 @@ These decisions gate claims of protected/governed publication, not unprivileged 
 - [x] Implement strict versioned JSON project/policy/request/decision schemas and pure deterministic validation.
 - [x] Record trusted policy source, exact operation scope, approval reference, obligations and budget; unknown policy fails closed.
 - [x] Integrate `repository-audit.v1` with revision/cleanliness checks, output containment, subprocess timeout and decision evidence. No generic provider loader or permanent service.
-- [ ] Publish hosted Ubuntu/Windows evidence for this increment before changing any consumer pin.
+- [x] Publish hosted Ubuntu/Windows evidence for this increment: run `34442172182`, 49 tests per OS, matching canonical evidence and zero findings. Consumer pins remain unchanged pending real-consumer compatibility proof.
 - [ ] Prove malicious declarations cannot elevate permission; prove policy edits in a subject branch cannot authorize that branch.
 
 Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.

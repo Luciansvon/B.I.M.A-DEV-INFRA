@@ -51,7 +51,7 @@ Authorization happens before every consequential operation, including a retry or
 | Verification | Beta repository hygiene; fixture and real AI-COLOR-COMPARE consumer | Add one justified adapter at a time |
 | Evidence | `bima-evidence.v1`, canonical hash + execution metadata | Explicit v2 migration after real multi-result requirements |
 | Failure routing | `bima-agent-packet.v1`; machine findings or agent eligibility | Deterministic log/test normalization, known-failure rules |
-| Policy Gate | Strict v1 project/policy/request/decision validation and one bounded `repository-audit.v1` executor; hosted consumer evidence pending | Add operation classes only from measured consumers |
+| Policy Gate | Strict v1 project/policy/request/decision validation and one bounded `repository-audit.v1` executor; DEV-INFRA two-OS evidence passed, consumer compatibility pending | Add operation classes only from measured consumers |
 | Memory | Human-readable project/shared incident documents | Reviewed case records + rebuildable SQLite/FTS5 index |
 | Models/context graph | No model runtime or Graphify integration | Optional measured experiments |
 | Sandboxes/durable workflows/DB branching/security response | No shared implementation | Disabled until a real consumer demonstrates need |
