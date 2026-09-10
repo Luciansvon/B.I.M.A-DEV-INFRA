@@ -1,0 +1,96 @@
+name: Normalize Rust libtest result
+description: Convert a bounded native Rust test log into B.I.M.A verification result v2.
+
+inputs:
+  config-path:
+    description: Repository-relative bima-normalization-config.v1 JSON path.
+    required: true
+  native-output-path:
+    description: Repository-relative or runner-temporary bounded Rust output path.
+    required: true
+  failure-log-path:
+    description: Optional same-attempt bounded TypeScript diagnostic path.
+    required: false
+    default: ''
+  subject-revision:
+    description: Full Git revision tested by the caller.
+    required: true
+  subject-dirty:
+    description: Whether the tested subject contained uncommitted changes.
+    required: false
+    default: 'false'
+  attempt-id:
+    description: Stable identifier for this provider attempt.
+    required: true
+  attempt-sequence:
+    description: One-based sequence within the attempt group.
+    required: false
+    default: '1'
+  exit-code:
+    description: Native Rust command exit code retained by the caller.
+    required: true
+  output-directory:
+    description: Directory that will receive result.json.
+    required: true
+
+outputs:
+  verdict:
+    description: PASS, FAIL, UNKNOWN, or BLOCKED from result.json.
+    value: ${{ steps.normalize.outputs.verdict }}
+  reason-code:
+    description: Deterministic outcome reason code.
+    value: ${{ steps.normalize.outputs.reason-code }}
+  result-sha256:
+    description: SHA-256 of canonical result.json bytes.
+    value: ${{ steps.normalize.outputs.result-sha256 }}
+
+runs:
+  using: composite
+  steps:
+    - id: normalize
+      name: Normalize bounded native evidence
+      shell: bash
+      env:
+        BIMA_CONFIG_PATH: ${{ inputs.config-path }}
+        BIMA_NATIVE_OUTPUT_PATH: ${{ inputs.native-output-path }}
+        BIMA_FAILURE_LOG_PATH: ${{ inputs.failure-log-path }}
+        BIMA_SUBJECT_REVISION: ${{ inputs.subject-revision }}
+        BIMA_SUBJECT_DIRTY: ${{ inputs.subject-dirty }}
+        BIMA_ATTEMPT_ID: ${{ inputs.attempt-id }}
+        BIMA_ATTEMPT_SEQUENCE: ${{ inputs.attempt-sequence }}
+        BIMA_EXIT_CODE: ${{ inputs.exit-code }}
+        BIMA_OUTPUT_DIRECTORY: ${{ inputs.output-directory }}
+      run: |
+        args=(
+          --config "$BIMA_CONFIG_PATH"
+          --subject-revision "$BIMA_SUBJECT_REVISION"
+          --subject-dirty "$BIMA_SUBJECT_DIRTY"
+          --attempt-id "$BIMA_ATTEMPT_ID"
+          --attempt-sequence "$BIMA_ATTEMPT_SEQUENCE"
+          --exit-code "$BIMA_EXIT_CODE"
+          --native-output "$BIMA_NATIVE_OUTPUT_PATH"
+          --output "$BIMA_OUTPUT_DIRECTORY"
+        )
+        if [[ -n "$BIMA_FAILURE_LOG_PATH" ]]; then
+          args+=(--failure-log "$BIMA_FAILURE_LOG_PATH")
+        fi
+        set +e
+        python "$GITHUB_ACTION_PATH/../../../automation/result_normalizer.py" "${args[@]}"
+        status=$?
+        set -e
+        if [[ -f "$BIMA_OUTPUT_DIRECTORY/result.json" ]]; then
+          python - "$BIMA_OUTPUT_DIRECTORY/result.json" "$GITHUB_OUTPUT" <<'PY'
+        import hashlib
+        import json
+        from pathlib import Path
+        import sys
+
+        result_path = Path(sys.argv[1])
+        result = json.loads(result_path.read_text(encoding="utf-8"))
+        with Path(sys.argv[2]).open("a", encoding="utf-8", newline="\n") as output:
+            output.write(f"verdict={result['verdict']}\n")
+            output.write(f"reason-code={result['outcome']['reason_code']}\n")
+            output.write(f"result-sha256={hashlib.sha256(result_path.read_bytes()).hexdigest()}\n")
+        PY
+        fi
+        exit "$status"

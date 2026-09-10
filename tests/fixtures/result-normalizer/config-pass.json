@@ -1,0 +1,24 @@
+{
+  "schema": "bima-normalization-config.v1",
+  "project": {
+    "id": "ai-color-compare",
+    "repository": "Luciansvon/AI-COLOR-COMPARE"
+  },
+  "check": {
+    "id": "rust-core-tests",
+    "required": true,
+    "expected_tests": 29
+  },
+  "adapter": "rust-libtest-text.v1",
+  "command": {
+    "id": "cargo-test-tauri",
+    "value": "cargo test --manifest-path src-tauri/Cargo.toml"
+  },
+  "policy_revision": "ai-color-result-normalization-v1",
+  "environment": {
+    "os": "windows-2025",
+    "arch": "x86_64",
+    "toolchain": "rust-stable"
+  },
+  "equivalence_key": "ai-color-rust-core-windows-v1"
+}

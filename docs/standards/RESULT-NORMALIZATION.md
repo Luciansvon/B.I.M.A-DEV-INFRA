@@ -30,6 +30,8 @@ Fixtures retain only the minimum diagnostic meaning required to exercise the par
 
 The native-output and optional failure-log files are separate byte-hashed sources. Each is limited to 1 MiB and must be UTF-8. Their presence and bytes must match the request hashes before parsing. Unknown fields, adapters and malformed JSON fail closed. Committed `.log` fixtures are pinned to LF through `.gitattributes` so byte identity is stable across checkouts.
 
+Consumers may use `bima-normalization-config.v1` through the [shared composite action](RESULT-NORMALIZATION-ACTION.md). The action derives request digests and runtime identity without executing the declared project command. Direct request mode remains supported for controlled fixtures and existing callers.
+
 ## Verdict rules
 
 For the initial required-check adapter:

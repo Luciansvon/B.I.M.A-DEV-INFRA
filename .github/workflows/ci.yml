@@ -121,6 +121,28 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           task test 2>&1 | tee .artifacts/tests.log
+      - name: Verify result normalization action
+        id: normalize-result
+        uses: ./.github/actions/normalize-rust-libtest
+        with:
+          config-path: tests/fixtures/result-normalizer/config-pass.json
+          native-output-path: tests/fixtures/result-normalizer/rust-pass.log
+          subject-revision: ${{ github.sha }}
+          subject-dirty: 'false'
+          attempt-id: ci-${{ github.run_id }}-${{ matrix.os }}
+          attempt-sequence: '1'
+          exit-code: '0'
+          output-directory: .artifacts/result-normalization
+      - name: Verify result normalization outputs
+        shell: bash
+        env:
+          NORMALIZED_VERDICT: ${{ steps.normalize-result.outputs.verdict }}
+          NORMALIZED_REASON: ${{ steps.normalize-result.outputs.reason-code }}
+          NORMALIZED_SHA256: ${{ steps.normalize-result.outputs.result-sha256 }}
+        run: |
+          [[ "$NORMALIZED_VERDICT" == "PASS" ]]
+          [[ "$NORMALIZED_REASON" == "ALL_EXPECTED_TESTS_PASSED" ]]
+          [[ "$NORMALIZED_SHA256" =~ ^[0-9a-f]{64}$ ]]
       - name: Audit repository
         if: ${{ !cancelled() }}
         run: task audit
@@ -137,6 +159,7 @@ jobs:
           name: infra-ci-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .artifacts/tests.log
+            .artifacts/result-normalization/result.json
             .artifacts/audit/result.json
             .artifacts/audit/report.md
             .artifacts/evidence/canonical.json

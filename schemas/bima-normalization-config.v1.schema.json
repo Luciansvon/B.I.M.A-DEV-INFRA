@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A normalization consumer config v1",
+  "type": "object",
+  "required": ["schema", "project", "check", "adapter", "command", "policy_revision", "environment", "equivalence_key"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-normalization-config.v1"},
+    "project": {
+      "type": "object",
+      "required": ["id", "repository"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "repository": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "check": {
+      "type": "object",
+      "required": ["id", "required", "expected_tests"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "required": {"type": "boolean"},
+        "expected_tests": {"type": "integer", "minimum": 1, "maximum": 1000000}
+      }
+    },
+    "adapter": {"const": "rust-libtest-text.v1"},
+    "command": {
+      "type": "object",
+      "required": ["id", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "value": {"type": "string", "minLength": 1, "maxLength": 1024}
+      }
+    },
+    "policy_revision": {"type": "string", "minLength": 1, "maxLength": 256},
+    "environment": {
+      "type": "object",
+      "required": ["os", "arch", "toolchain"],
+      "additionalProperties": false,
+      "properties": {
+        "os": {"type": "string", "minLength": 1, "maxLength": 256},
+        "arch": {"type": "string", "minLength": 1, "maxLength": 256},
+        "toolchain": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "equivalence_key": {"type": "string", "minLength": 1, "maxLength": 128}
+  }
+}

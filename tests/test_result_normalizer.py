@@ -119,6 +119,59 @@ class ResultNormalizerTests(unittest.TestCase):
             self.assertEqual(result["verdict"], "PASS")
             self.assertIn("diagnostics=0", run.stdout)
 
+    def test_consumer_config_builds_runtime_bound_request(self):
+        config = json.loads((FIXTURES / "config-pass.json").read_text(encoding="utf-8"))
+        request = normalizer.build_request(
+            config,
+            "d" * 40,
+            False,
+            "run-123-attempt-1",
+            1,
+            0,
+            self.native,
+        )
+        result = normalizer.normalize(request, self.native)
+        self.assertEqual(result["verdict"], "PASS")
+        self.assertEqual(result["identity"]["subject_revision"], "d" * 40)
+        self.assertEqual(
+            result["command"]["sha256"],
+            hashlib.sha256(config["command"]["value"].encode("utf-8")).hexdigest(),
+        )
+        self.assertEqual(
+            result["policy"]["sha256"],
+            hashlib.sha256(normalizer.canonical_bytes(config)).hexdigest(),
+        )
+
+    def test_isolated_cli_accepts_consumer_config_mode(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "result"
+            run = subprocess.run([
+                sys.executable, "-I", str(SCRIPT),
+                "--config", str(FIXTURES / "config-pass.json"),
+                "--subject-revision", "d" * 40,
+                "--subject-dirty", "false",
+                "--attempt-id", "run-123-attempt-1",
+                "--attempt-sequence", "1",
+                "--exit-code", "0",
+                "--native-output", str(FIXTURES / "rust-pass.log"),
+                "--output", str(output),
+            ], capture_output=True, text=True, timeout=30)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            result = json.loads((output / "result.json").read_text(encoding="utf-8"))
+            self.assertEqual(result["verdict"], "PASS")
+            self.assertEqual(result["attempt"]["id"], "run-123-attempt-1")
+
+    def test_config_mode_requires_complete_runtime_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = subprocess.run([
+                sys.executable, "-I", str(SCRIPT),
+                "--config", str(FIXTURES / "config-pass.json"),
+                "--native-output", str(FIXTURES / "rust-pass.log"),
+                "--output", str(Path(temporary) / "result"),
+            ], capture_output=True, text=True, timeout=30)
+            self.assertEqual(run.returncode, 2)
+            self.assertIn("complete runtime identity", run.stderr)
+
     def test_source_substitution_is_rejected(self):
         with self.assertRaises(normalizer.NormalizationError):
             normalizer.normalize(self.request, self.native + b"changed")
