@@ -1,0 +1,14 @@
+{
+  "schema": "bima-operation-request.v1",
+  "request_id": "fixture-deny-network",
+  "project_id": "fixture",
+  "subject_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "operation_id": "repository-audit",
+  "command_ref": "repository-audit.v1",
+  "output_root": ".artifacts/gate",
+  "timeout_seconds": 120,
+  "network_destinations": ["example.invalid"],
+  "credential_names": [],
+  "attempt": 1,
+  "idempotency_key": "fixture-audit-2"
+}

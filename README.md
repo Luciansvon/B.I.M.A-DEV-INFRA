@@ -12,6 +12,8 @@ The accepted target is the [capability-based verification architecture](docs/arc
 
 The capability map below describes the research roadmap, not shipped modules. The first executable module is now **beta repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence, has regression tests, and has been exercised from both a data-only fixture and the real AI-COLOR-COMPARE project.
 
+The first Policy Gate increment is also executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only the existing `repository-audit.v1` operation. It has no generic command/provider loader, network access, credentials or model calls. Local contract evidence exists; hosted compatibility evidence is still required before consumer pins change.
+
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
 - [Pre-flight validation](docs/audits/VALIDATION-2026-09-09-PREK.md)
@@ -30,6 +32,8 @@ The capability map below describes the research roadmap, not shipped modules. Th
 - [Deterministic command contract](docs/standards/COMMAND-CONTRACT.md)
 - [Canonical evidence contract](docs/standards/EVIDENCE-CONTRACT.md)
 - [Bounded agent packet contract](docs/standards/AGENT-PACKET.md)
+- [Policy Gate v1 contract](docs/standards/POLICY-GATE.md)
+- [Policy Gate local validation](docs/audits/VALIDATION-2026-09-10-POLICY-GATE.md)
 - [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)

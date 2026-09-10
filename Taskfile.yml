@@ -15,7 +15,7 @@ tasks:
       - echo "Run task --list to see the deterministic command contract"
 
   test:
-    desc: Run repository-audit regression tests
+    desc: Run deterministic contract and repository-audit regression tests
     cmds:
       - '"{{.PYTHON}}" -I -m unittest discover -s tests -v'
     timeout: 2m

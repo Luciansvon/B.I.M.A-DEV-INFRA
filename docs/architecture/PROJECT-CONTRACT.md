@@ -2,7 +2,7 @@
 
 Projects consuming B.I.M.A-DEV-INFRA keep their own architecture and incident history, but expose enough metadata for shared workflows to operate safely.
 
-Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration remains the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md); the expanded project/policy profile described below is not yet implemented.
+Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration includes the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md) and its narrow [Policy Gate v1](../standards/POLICY-GATE.md) project/policy/request/decision profile. Policy Gate v1 authorizes only repository audit; it is not a generic application-command interface.
 
 ## Minimum project metadata
 
@@ -78,9 +78,9 @@ Project incident -> root cause confirmed -> check global incident index.
 
 Promote when the same root cause affects >=2 projects or belongs to shared infra. When promoted, link back to affected project incidents instead of copying their entire histories.
 
-## Required fields for the next executable profile
+## Required fields and staged implementation
 
-The initial implementation will use strict versioned JSON, with a separate reviewed schema and compatibility fixtures. Earlier `.bima/project.yml` examples are proposals, not supported executable inputs.
+The initial strict versioned JSON profile and compatibility fixtures are implemented for `repository-audit.v1`. Earlier `.bima/project.yml` examples remain proposals, not supported executable inputs. The broader fields below remain requirements for future operation classes; their presence here is not a claim that arbitrary build/test/release commands are executable.
 
 - Project identity, exact source revision and expected artifact identity.
 - Named commands/approved script references, required versus optional checks, expected output formats and meaningful test-count expectations.

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A operation request v1",
+  "type": "object",
+  "required": ["schema", "request_id", "project_id", "subject_revision", "operation_id", "command_ref", "output_root", "timeout_seconds", "network_destinations", "credential_names", "attempt", "idempotency_key"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-operation-request.v1"},
+    "request_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "subject_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "operation_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "command_ref": {"type": "string", "minLength": 1, "maxLength": 256},
+    "output_root": {"type": "string", "minLength": 1, "maxLength": 256},
+    "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+    "network_destinations": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256}},
+    "credential_names": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256}},
+    "attempt": {"type": "integer", "minimum": 1, "maximum": 16},
+    "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 128}
+  }
+}

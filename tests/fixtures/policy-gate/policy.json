@@ -1,0 +1,26 @@
+{
+  "schema": "bima-policy.v1",
+  "policy_id": "fixture-verify",
+  "revision": "policy-1",
+  "projects": [
+    {
+      "project_id": "fixture",
+      "repository": "example/fixture"
+    }
+  ],
+  "operations": [
+    {
+      "id": "repository-audit",
+      "command_ref": "repository-audit.v1",
+      "max_timeout_seconds": 120,
+      "output_roots": [".artifacts/gate"],
+      "network_destinations": [],
+      "credential_names": [],
+      "max_attempts": 1
+    }
+  ],
+  "budget": {
+    "max_calls": 1,
+    "max_runtime_seconds": 120
+  }
+}
