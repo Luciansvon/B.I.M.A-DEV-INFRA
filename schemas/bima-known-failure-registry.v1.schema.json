@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A known failure registry v1",
+  "type": "object",
+  "required": ["schema", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-known-failure-registry.v1"},
+    "entries": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["id", "owner", "reviewed_by", "reason", "issue_ref", "created_at", "expires_at", "scope", "outcome_reason_code", "diagnostic_signatures"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "owner": {"type": "string", "minLength": 1, "maxLength": 512},
+        "reviewed_by": {"type": "string", "minLength": 1, "maxLength": 512},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 512},
+        "issue_ref": {"type": "string", "minLength": 1, "maxLength": 512},
+        "created_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "expires_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "scope": {"$ref": "#/$defs/scope"},
+        "outcome_reason_code": {"type": "string", "minLength": 1, "maxLength": 128},
+        "diagnostic_signatures": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {"$ref": "#/$defs/diagnosticSignature"}
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["project_id", "repository", "check_id", "subject_dirty", "adapter", "command_sha256", "policy_sha256", "environment", "equivalence_key", "expected_tests"],
+      "additionalProperties": false,
+      "properties": {
+        "project_id": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "check_id": {"type": "string", "minLength": 1},
+        "subject_dirty": {"type": "boolean"},
+        "adapter": {"const": "rust-libtest-text.v1"},
+        "command_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "environment": {"$ref": "#/$defs/environment"},
+        "equivalence_key": {"type": "string", "minLength": 1, "maxLength": 128},
+        "expected_tests": {"type": "integer", "minimum": 1}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": ["os", "arch", "toolchain"],
+      "additionalProperties": false,
+      "properties": {
+        "os": {"type": "string", "minLength": 1},
+        "arch": {"type": "string", "minLength": 1},
+        "toolchain": {"type": "string", "minLength": 1}
+      }
+    },
+    "diagnosticSignature": {
+      "type": "object",
+      "required": ["tool", "code", "path", "message_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {"const": "typescript"},
+        "code": {"type": "string", "pattern": "^TS[0-9]+$"},
+        "path": {"type": "string", "minLength": 1, "maxLength": 256},
+        "message_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}
