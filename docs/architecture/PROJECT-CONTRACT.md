@@ -2,6 +2,8 @@
 
 Projects consuming B.I.M.A-DEV-INFRA keep their own architecture and incident history, but expose enough metadata for shared workflows to operate safely.
 
+Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration remains the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md); the expanded project/policy profile described below is not yet implemented.
+
 ## Minimum project metadata
 
 Each project should document or provide:
@@ -75,3 +77,18 @@ If many projects require the same exception, promote it into a reusable capabili
 Project incident -> root cause confirmed -> check global incident index.
 
 Promote when the same root cause affects >=2 projects or belongs to shared infra. When promoted, link back to affected project incidents instead of copying their entire histories.
+
+## Required fields for the next executable profile
+
+The initial implementation will use strict versioned JSON, with a separate reviewed schema and compatibility fixtures. Earlier `.bima/project.yml` examples are proposals, not supported executable inputs.
+
+- Project identity, exact source revision and expected artifact identity.
+- Named commands/approved script references, required versus optional checks, expected output formats and meaningful test-count expectations.
+- Runner OS/architecture, relevant environment/toolchain/fixture constraints and resource limits.
+- Scoped writable outputs, approved network/credential needs, evidence sensitivity, retention owner and cleanup requirements.
+- Trusted policy reference and requested operation scope. Actor identity/approval are supplied by the trusted executor, never self-asserted by project content.
+- Byte-hashed text inputs normalized explicitly, such as LF `.gitattributes` rules; see [GKI-0001](../incidents/GLOBAL-KNOWN-ISSUES.md).
+
+Schema-valid project commands remain executable untrusted code until the runner trust boundary permits them. Advisory discovery cannot execute them or override explicit declarations. Required missing checks/providers cannot become successful through fallback. Optional unavailable capabilities must remain visible, and a passing required scope must not imply those optional checks passed.
+
+Project-owned private evidence remains under the project's access policy. Shared memory contains only approved portable cases/references; live indexes/caches stay outside synchronization folders. New schemas and consumer pin changes require the migration evidence described in [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md).

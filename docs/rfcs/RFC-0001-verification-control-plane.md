@@ -1,6 +1,8 @@
 # RFC-0001 — Evidence-first verification control plane
 
-Status: **Proposed**
+Status: **Historical proposal — architecture and delivery order superseded by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) on 2026-09-10.**
+
+Read the [accepted architecture](../architecture/ARCHITECTURE.md), [target contracts](../architecture/CAPABILITY-CONTRACT.md) and [current delivery order](../NEXT.md) first. The original proposal below is retained as research history. Its pending-consumer statements, ReleaseProof-first ordering and mixed result statuses are not current requirements. Fixture and real-consumer validation are complete; provider, memory, model and ReleaseProof implementations remain gated. A local architecture decision does not mark all related GitHub issues implemented.
 
 Date: 2026-09-09
 

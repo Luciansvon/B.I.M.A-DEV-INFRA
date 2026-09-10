@@ -70,3 +70,7 @@ No new runner job, network request, secret, write permission, publish side effec
 Successful normalization exits 0 even when the source audit status is `fail` or `error`; the audit step remains responsible for failing the workflow. Invalid or unreadable input exits 2 without echoing input content and removes the three owned output filenames so stale evidence cannot masquerade as the current result. Evidence upload fails when required files are missing.
 
 Future module adapters may add check shapes only through a compatible schema revision and regression evidence. Breaking field meaning, canonical serialization, or equivalence rules requires a new schema version and ADR.
+
+## Accepted target architecture
+
+[ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) defines the next architecture without changing this v1 contract. [CAPABILITY-CONTRACT](../architecture/CAPABILITY-CONTRACT.md) specifies separate execution, outcome, stability and authorization axes and the future v2 migration gates. Until that migration is implemented and validated, v1 readers continue to accept only the existing `pass`, `fail` and `error` statuses and current fields. Do not insert target-design fields into deployed v1 evidence.

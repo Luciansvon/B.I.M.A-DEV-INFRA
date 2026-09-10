@@ -1,7 +1,64 @@
 # Next implementation and activation steps
 
-1. **Completed 2026-09-09:** exercised `repository-audit.yml` from a [separate fixture repository](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE) with matching reviewed SHA pins and inspected the retained [fixture evidence](audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md). The fixture remains a regression harness rather than a project-adoption claim.
-2. Keep closed PR #2 Dagger work deferred on its retained branch until the deterministic baseline is stable and a portability need is demonstrated.
-3. Activate the `main` ruleset after the final hosted run. Require workflow lint and both platform audit checks, prevent force pushes/deletion, and choose a solo-maintainer review/bypass policy. Add repository-level SHA pin enforcement after verifying Actions compatibility.
-4. Decide the license for this infrastructure repository. A public repository does not by itself provide an explicit reusable code license. Do not inherit another project's license without an owner decision.
-5. **Completed 2026-09-09:** upgraded the existing [AI-COLOR-COMPARE](https://github.com/Luciansvon/AI-COLOR-COMPARE) consumer to a reviewed current pin, retained and inspected its [canonical evidence](audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md), and added a lightweight registry entry. Project source and application-specific architecture remain in that project.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. This is a roadmap; unchecked steps are not implemented.
+
+## Completed baseline
+
+- [x] Immediate #3 P0 sequence: Task, prek, action-validator, pinact, zizmor, canonical evidence and bounded agent packet.
+- [x] External fixture with reviewed matching pins and inspected [evidence](audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md).
+- [x] Real [AI-COLOR-COMPARE consumer](audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md), paired pins and canonical evidence. One consumer supports beta, not broad stable compatibility.
+- [x] Audit #3/#8/#9/#15/#17 and RFC-0001; select capability-based architecture and document [contracts](architecture/CAPABILITY-CONTRACT.md). This completes the design decision only.
+
+## 0. Governance activation — owner decisions
+
+- [ ] Select license. No license is chosen implicitly by an architecture decision.
+- [ ] Activate main protection after selecting solo-maintainer approval/bypass rules. Require actual workflow-lint and Ubuntu/Windows checks and prevent force-push/deletion. Inspect resulting platform enforcement.
+- [ ] Verify compatibility before repository-level SHA enforcement.
+
+These decisions gate claims of protected/governed publication, not unprivileged local design or validation work. Retain Dagger PR #2 on its existing closed/deferred branch.
+
+## 1. Small executable project and policy contract
+
+- [ ] Implement strict versioned JSON project/policy/request/decision schemas and pure deterministic validation.
+- [ ] Record trusted policy source, exact operation scope, approval reference, obligations and budget; unknown policy fails closed.
+- [ ] Integrate one existing operation with runner enforcement and decision evidence. No generic provider loader or permanent service.
+- [ ] Prove malicious declarations cannot elevate permission; prove policy edits in a subject branch cannot authorize that branch.
+
+Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.
+
+## 2. Real failure normalization and explicit result migration
+
+- [ ] Select one actual project's native test result plus a bounded, sanitized failure-log excerpt format; reuse its current runner/parser where available.
+- [ ] Preserve per-attempt outcomes, source/command/policy identity, expected test counts and missing-output semantics.
+- [ ] Implement a narrow known-failure registry with owner/expiry before adding automatic retry.
+- [ ] Introduce v2 evidence alongside v1 only when this adapter requires it; preserve native files and define deterministic aggregation.
+- [ ] Keep v1 readers/pins working; prove fixture and AI-COLOR-COMPARE migration/rollback with hosted artifacts before updating callers.
+
+Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
+
+## 3. Reviewed memory and lexical retrieval
+
+- [ ] Define portable versioned failure records with causal evidence, review, ownership, supersession and invalidation.
+- [ ] Implement a rebuildable single-writer SQLite + FTS5 index on local storage outside synchronization folders.
+- [ ] Prove import/export, invalidation, access filtering and backup/rebuild on representative records.
+- [ ] Collect at least 100 real failure/fix cases for the first meaningful retrieval pilot; preserve a held-out query set and report limitations.
+
+Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics and retained verification references. Schema collection does not wait for 100 cases; advanced database adoption does.
+
+## 4. Independent experiments — no mutual dependency
+
+| Experiment | Prerequisite | Required evidence before adoption |
+|---|---|---|
+| Graphify context | Pinned candidate, measured native-search tasks and allowed data scope | A/B on DEV-INFRA + AI-COLOR-COMPARE; task success, missing edges, total context/time/build cost; code-only first |
+| ReleaseProof | #8's competitor/reuse/demand gate and one project-owned release case | Same-artifact provenance + installer behavior; one format and explicit expectations |
+| Local QA SLM | Step 2; relevant consumer; >=1,000 verified total benchmark cases with held-out split | Rules/retrieval comparison, unfine-tuned candidates first, calibration, critical errors, total cost and shadow-mode outcomes |
+
+Graphify does not block memory or ReleaseProof. ReleaseProof does not block test normalization or model benchmark data collection. Model runtime/training remains blocked until its prerequisites are met; a single audit consumer is not itself a build-log benchmark corpus. Training is optional after baseline inference demonstrates a need.
+
+## 5. Additional providers only with a measured consumer need
+
+- [ ] Sandbox pilot only after an enforceable execution/cleanup contract and actual workload; compare local/GitHub baseline.
+- [ ] Database sandbox/verifier only for a database consumer; disposable local DB before hosted branching.
+- [ ] Durable workflow, security-response UI, external project control, graph/vector storage and fleet telemetry only after recorded unmet requirements and comparative cost evidence.
+
+Every experiment declares baseline, dataset/task identity, acceptance thresholds before execution, costs, reject criteria, permissions and rollback/removal. No provider list is an installation plan. See the [audit matrix](audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md).
