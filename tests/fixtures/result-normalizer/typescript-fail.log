@@ -1,0 +1,4 @@
+##[error]src/color_science/rgb_analysis.ts(96,13): error TS2322: Type '(string | number)[][]' is not assignable to the declared tuple array.
+##[error]src/color_science/rgb_analysis.ts(100,24): error TS2362: The left-hand side of an arithmetic operation must be numeric.
+##[error]src/color_science/rgb_analysis.ts(100,31): error TS2363: The right-hand side of an arithmetic operation must be numeric.
+##[error]Process completed with exit code 1.

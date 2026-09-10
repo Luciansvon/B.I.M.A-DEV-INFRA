@@ -1,0 +1,40 @@
+{
+  "schema": "bima-normalization-request.v1",
+  "project": {
+    "id": "ai-color-compare",
+    "repository": "Luciansvon/AI-COLOR-COMPARE"
+  },
+  "subject": {
+    "revision": "534bb77461e1f475a096cb54954fb03176a210d6",
+    "dirty": false
+  },
+  "check": {
+    "id": "rust-core-tests",
+    "required": true,
+    "expected_tests": 29
+  },
+  "adapter": "rust-libtest-text.v1",
+  "command": {
+    "id": "cargo-test-tauri",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "policy": {
+    "revision": "ai-color-ci-2026-09-09",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "environment": {
+    "os": "windows-2025",
+    "arch": "x86_64",
+    "toolchain": "rust-stable-2026-09-09"
+  },
+  "attempt": {
+    "id": "attempt-1",
+    "sequence": 1,
+    "equivalence_key": "ai-color-rust-core-windows-v1"
+  },
+  "exit_code": 0,
+  "sources": {
+    "native_output_sha256": "ede451348e9bfc5e993b4b227db2ac00bed868223b0d789cb777b11a31c0fed0",
+    "failure_log_sha256": null
+  }
+}

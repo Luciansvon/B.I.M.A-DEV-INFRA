@@ -14,6 +14,8 @@ The capability map below describes the research roadmap, not shipped modules. Th
 
 The first Policy Gate increment is also executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only the existing `repository-audit.v1` operation. It has no generic command/provider loader, network access, credentials or model calls. Local and two-OS DEV-INFRA evidence pass; real-consumer compatibility evidence is still required before consumer pins change.
 
+An additive result-normalization pilot now parses bounded Rust libtest summaries from a real AI-COLOR-COMPARE run into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. The v1 evidence path is unchanged; hosted and real-consumer migration proof remain pending.
+
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
 - [Pre-flight validation](docs/audits/VALIDATION-2026-09-09-PREK.md)
@@ -34,6 +36,8 @@ The first Policy Gate increment is also executable: strict `bima-project.v1`, `b
 - [Bounded agent packet contract](docs/standards/AGENT-PACKET.md)
 - [Policy Gate v1 contract](docs/standards/POLICY-GATE.md)
 - [Policy Gate local validation](docs/audits/VALIDATION-2026-09-10-POLICY-GATE.md)
+- [Result normalization v2 contract](docs/standards/RESULT-NORMALIZATION.md)
+- [Result normalizer local validation](docs/audits/VALIDATION-2026-09-10-RESULT-NORMALIZER.md)
 - [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)

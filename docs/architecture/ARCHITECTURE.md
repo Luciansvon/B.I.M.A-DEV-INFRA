@@ -48,8 +48,8 @@ Authorization happens before every consequential operation, including a retry or
 | Capability | Current baseline at `006d782` | Accepted next direction |
 |---|---|---|
 | Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
-| Verification | Beta repository hygiene; fixture and real AI-COLOR-COMPARE consumer | Add one justified adapter at a time |
-| Evidence | `bima-evidence.v1`, canonical hash + execution metadata | Explicit v2 migration after real multi-result requirements |
+| Verification | Beta repository hygiene plus local additive Rust libtest normalization from a real AI-COLOR-COMPARE result | Host and migrate one justified adapter at a time |
+| Evidence | `bima-evidence.v1` remains active; local `bima-verification-result.v2` pilot preserves attempts/counts and fail-closed unknowns | Hosted positive/negative and consumer rollback proof before v2 activation |
 | Failure routing | `bima-agent-packet.v1`; machine findings or agent eligibility | Deterministic log/test normalization, known-failure rules |
 | Policy Gate | Strict v1 project/policy/request/decision validation and one bounded `repository-audit.v1` executor; DEV-INFRA two-OS evidence passed, consumer compatibility pending | Add operation classes only from measured consumers |
 | Memory | Human-readable project/shared incident documents | Reviewed case records + rebuildable SQLite/FTS5 index |
