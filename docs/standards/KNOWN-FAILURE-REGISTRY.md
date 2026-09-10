@@ -1,6 +1,6 @@
 # Known failure registry v1
 
-Status: **Executable local exact-match classifier; hosted and consumer integration pending.**
+Status: **Executable exact-match classifier with DEV-INFRA hosted regression; consumer integration pending.**
 
 ## Purpose
 
