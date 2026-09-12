@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A failure-memory build report v1",
+  "type": "object",
+  "required": [
+    "schema", "status", "reason_code", "dataset_id", "record_set_sha256",
+    "minimum_real_cases", "real_verified_records", "total_records",
+    "indexed_active_records", "database_created"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-failure-memory-report.v1"},
+    "status": {"enum": ["READY", "BLOCKED", "ERROR"]},
+    "reason_code": {"type": "string"},
+    "dataset_id": {"type": "string"},
+    "record_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "minimum_real_cases": {"type": "integer", "minimum": 100},
+    "real_verified_records": {"type": "integer", "minimum": 0},
+    "total_records": {"type": "integer", "minimum": 0},
+    "indexed_active_records": {"type": "integer", "minimum": 0},
+    "database_created": {"type": "boolean"}
+  }
+}

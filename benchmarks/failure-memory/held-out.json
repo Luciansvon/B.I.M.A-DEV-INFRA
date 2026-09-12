@@ -1,0 +1,15 @@
+{
+  "schema": "bima-failure-memory-benchmark-request.v1",
+  "benchmark_id": "dev-infra-failure-memory-held-out",
+  "dataset_id": "dev-infra-reviewed-failures",
+  "record_set_sha256": "e007cf150512512b989a7b88d7bda169f45064846b4f1e5d9d7c3e3dc725da45",
+  "held_out": true,
+  "acceptance": {
+    "k": 5,
+    "minimum_recall_ppm": 800000,
+    "minimum_mrr_ppm": 700000,
+    "maximum_false_match_ppm": 200000,
+    "maximum_stale_hit_ppm": 0
+  },
+  "queries": []
+}

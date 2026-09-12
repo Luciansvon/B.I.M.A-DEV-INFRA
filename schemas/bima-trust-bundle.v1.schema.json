@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A trusted launcher bundle v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "bundle_id",
+    "workflow_repository",
+    "workflow_path",
+    "policy_path",
+    "policy_sha256",
+    "operation_id",
+    "decision_ttl_seconds"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-trust-bundle.v1"},
+    "bundle_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "workflow_repository": {"type": "string", "minLength": 1, "maxLength": 256},
+    "workflow_path": {"type": "string", "pattern": "^\\.github/workflows/[A-Za-z0-9._-]+\\.yml$"},
+    "policy_path": {"type": "string", "minLength": 1, "maxLength": 256},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "operation_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "decision_ttl_seconds": {"type": "integer", "minimum": 30, "maximum": 600}
+  }
+}

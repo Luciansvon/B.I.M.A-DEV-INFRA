@@ -1,0 +1,104 @@
+{
+  "schema": "bima-failure-record-set.v1",
+  "dataset_id": "failure-record-fixture",
+  "records": [
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "fixture-active",
+      "case_kind": "synthetic",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "project",
+        "promotion_basis": "project",
+        "project_id": "fixture-project",
+        "repositories": ["example/fixture-project"],
+        "command_ref": "test.v1",
+        "rule_version": "fixture-rule.v1",
+        "environment": {
+          "os": "linux",
+          "arch": "x86_64",
+          "toolchain": "fixture"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-10T00:00:00Z",
+        "reason_code": "FIXTURE_FAILURE",
+        "signature_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "reproduction_refs": ["fixture://failure-active/reproduction"]
+      },
+      "cause": {
+        "summary": "Synthetic confirmed cause for contract tests.",
+        "confirmed_at": "2026-09-10T00:05:00Z",
+        "evidence_refs": ["fixture://failure-active/cause"]
+      },
+      "fix": {
+        "summary": "Synthetic scoped fix for contract tests.",
+        "revision": "1111111111111111111111111111111111111111",
+        "verification_refs": ["fixture://failure-active/verification"]
+      },
+      "review": {
+        "owner": "fixture-owner",
+        "reviewed_by": "fixture-reviewer",
+        "reviewed_at": "2026-09-10T00:10:00Z",
+        "last_revalidated_at": "2026-09-10T00:15:00Z"
+      },
+      "access": {
+        "classification": "internal",
+        "allowed_projects": ["fixture-project"]
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    },
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "fixture-invalidated",
+      "case_kind": "synthetic",
+      "status": "INVALIDATED",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "repeated_root_cause",
+        "project_id": null,
+        "repositories": ["example/fixture-a", "example/fixture-b"],
+        "command_ref": "test.v1",
+        "rule_version": "fixture-rule.v1",
+        "environment": {
+          "os": "windows",
+          "arch": "x86_64",
+          "toolchain": "fixture"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-10T01:00:00Z",
+        "reason_code": "FIXTURE_STALE",
+        "signature_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "reproduction_refs": ["fixture://failure-invalidated/reproduction"]
+      },
+      "cause": {
+        "summary": "Synthetic stale cause for invalidation tests.",
+        "confirmed_at": "2026-09-10T01:05:00Z",
+        "evidence_refs": ["fixture://failure-invalidated/cause"]
+      },
+      "fix": {
+        "summary": "Synthetic stale fix for invalidation tests.",
+        "revision": "2222222222222222222222222222222222222222",
+        "verification_refs": ["fixture://failure-invalidated/verification"]
+      },
+      "review": {
+        "owner": "fixture-owner",
+        "reviewed_by": "fixture-reviewer",
+        "reviewed_at": "2026-09-10T01:10:00Z",
+        "last_revalidated_at": "2026-09-10T01:15:00Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": "Synthetic record deliberately invalidated.",
+      "expires_at": null
+    }
+  ]
+}

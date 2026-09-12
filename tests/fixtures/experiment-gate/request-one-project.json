@@ -1,0 +1,43 @@
+{
+  "schema": "bima-experiment-request.v1",
+  "experiment_id": "fixture-graphify",
+  "capability": "graphify-context",
+  "baseline": {
+    "id": "native-search",
+    "evidence_refs": ["fixture://baseline/native-search"]
+  },
+  "dataset": {
+    "id": "fixture-tasks",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "verified_cases": 10,
+    "held_out": true
+  },
+  "acceptance_thresholds": [
+    {"metric": "context_bytes", "operator": "lte", "value": 100000, "unit": "bytes"},
+    {"metric": "task_success", "operator": "gte", "value": 90, "unit": "percent"}
+  ],
+  "budget": {
+    "max_runtime_seconds": 600,
+    "max_storage_bytes": 104857600,
+    "max_network_calls": 0,
+    "max_agent_calls": 0
+  },
+  "permissions": {
+    "write_roots": [".artifacts/experiments"],
+    "network_destinations": [],
+    "credential_names": []
+  },
+  "reject_criteria": ["Does not improve task success over native search."],
+  "rollback": {
+    "owner": "fixture-owner",
+    "steps": ["Remove the optional experiment invocation."]
+  },
+  "demand_evidence": [
+    {
+      "project_id": "fixture-a",
+      "repository": "example/fixture-a",
+      "requirement_ref": "fixture://fixture-a/requirement",
+      "reviewed_by": "fixture-reviewer"
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 Research-backed, reusable GitHub infrastructure for **automation beyond app builds**.
 
+Licensed under the [Apache License 2.0](LICENSE).
+
 This repository is a laboratory and shared foundation for discovering, validating, and packaging useful GitHub workflows that can be reused across **software, AI/ML, data, research, hardware, publishing, operations, security, education, and future projects that do not exist yet**.
 
 > The repo is intentionally project-agnostic. It should not become tightly coupled to one application, product, language, or device.
@@ -10,11 +12,13 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 The accepted target is the [capability-based verification architecture](docs/architecture/ARCHITECTURE.md), established in [ADR-0009](docs/decisions/ADR-0009-capability-verification-architecture.md). Its [design contract](docs/architecture/CAPABILITY-CONTRACT.md) and [single delivery order](docs/NEXT.md) reconcile the prior plans. The [plan audit](docs/audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) distinguishes accepted design from implemented capabilities.
 
-The capability map below describes the research roadmap, not shipped modules. The first executable module is now **beta repository hygiene**: required-file checks, file-size limits, JSON validation, and a documented subset of local Markdown link checks. It produces JSON/Markdown evidence, has regression tests, and has been exercised from both a data-only fixture and the real AI-COLOR-COMPARE project.
+The capability map below contains both shipped contracts and gated research. The executable core now includes beta repository hygiene, a trusted reusable launcher for that audit, canonical evidence, bounded failure routing, portable reviewed failure records, a rebuildable SQLite/FTS5 index gate, and a deterministic experiment-readiness gate.
 
-The first Policy Gate increment is also executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only the existing `repository-audit.v1` operation. It has no generic command/provider loader, network access, credentials or model calls. Local and two-OS DEV-INFRA evidence pass; real-consumer compatibility evidence is still required before consumer pins change.
+The first Policy Gate increment is executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only `repository-audit.v1`. A reusable trusted launcher now binds the caller checkout to a protected DEV-INFRA workflow SHA and a checked-in policy hash. It has no generic command/provider loader, network access, credentials or model calls. Hosted launcher proof passed in run `34707376819`; no project consumer pin changed.
 
-An additive result-normalization pilot now parses bounded Rust libtest summaries from a real AI-COLOR-COMPARE run into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted cross-platform regression passes; real-consumer migration proof remains pending. A separate known-failure classifier also passes DEV-INFRA cross-platform regression, requires an exact owner-reviewed expiring signature, and never authorizes retry.
+An additive result-normalization pilot parses bounded Rust libtest summaries into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted action proof passed on Ubuntu and Windows in run `34470140936`. The AI-COLOR migration is closed without a consumer change; v1 pins remain active. A separate known-failure classifier requires an exact owner-reviewed expiring signature and never authorizes retry.
+
+Failure memory is not active: the portable production set currently contains `0/100` real reviewed cases and `0/10` held-out queries, so index and benchmark commands return `BLOCKED` without creating a database. Optional experiments/providers are also inactive until the same reviewed need exists in at least two projects. These gates are implemented; they are not waivers or execution authority.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
@@ -42,6 +46,13 @@ An additive result-normalization pilot now parses bounded Rust libtest summaries
 - [Result normalization action validation](docs/audits/VALIDATION-2026-09-10-RESULT-NORMALIZATION-ACTION.md)
 - [Known failure registry v1 contract](docs/standards/KNOWN-FAILURE-REGISTRY.md)
 - [Known failure registry local validation](docs/audits/VALIDATION-2026-09-10-KNOWN-FAILURE-REGISTRY.md)
+- [Trusted policy launcher contract](docs/standards/TRUSTED-POLICY-LAUNCHER.md)
+- [Reviewed failure-record contract](docs/standards/FAILURE-RECORDS.md)
+- [Failure-memory index gate](docs/standards/FAILURE-MEMORY.md)
+- [Failure-memory benchmark gate](docs/standards/FAILURE-MEMORY-BENCHMARK.md)
+- [Experiment-readiness gate](docs/standards/EXPERIMENT-GATE.md)
+- [P0-P5 local validation](docs/audits/VALIDATION-2026-09-12-P0-P5.md)
+- [Repository governance validation](docs/audits/VALIDATION-2026-09-12-REPOSITORY-GOVERNANCE.md)
 - [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
@@ -66,7 +77,7 @@ task verify
 
 Commands without a real implementation, including generic build and nightly pipelines, are intentionally not advertised yet.
 
-Hosted CI evidence is linked from the audit records, including a published fixture and the AI-COLOR-COMPARE consumer. Repository protection and an explicit license remain pending. Passing repository hygiene does not establish application or production readiness.
+Hosted CI evidence is linked from the audit records. Main branch protection and repository-level Action SHA enforcement are active. The repository uses Apache-2.0. Passing repository hygiene does not establish application or production readiness.
 
 ## Core idea
 
@@ -431,7 +442,7 @@ Also avoid workflows that simply add another network hop without improving safet
 ### Phase 1 — Shared workflow foundation
 
 - [x] reusable workflow conventions (documented contract and first experimental implementation)
-- [x] security baseline (workflow defaults implemented; repository protection pending)
+- [x] security baseline and inspected main-branch protection
 - [x] standard artifact/report schema (experimental repository-audit adapter)
 - [x] workflow versioning strategy (paired full SHA pins; experimental contract)
 - [x] runner policy (hosted audit baseline; specialized hardware policies pending)
@@ -452,7 +463,7 @@ Also avoid workflows that simply add another network hop without improving safet
 - [ ] repository template
 - [ ] reusable workflow catalog
 - [ ] dashboard / GitHub Pages
-- [ ] experiment history
+- [x] portable experiment request/decision history contract; no provider experiment active
 - [ ] organization/repository fleet automation
 
 ---

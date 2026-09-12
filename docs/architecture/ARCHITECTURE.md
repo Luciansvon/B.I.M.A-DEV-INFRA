@@ -45,17 +45,17 @@ Authorization happens before every consequential operation, including a retry or
 
 ## Implemented versus target
 
-| Capability | Current baseline at `006d782` | Accepted next direction |
+| Capability | Current implementation on `codex/dev-infra-p0-p5` | Activation boundary |
 |---|---|---|
 | Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
-| Verification | Beta repository hygiene plus additive Rust libtest normalization and a consumer action that never executes the declared command | Host and migrate the action through one justified consumer |
-| Evidence | `bima-evidence.v1` remains active; `bima-verification-result.v2` pilot preserves attempts/counts and fail-closed unknowns | Hosted consumer PASS/FAIL and rollback proof before v2 activation |
+| Verification | Beta repository hygiene plus additive Rust libtest normalization and a consumer action that never executes the declared command | DEV-INFRA action passed two hosted OS jobs; consumer migration is closed without change |
+| Evidence | `bima-evidence.v1` remains active; `bima-verification-result.v2` preserves attempts/counts and fail-closed unknowns | v1 stays active because no consumer opt-in was approved |
 | Failure routing | `bima-agent-packet.v1`; exact-match known-failure classification with owner/reviewer, expiry, retry denial and DEV-INFRA two-OS regression | Hosted consumer routing proof before integration or retry policy |
-| Policy Gate | Strict v1 project/policy/request/decision validation and one bounded `repository-audit.v1` executor; DEV-INFRA two-OS evidence passed, consumer compatibility pending | Add operation classes only from measured consumers |
-| Memory | Human-readable project/shared incident documents | Reviewed case records + rebuildable SQLite/FTS5 index |
-| Models/context graph | No model runtime or Graphify integration | Optional measured experiments |
+| Policy Gate | Strict v1 validation plus a reusable trusted launcher bound to called-workflow SHA, trusted bundle/hash, clean separate checkouts and `repository-audit.v1` | Hosted launcher proof passed; add operations only from measured consumers |
+| Memory | Portable reviewed records, rebuildable SQLite/FTS5, and held-out recall/MRR/false/stale-hit benchmark gate | Production activation is blocked at `0/100` real cases and `0/10` held-out queries |
+| Models/context graph | Deterministic experiment gate; no model/provider runtime | Requires demand from >=2 projects; local QA SLM also requires >=1,000 verified held-out cases |
 | Sandboxes/durable workflows/DB branching/security response | No shared implementation | Disabled until a real consumer demonstrates need |
-| Repository governance | `main` branch protection verified active 2026-09-10; license remains unset | Select an explicit license and retain inspected enforcement |
+| Repository governance | `main` protection and repository-level Action SHA enforcement verified active; Apache-2.0 selected | Retain inspected enforcement and the detectable license file |
 
 Current evidence flow remains:
 
