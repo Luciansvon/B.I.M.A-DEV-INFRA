@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-12 against `origin/main` at `d748b66e63fa40c311bba5d1efd22d1999560e20` and the local P0-P5 implementation branch.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `f3efba0d06e6d5f0c6450cbd7060cffbdcfb748f`.
 
 ## Completed baseline
 
@@ -49,6 +49,8 @@ Exit evidence: successful and failing real examples, malicious/malformed/missing
 - [ ] Run and publish the production retrieval benchmark after both the 100-real-case and 10-held-out-query gates are satisfied.
 
 Current activation: `BLOCKED`, `0/100` real reviewed cases. The production set is intentionally empty and no database is created below the gate.
+
+History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were found. They remain outside the production record set until independent review; approval of all five would move the corpus only to `5/100`, while held-out queries remain `0/10`.
 
 Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics and retained verification references. Schema collection does not wait for 100 cases; advanced database adoption does.
 
