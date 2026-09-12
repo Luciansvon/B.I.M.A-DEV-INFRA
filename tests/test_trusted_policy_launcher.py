@@ -142,8 +142,11 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
     def test_reusable_workflow_does_not_delegate_bundle_selection(self):
         workflow = (ROOT / ".github/workflows/trusted-repository-audit.yml").read_text(
             encoding="utf-8")
+        bundle = json.loads(
+            (ROOT / "policies/trust-bundles/dev-infra-repository-audit.v1.json")
+            .read_text(encoding="utf-8"))
         self.assertNotIn("trust-bundle-id:", workflow)
-        self.assertIn("BIMA_TRUST_BUNDLE_ID: dev-infra-repository-audit-v1", workflow)
+        self.assertIn(f"BIMA_TRUST_BUNDLE_ID: {bundle['bundle_id']}", workflow)
 
     def test_committed_policy_tamper_fails_bundle_hash(self):
         with tempfile.TemporaryDirectory() as temporary:

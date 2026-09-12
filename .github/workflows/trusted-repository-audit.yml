@@ -54,7 +54,7 @@ jobs:
           BIMA_WORKFLOW_SHA: ${{ job.workflow_sha }}
           BIMA_RUN_ID: ${{ github.run_id }}
           BIMA_RUN_ATTEMPT: ${{ github.run_attempt }}
-          BIMA_TRUST_BUNDLE_ID: dev-infra-repository-audit-v1
+          BIMA_TRUST_BUNDLE_ID: dev-infra-repository-audit.v1
           BIMA_PROJECT_PATH: ${{ inputs.project-path }}
         run: |
           set +e

@@ -39,3 +39,7 @@ The hosted normalization artifacts for run `34470140936` report 75 tests passed 
 - Production failure memory must not be created until 100 real reviewed cases exist.
 - No optional experiment becomes executable until demand exists in at least two projects and a separate Policy Gate authorizes it.
 - Apache-2.0 is selected and its local bytes match GitHub's canonical license template; hosted license detection remains pending publication.
+
+## First hosted PR attempt
+
+PR #26 runs `34707022884` and `34707023160` failed closed before merge. The evidence exposed three portability/integration defects: POSIX path resolution erased the leading `//` network marker before validation, the workflow bundle ID differed from the checked-in bundle ID, and the proof workflow pin lacked the version comment required by pinact. The branch fixes all three and adds a bundle/workflow consistency assertion; replacement hosted evidence is required before PASS.

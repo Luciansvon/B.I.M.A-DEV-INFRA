@@ -27,12 +27,13 @@ class FailureMemoryError(ValueError):
 
 
 def _outside_synchronized_storage(path, repository_root):
+    raw_path = str(path)
+    if raw_path.startswith(("\\\\", "//")):
+        raise FailureMemoryError("database cannot use a network path")
     path = path.resolve()
     repository_root = repository_root.resolve()
     if path == repository_root or path.is_relative_to(repository_root):
         raise FailureMemoryError("database must remain outside the repository")
-    if str(path).startswith("\\\\"):
-        raise FailureMemoryError("database cannot use a network path")
     lowered = {part.lower() for part in path.parts}
     if lowered & SYNC_PATH_MARKERS:
         raise FailureMemoryError("database cannot use synchronized storage")
