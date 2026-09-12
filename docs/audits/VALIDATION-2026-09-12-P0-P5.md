@@ -25,7 +25,7 @@ Baseline inspected before changes and re-fetched after implementation: local `HE
 - Failure-memory benchmark focused suite: 7 passed, 0 failed; exact retrieval reached 1,000,000 ppm recall/MRR with zero false/stale hits on synthetic mechanics fixtures.
 - Experiment gate focused suite: 8 passed, 0 failed.
 - Full regression: 111 passed, 1 skipped, 0 failed in 75.858 seconds. The skip is Windows symlink creation privilege and does not bypass a product assertion.
-- Repository audit after license selection: 143 files, 160 supported local links, zero findings.
+- Repository audit after license selection and proof caller addition: 144 files, 160 supported local links, zero findings.
 - Actionlint 1.7.12: zero findings after a path-scoped compatibility suppression for GitHub.com's newer `job.workflow_*` fields.
 - Prek built-in safety hooks, pinact 4.1.1 and zizmor 1.30.0: pass; zizmor reported zero findings.
 - Eight representative request/decision/report documents validated against their JSON Schemas.

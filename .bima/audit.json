@@ -9,6 +9,7 @@
     ".github/actionlint.yaml",
     ".github/actions/normalize-rust-libtest/action.yml",
     ".github/workflows/ci.yml",
+    ".github/workflows/trusted-launcher-proof.yml",
     ".github/workflows/trusted-repository-audit.yml",
     "automation/experiment_gate.py",
     "automation/failure_memory.py",

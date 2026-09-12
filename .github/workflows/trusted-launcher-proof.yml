@@ -1,0 +1,19 @@
+name: Trusted launcher proof
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-repository-audit:
+    name: Trusted repository audit proof
+    permissions:
+      contents: read
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/trusted-repository-audit.yml@43b329a4a980802ca131d0055db0fa80d2873998
+    with:
+      artifact-name: trusted-launcher-proof
