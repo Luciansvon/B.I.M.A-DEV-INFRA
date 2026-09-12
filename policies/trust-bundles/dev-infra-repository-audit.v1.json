@@ -1,0 +1,10 @@
+{
+  "schema": "bima-trust-bundle.v1",
+  "bundle_id": "dev-infra-repository-audit.v1",
+  "workflow_repository": "Luciansvon/B.I.M.A-DEV-INFRA",
+  "workflow_path": ".github/workflows/trusted-repository-audit.yml",
+  "policy_path": "policies/repository-audit/dev-infra.v1.json",
+  "policy_sha256": "49075f4408d07a0d9a4d12db43f14dcc72e5795e1cd75fde729294b74a085161",
+  "operation_id": "repository-audit",
+  "decision_ttl_seconds": 300
+}

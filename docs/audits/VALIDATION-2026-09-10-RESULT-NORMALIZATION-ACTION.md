@@ -2,7 +2,7 @@
 
 Date: 2026-09-10
 
-Status: **LOCAL PASS; HOSTED ACTION AND CONSUMER PROOF PENDING.**
+Status: **DEV-INFRA HOSTED ACTION PASS; CONSUMER MIGRATION CLOSED WITHOUT CHANGE.**
 
 ## Evidence
 
@@ -20,8 +20,12 @@ New coverage proves:
 - incomplete config-mode identity fails closed;
 - legacy direct-request CLI behavior remains covered and unchanged.
 
-The composite action is also invoked from the DEV-INFRA Linux/Windows CI matrix. Hosted artifacts and action metadata validation remain pending until the pull request executes.
+The composite action was invoked from the DEV-INFRA CI matrix in run `34470140936` at revision `d748b66e63fa40c311bba5d1efd22d1999560e20`:
+
+- Ubuntu 24.04: 75 tests passed; normalized verdict `PASS`, reason `ALL_EXPECTED_TESTS_PASSED`, observed/expected `29/29`.
+- Windows 2025: 75 tests passed; normalized verdict `PASS`, reason `ALL_EXPECTED_TESTS_PASSED`, observed/expected `29/29`.
+- Both artifacts retained the same source SHA-256 and policy SHA-256. Attempt IDs remain OS-specific as designed.
 
 ## Boundary
 
-The action consumes native evidence only. It does not execute Cargo, authorize an operation, retry, repair, publish or change consumer pins. The real AI-COLOR-COMPARE opt-in must retain the independent v1 audit path and prove rollback after this action is merged at a reviewed SHA.
+The action consumes native evidence only. It does not execute Cargo, authorize an operation, retry, repair, publish or change consumer pins. AI-COLOR-COMPARE migration was explicitly closed without a change; the independent v1 path remains active.

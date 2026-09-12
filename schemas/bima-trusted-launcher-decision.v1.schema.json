@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A trusted launcher decision v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "decision",
+    "reason_code",
+    "workflow_repository",
+    "workflow_sha",
+    "subject_repository",
+    "bundle_id",
+    "policy_sha256",
+    "policy_gate_decision",
+    "verifier_launched"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-trusted-launcher-decision.v1"},
+    "decision": {"enum": ["ALLOW", "DENY", "ERROR"]},
+    "reason_code": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+    "workflow_repository": {"type": ["string", "null"]},
+    "workflow_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
+    "subject_repository": {"type": ["string", "null"]},
+    "bundle_id": {"type": ["string", "null"]},
+    "policy_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "policy_gate_decision": {"type": ["string", "null"], "enum": ["ALLOW", "DENY", "HUMAN_REQUIRED", null]},
+    "verifier_launched": {"type": "boolean"}
+  }
+}

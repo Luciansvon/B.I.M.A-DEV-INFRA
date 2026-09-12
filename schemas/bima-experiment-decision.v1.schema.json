@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A gated experiment decision v1",
+  "type": "object",
+  "required": [
+    "schema", "experiment_id", "capability", "request_sha256", "status",
+    "reason_code", "distinct_projects", "requires_policy_authorization",
+    "execution_started"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-experiment-decision.v1"},
+    "experiment_id": {"type": "string"},
+    "capability": {"type": "string"},
+    "request_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["READY", "BLOCKED", "REJECTED"]},
+    "reason_code": {"type": "string"},
+    "distinct_projects": {"type": "integer", "minimum": 0},
+    "requires_policy_authorization": {"const": true},
+    "execution_started": {"const": false}
+  }
+}

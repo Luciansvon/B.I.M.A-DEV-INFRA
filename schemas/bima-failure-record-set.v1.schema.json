@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A reviewed failure record set v1",
+  "type": "object",
+  "required": ["schema", "dataset_id", "records"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-failure-record-set.v1"},
+    "dataset_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "records": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "required": [
+        "schema", "id", "case_kind", "status", "scope", "failure",
+        "cause", "fix", "review", "access", "supersedes",
+        "superseded_by", "invalidation_reason", "expires_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema": {"const": "bima-failure-record.v1"},
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "case_kind": {"enum": ["real", "synthetic"]},
+        "status": {"enum": ["ACTIVE", "SUPERSEDED", "EXPIRED", "INVALIDATED", "REVALIDATION_REQUIRED"]},
+        "scope": {"$ref": "#/$defs/scope"},
+        "failure": {"$ref": "#/$defs/failure"},
+        "cause": {"$ref": "#/$defs/cause"},
+        "fix": {"$ref": "#/$defs/fix"},
+        "review": {"$ref": "#/$defs/review"},
+        "access": {"$ref": "#/$defs/access"},
+        "supersedes": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string"}},
+        "superseded_by": {"type": ["string", "null"]},
+        "invalidation_reason": {"type": ["string", "null"], "maxLength": 512},
+        "expires_at": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["kind", "promotion_basis", "project_id", "repositories", "command_ref", "rule_version", "environment"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["project", "global"]},
+        "promotion_basis": {"enum": ["project", "shared_infrastructure", "repeated_root_cause"]},
+        "project_id": {"type": ["string", "null"]},
+        "repositories": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"type": "string"}},
+        "command_ref": {"type": "string", "minLength": 1, "maxLength": 256},
+        "rule_version": {"type": "string", "minLength": 1, "maxLength": 128},
+        "environment": {
+          "type": "object",
+          "required": ["os", "arch", "toolchain"],
+          "additionalProperties": false,
+          "properties": {
+            "os": {"type": "string"},
+            "arch": {"type": "string"},
+            "toolchain": {"type": "string"}
+          }
+        }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "required": ["observed_at", "reason_code", "signature_sha256", "reproduction_refs"],
+      "additionalProperties": false,
+      "properties": {
+        "observed_at": {"type": "string"},
+        "reason_code": {"type": "string"},
+        "signature_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "reproduction_refs": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"type": "string"}}
+      }
+    },
+    "cause": {
+      "type": "object",
+      "required": ["summary", "confirmed_at", "evidence_refs"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "confirmed_at": {"type": "string"},
+        "evidence_refs": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"type": "string"}}
+      }
+    },
+    "fix": {
+      "type": "object",
+      "required": ["summary", "revision", "verification_refs"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "verification_refs": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"type": "string"}}
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["owner", "reviewed_by", "reviewed_at", "last_revalidated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "owner": {"type": "string"},
+        "reviewed_by": {"type": "string"},
+        "reviewed_at": {"type": "string"},
+        "last_revalidated_at": {"type": "string"}
+      }
+    },
+    "access": {
+      "type": "object",
+      "required": ["classification", "allowed_projects"],
+      "additionalProperties": false,
+      "properties": {
+        "classification": {"enum": ["public", "internal", "restricted"]},
+        "allowed_projects": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    }
+  }
+}

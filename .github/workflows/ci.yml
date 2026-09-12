@@ -143,6 +143,68 @@ jobs:
           [[ "$NORMALIZED_VERDICT" == "PASS" ]]
           [[ "$NORMALIZED_REASON" == "ALL_EXPECTED_TESTS_PASSED" ]]
           [[ "$NORMALIZED_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      - name: Verify P3-P5 gated core contracts
+        shell: bash
+        run: |
+          python -I automation/failure_records.py \
+            --input failure-records/records.json \
+            --output .artifacts/failure-records
+
+          set +e
+          python -I automation/failure_memory.py \
+            --input failure-records/records.json \
+            --database "$RUNNER_TEMP/bima-failure-memory-production.sqlite3" \
+            --repository-root . \
+            --report .artifacts/failure-memory/report.json
+          memory_status=$?
+          set -e
+          [[ "$memory_status" == "3" ]]
+          [[ ! -e "$RUNNER_TEMP/bima-failure-memory-production.sqlite3" ]]
+
+          set +e
+          python -I automation/failure_memory_benchmark.py \
+            --records failure-records/records.json \
+            --queries benchmarks/failure-memory/held-out.json \
+            --database "$RUNNER_TEMP/bima-failure-memory-benchmark.sqlite3" \
+            --repository-root . \
+            --report .artifacts/failure-memory-benchmark/report.json
+          benchmark_status=$?
+          set -e
+          [[ "$benchmark_status" == "3" ]]
+          [[ ! -e "$RUNNER_TEMP/bima-failure-memory-benchmark.sqlite3" ]]
+
+          set +e
+          python -I automation/experiment_gate.py \
+            --request tests/fixtures/experiment-gate/request-one-project.json \
+            --output .artifacts/experiment-gate
+          experiment_status=$?
+          set -e
+          [[ "$experiment_status" == "3" ]]
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          failure_summary = json.loads(
+              Path('.artifacts/failure-records/summary.json').read_text(encoding='utf-8'))
+          memory = json.loads(
+              Path('.artifacts/failure-memory/report.json').read_text(encoding='utf-8'))
+          benchmark = json.loads(
+              Path('.artifacts/failure-memory-benchmark/report.json').read_text(encoding='utf-8'))
+          experiment = json.loads(
+              Path('.artifacts/experiment-gate/decision.json').read_text(encoding='utf-8'))
+          assert failure_summary['real_verified_records'] == 0
+          assert memory['status'] == 'BLOCKED'
+          assert memory['reason_code'] == 'INSUFFICIENT_REAL_CASES'
+          assert memory['database_created'] is False
+          assert benchmark['status'] == 'BLOCKED'
+          assert benchmark['reason_code'] == 'INSUFFICIENT_REAL_CASES'
+          assert benchmark['metrics'] is None
+          assert benchmark['database_created'] is False
+          assert experiment['status'] == 'BLOCKED'
+          assert experiment['reason_code'] == 'INSUFFICIENT_CROSS_PROJECT_DEMAND'
+          assert experiment['execution_started'] is False
+          PY
       - name: Audit repository
         if: ${{ !cancelled() }}
         run: task audit
@@ -160,6 +222,11 @@ jobs:
           path: |
             .artifacts/tests.log
             .artifacts/result-normalization/result.json
+            .artifacts/failure-records/records.json
+            .artifacts/failure-records/summary.json
+            .artifacts/failure-memory/report.json
+            .artifacts/failure-memory-benchmark/report.json
+            .artifacts/experiment-gate/decision.json
             .artifacts/audit/result.json
             .artifacts/audit/report.md
             .artifacts/evidence/canonical.json

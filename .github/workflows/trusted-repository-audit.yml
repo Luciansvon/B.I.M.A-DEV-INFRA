@@ -1,0 +1,88 @@
+name: Trusted repository audit
+
+on:
+  workflow_call:
+    inputs:
+      project-path:
+        description: Subject-relative bima-project.v1 declaration
+        required: false
+        type: string
+        default: .bima/project.json
+      artifact-name:
+        description: Unique evidence artifact prefix
+        required: false
+        type: string
+        default: trusted-repository-audit
+    outputs:
+      artifact-id:
+        description: Uploaded decision and audit evidence artifact ID
+        value: ${{ jobs.audit.outputs.artifact-id }}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      artifact-id: ${{ steps.evidence.outputs.artifact-id }}
+    steps:
+      - name: Checkout caller as untrusted data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: subject
+          persist-credentials: false
+      - name: Checkout the exact called workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: infra
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13.15'
+      - name: Evaluate trusted policy and run the reviewed verifier
+        id: launch
+        shell: bash
+        env:
+          BIMA_TRUSTED_ACTOR: ${{ github.actor }}
+          BIMA_SUBJECT_REPOSITORY: ${{ github.repository }}
+          BIMA_WORKFLOW_REPOSITORY: ${{ job.workflow_repository }}
+          BIMA_WORKFLOW_REF: ${{ job.workflow_ref }}
+          BIMA_WORKFLOW_SHA: ${{ job.workflow_sha }}
+          BIMA_RUN_ID: ${{ github.run_id }}
+          BIMA_RUN_ATTEMPT: ${{ github.run_attempt }}
+          BIMA_TRUST_BUNDLE_ID: dev-infra-repository-audit-v1
+          BIMA_PROJECT_PATH: ${{ inputs.project-path }}
+        run: |
+          set +e
+          python -I infra/automation/trusted_policy_launcher.py \
+            --infra-root infra \
+            --subject-root subject \
+            --bundle-id "$BIMA_TRUST_BUNDLE_ID" \
+            --project-path "$BIMA_PROJECT_PATH" \
+            --evidence-output "$RUNNER_TEMP/bima-trusted-launcher/decision.json"
+          status=$?
+          set -e
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+      - name: Preserve decision and audit evidence
+        id: evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.artifact-name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/bima-trusted-launcher/decision.json
+            subject/.artifacts/policy-gate/decision.json
+            subject/.artifacts/policy-gate/audit/result.json
+            subject/.artifacts/policy-gate/audit/report.md
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve verifier outcome
+        if: ${{ !cancelled() }}
+        shell: bash
+        env:
+          LAUNCH_STATUS: ${{ steps.launch.outputs.status }}
+        run: exit "$LAUNCH_STATUS"
