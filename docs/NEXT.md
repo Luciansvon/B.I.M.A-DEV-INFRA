@@ -25,7 +25,7 @@ These decisions gate claims of protected/governed publication, not unprivileged 
 - [x] Publish hosted Ubuntu/Windows evidence for this increment: run `34442172182`, 49 tests per OS, matching canonical evidence and zero findings. Consumer pins remain unchanged pending real-consumer compatibility proof.
 - [x] Implement a trusted reusable launcher that binds separate subject/infra checkouts, exact called-workflow SHA, trusted policy bundle/hash and runner identity.
 - [x] Prove locally that subject policy shadowing, scope elevation, workflow-ref substitution, committed policy tampering, repository spoofing and overlapping checkouts fail closed.
-- [ ] Publish hosted Ubuntu/Windows evidence for the new trusted launcher workflow before advertising a consumer pin.
+- [x] Publish hosted proof for the new trusted launcher workflow: run `34707376819` returned launcher/policy `ALLOW`, launched the verifier and produced a passing 144-file audit. Run `34707376740` separately passed workflow lint plus the Ubuntu/Windows matrix. No consumer pin changed.
 
 Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.
 

@@ -2,7 +2,7 @@
 
 Date: 2026-09-12; local verification refreshed 2026-09-13
 
-Status: **LOCAL CONTRACT PASS; HOSTED LAUNCHER PROOF PENDING; DATA-GATED ACTIVATION BLOCKED.**
+Status: **LOCAL AND HOSTED CONTRACT PASS; DATA-GATED ACTIVATION BLOCKED.**
 
 Baseline inspected before changes and re-fetched after implementation: local `HEAD` and `origin/main` both `d748b66e63fa40c311bba5d1efd22d1999560e20`, divergence `0/0`, with no open pull request. Main protection and repository-level Action SHA enforcement are active. AI-COLOR migration is closed without a consumer change.
 
@@ -11,7 +11,7 @@ Baseline inspected before changes and re-fetched after implementation: local `HE
 | Priority | Result | Activation state |
 |---|---|---|
 | P0 | Roadmap/current-state sync and evidence correction | Complete locally |
-| P1 | Trusted reusable repository-audit launcher and adversarial fixtures | Local pass; hosted workflow proof pending |
+| P1 | Trusted reusable repository-audit launcher and adversarial fixtures | Local and hosted proof pass |
 | P2 | DEV-INFRA action evidence inspected from run `34470140936` | Complete; consumer migration closed unchanged |
 | P3 | Portable reviewed failure-record contract | Complete; production record set remains empty |
 | P4 | Rebuildable SQLite/FTS5 plus held-out retrieval benchmark and hard corpus/query gates | Mechanics pass; production activation `BLOCKED` at `0/100` and `0/10` |
@@ -32,10 +32,15 @@ Baseline inspected before changes and re-fetched after implementation: local `HE
 
 The hosted normalization artifacts for run `34470140936` report 75 tests passed on both Ubuntu 24.04 and Windows 2025. Both normalized results are `PASS`, reason `ALL_EXPECTED_TESTS_PASSED`, with `29/29` observed/expected tests and matching source/policy hashes.
 
+## Hosted PR evidence
+
+- Replacement run `34707376740`: workflow lint passed; Ubuntu and Windows each passed 111 tests, audited 144 files with zero findings, emitted byte-identical canonical evidence, and retained P3-P5 decision/report artifacts.
+- Trusted launcher run `34707376819`: launcher and Policy Gate returned `ALLOW` with reason `MATCHED_REPOSITORY_AUDIT_RULE`; workflow SHA `1103ac3978441253251a9a818a4977fbdbdb350a` matched the reviewed checkout, `verifier_launched=true`, and the resulting 144-file subject audit passed.
+- Failure Memory remained `BLOCKED: INSUFFICIENT_REAL_CASES` on both hosted operating systems and created no database. Its benchmark also remained blocked before index creation.
+- The experiment gate remained `BLOCKED: INSUFFICIENT_CROSS_PROJECT_DEMAND` and started no execution.
+
 ## Remaining proof boundaries
 
-- The new reusable launcher workflow has not run on GitHub from this branch.
-- The existing CI matrix now emits separate P3-P5 record-summary, memory-readiness, retrieval-benchmark and experiment-decision artifacts; hosted execution remains pending until the branch is pushed.
 - Production failure memory must not be created until 100 real reviewed cases exist.
 - No optional experiment becomes executable until demand exists in at least two projects and a separate Policy Gate authorizes it.
 - Apache-2.0 is selected and its local bytes match GitHub's canonical license template; hosted license detection remains pending publication.
