@@ -58,5 +58,14 @@ unchanged.
 
 ### Hosted evidence
 
-Pending the pull-request revision. Do not treat this subsection as hosted
-`PASS` until the run IDs and inspected artifact results are recorded.
+- PR #30 Infrastructure CI run [`34752079512`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34752079512): workflow lint, Ubuntu 24.04, and Windows 2025 passed at revision `71cedaf05731fa80e67f7d377deea1c8ede35ab3`.
+- Both operating systems ran all `111` tests and emitted six real records with
+  canonical SHA-256
+  `756f513008b11b84db153dde1c575449f88f61b422ac83fdd66860217d8e24b6`.
+- Inspected Ubuntu and Windows artifacts report Failure Memory and benchmark
+  `BLOCKED: INSUFFICIENT_REAL_CASES`, query count `0`, and
+  `database_created=false`.
+- Both repository-audit artifacts report `PASS`, `149` files, `171` local
+  links, and zero findings.
+- PR #30 trusted launcher run [`34752079705`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34752079705): decision `ALLOW`, reason
+  `MATCHED_REPOSITORY_AUDIT_RULE`, and `verifier_launched=true`.
