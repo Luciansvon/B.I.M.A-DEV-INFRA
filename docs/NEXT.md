@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md). Status refreshed 2026-09-13 against `origin/main` at `bb5a7f7072e5294557798813081544aee492ddfc` before the aggregate-verification increment.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-09-13 against `origin/main` at `46d01d3b9a7c28ffcbab2b10bcd461db959e3634` before the artifact-identity increment.
 
 ## Completed baseline
 
@@ -38,6 +38,8 @@ Exit evidence: bounded positive/negative fixtures, decision report and one enfor
 - [x] Close AI-COLOR v2 migration without a consumer change. Keep v1 readers and pins active; no opt-in/rollback exercise is required unless a future consumer need reopens migration.
 - [x] Implement additive `bima-verification-plan.v1` and `bima-verification-aggregate.v1` contracts with deterministic `FAIL > BLOCKED > UNKNOWN > PASS` precedence, missing-result detection, flaky protection, and visible optional non-pass results.
 - [x] Publish and inspect hosted Ubuntu/Windows aggregate artifacts in run `34753773782`. Both report `PASS`, `ALL_REQUIRED_CHECKS_PASSED`, required `1/1`, and no unresolved required check. No consumer pin changed.
+- [x] Implement additive Artifact Identity v1 request, manifest, and verification contracts. Exact final bytes are bound to subject/policy, role, ownership, retention metadata, size, and SHA-256; missing, changed, or unsafe files fail closed.
+- [ ] Integrate Artifact Identity into a real build/release consumer only after its final byte-changing step and project-owned behavior expectations are known. The DEV-INFRA fixture is contract proof, not release proof.
 
 Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
 

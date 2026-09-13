@@ -181,6 +181,61 @@ jobs:
           assert aggregate['counts']['required']['pass'] == 1
           assert aggregate['unresolved_required'] == []
           PY
+      - name: Create and verify artifact identity manifest
+        shell: bash
+        env:
+          SUBJECT_REVISION: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          artifact = Path('.artifacts/artifact-fixture/application.bin')
+          artifact.parent.mkdir(parents=True, exist_ok=True)
+          artifact.write_bytes(b'BIMA artifact identity fixture v1\x00')
+
+          request = json.loads(
+              Path('tests/fixtures/artifact-identity/request.json').read_text(
+                  encoding='utf-8'))
+          request['subject']['revision'] = os.environ['SUBJECT_REVISION']
+          destination = Path('.artifacts/artifact-request/request.json')
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_text(
+              json.dumps(request, ensure_ascii=True, sort_keys=True,
+                         separators=(',', ':')) + '\n',
+              encoding='utf-8', newline='\n')
+          PY
+          python -I automation/artifact_identity.py create \
+            --request .artifacts/artifact-request/request.json \
+            --root . \
+            --output .artifacts/artifact-identity
+          python -I automation/artifact_identity.py verify \
+            --manifest .artifacts/artifact-identity/manifest.json \
+            --root . \
+            --output .artifacts/artifact-identity
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          manifest_path = Path('.artifacts/artifact-identity/manifest.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          verification = json.loads(
+              Path('.artifacts/artifact-identity/verification.json').read_text(
+                  encoding='utf-8'))
+          assert len(manifest['artifacts']) == 1
+          assert manifest['artifacts'][0]['path'] == \
+              '.artifacts/artifact-fixture/application.bin'
+          assert verification['verdict'] == 'PASS'
+          assert verification['reason_code'] == 'ALL_ARTIFACTS_MATCH'
+          assert verification['counts'] == {
+              'changed': 0, 'declared': 1, 'matched': 1,
+              'missing': 0, 'unsafe': 0}
+          assert verification['manifest_sha256'] == hashlib.sha256(
+              manifest_path.read_bytes()).hexdigest()
+          assert verification['unresolved_artifacts'] == []
+          PY
       - name: Verify P3-P5 gated core contracts
         shell: bash
         run: |
@@ -262,6 +317,10 @@ jobs:
             .artifacts/result-normalization/result.json
             .artifacts/verification-plan/plan.json
             .artifacts/verification-aggregate/aggregate.json
+            .artifacts/artifact-fixture/application.bin
+            .artifacts/artifact-request/request.json
+            .artifacts/artifact-identity/manifest.json
+            .artifacts/artifact-identity/verification.json
             .artifacts/failure-records/records.json
             .artifacts/failure-records/summary.json
             .artifacts/failure-memory/report.json

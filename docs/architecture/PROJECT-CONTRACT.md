@@ -2,7 +2,7 @@
 
 Projects consuming B.I.M.A-DEV-INFRA keep their own architecture and incident history, but expose enough metadata for shared workflows to operate safely.
 
-Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration includes the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md), its narrow [Policy Gate v1](../standards/POLICY-GATE.md), the [trusted reusable launcher](../standards/TRUSTED-POLICY-LAUNCHER.md), and additive [verification aggregation](../standards/VERIFICATION-AGGREGATE.md). Policy Gate v1 authorizes only repository audit; aggregation reads normalized evidence and is not a generic application-command interface.
+Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration includes the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md), its narrow [Policy Gate v1](../standards/POLICY-GATE.md), the [trusted reusable launcher](../standards/TRUSTED-POLICY-LAUNCHER.md), additive [verification aggregation](../standards/VERIFICATION-AGGREGATE.md), and bounded [artifact identity](../standards/ARTIFACT-IDENTITY.md). Policy Gate v1 authorizes only repository audit; aggregation reads normalized evidence and artifact identity hashes declared files. Neither is a generic application-command interface.
 
 ## Minimum project metadata
 
@@ -83,6 +83,8 @@ Promote when the same root cause affects >=2 projects or belongs to shared infra
 The initial strict versioned JSON profile and compatibility fixtures are implemented for `repository-audit.v1`. Earlier `.bima/project.yml` examples remain proposals, not supported executable inputs. The broader fields below remain requirements for future operation classes; their presence here is not a claim that arbitrary build/test/release commands are executable.
 
 - Project identity, exact source revision and expected artifact identity.
+- Artifact role, canonical relative path, maximum size, media type, sensitivity,
+  retention owner/location, and the point after which bytes must not change.
 - Named commands/approved script references, required versus optional checks, expected output formats and meaningful test-count expectations.
 - Runner OS/architecture, relevant environment/toolchain/fixture constraints and resource limits.
 - Scoped writable outputs, approved network/credential needs, evidence sensitivity, retention owner and cleanup requirements.
@@ -92,5 +94,10 @@ The initial strict versioned JSON profile and compatibility fixtures are impleme
 Schema-valid project commands remain executable untrusted code until the runner trust boundary permits them. Advisory discovery cannot execute them or override explicit declarations. Required missing checks/providers cannot become successful through fallback. Optional unavailable capabilities must remain visible, and a passing required scope must not imply those optional checks passed.
 
 Project-owned private evidence remains under the project's access policy. Shared memory contains only approved portable cases/references; live indexes/caches stay outside synchronization folders. New schemas and consumer pin changes require the migration evidence described in [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md).
+
+Artifact Identity v1 is opt-in. A project that adopts it creates the manifest
+after the final byte-changing packaging/signing step, then passes the same
+manifest digest into test and publication adapters. The project still owns
+behavioral expectations, signing rules, and release approval.
 
 Optional capability requests use the [experiment gate](../standards/EXPERIMENT-GATE.md). A project declaration is demand evidence, not execution permission. Readiness requires independently reviewed demand from at least two distinct project repositories, then separate Policy Gate authorization.

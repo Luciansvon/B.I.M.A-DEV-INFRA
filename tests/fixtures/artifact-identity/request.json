@@ -1,0 +1,31 @@
+{
+  "schema": "bima-artifact-manifest-request.v1",
+  "manifest_id": "release-candidate",
+  "project": {
+    "id": "fixture-project",
+    "repository": "Luciansvon/FIXTURE"
+  },
+  "subject": {
+    "revision": "0000000000000000000000000000000000000000",
+    "dirty": false
+  },
+  "policy": {
+    "revision": "artifact-identity-v1",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "application-binary",
+      "path": ".artifacts/artifact-fixture/application.bin",
+      "media_type": "application/octet-stream",
+      "role": "primary",
+      "sensitivity": "internal",
+      "maximum_bytes": 1048576,
+      "retention": {
+        "owner": "fixture-project",
+        "location": "github-actions-artifact",
+        "minimum_days": 14
+      }
+    }
+  ]
+}

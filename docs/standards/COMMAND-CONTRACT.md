@@ -12,6 +12,8 @@ Name: `Taskfile.yml`. Stability: **experimental**. Purpose: give humans, CI, and
 | `task audit` | Python 3.11+, Git | `.artifacts/audit/result.json` and `report.md` | audit finding, configuration error, or timeout |
 | `task evidence` | Python 3.11+ and audit result | canonical JSON, execution metadata, and canonical SHA-256 | missing, malformed, oversized, or incompatible audit result |
 | `task agent-packet` | Python 3.11+ and canonical evidence | bounded packet JSON and SHA-256 only for non-pass evidence | invalid, non-canonical, oversized, or incompatible evidence |
+| `task artifact-manifest` | Python 3.11+, `ARTIFACT_REQUEST`, `ARTIFACT_ROOT` | `.artifacts/artifact-identity/manifest.json` with exact sizes and SHA-256 | invalid declaration, missing/unsafe/oversized artifact, concurrent mutation, or timeout |
+| `task artifact-verify` | Python 3.11+, `ARTIFACT_MANIFEST`, `ARTIFACT_ROOT` | `.artifacts/artifact-identity/verification.json` | changed, missing, unsafe, malformed, or unverifiable artifact |
 | `task preflight` | prek 0.5.2, action-validator 0.9.0, pinact 4.1.1, zizmor 1.30.0, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, workflow-security finding, unsafe filename/content, missing tool, or timeout |
 | `task workflow-lint` | actionlint 1.7.12 | version and findings; CI preserves `actionlint.log` | lint finding, missing tool, or timeout |
 | `task check` | dependencies above | combined pre-flight, test, audit, canonical evidence, optional failure packet, and lint results | any component fails |
@@ -31,6 +33,10 @@ The contract accepts only tool/path overrides:
 
 These overrides select installed tools and the evidence location; they do not execute caller-provided project commands.
 
+Artifact tasks additionally require an explicit request/manifest and artifact
+root. These values select files for bounded hashing; they do not execute
+caller-provided project commands.
+
 ## GitHub adapter
 
 GitHub Actions installs Task v3.53.1 with the upstream archive checksum, then calls the same `task test`, `task audit`, `task evidence`, `task agent-packet`, and `task workflow-lint` entry points. The workflow retains its Ubuntu/Windows audit matrix and adds canonical files plus optional failure-packet files to the existing evidence artifacts. The adapter handles setup and upload; Task owns the deterministic command contract.
@@ -41,4 +47,4 @@ Install the pinned Task, prek, action-validator, pinact, zizmor, and actionlint 
 
 ## Security and compatibility
 
-Task setup is pinned to a full Action commit and verifies the selected Task archive checksum. Prek, action-validator, pinact, zizmor, and actionlint release binaries are versioned and checksum-verified by the GitHub adapter. Tool updates require checksum review, local parsing/execution, actionlint, repository audit, and hosted evidence. Task commands do not download tools or create release side effects, automatic fixes, retries, or agent invocations.
+Task setup is pinned to a full Action commit and verifies the selected Task archive checksum. Prek, action-validator, pinact, zizmor, and actionlint release binaries are versioned and checksum-verified by the GitHub adapter. Tool updates require checksum review, local parsing/execution, actionlint, repository audit, and hosted evidence. Task commands do not download tools or create release side effects, automatic fixes, retries, or agent invocations. Artifact identity hashes declared regular files only; it does not build, run, sign, attest, upload, or publish them.

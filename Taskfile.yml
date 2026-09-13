@@ -48,6 +48,30 @@ tasks:
         --output "{{.EVIDENCE_DIR}}/agent"
     timeout: 1m
 
+  artifact-manifest:
+    desc: Bind declared artifact files to exact size and SHA-256 identities
+    requires:
+      vars: [ARTIFACT_REQUEST, ARTIFACT_ROOT]
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/artifact_identity.py create
+        --request "{{.ARTIFACT_REQUEST}}"
+        --root "{{.ARTIFACT_ROOT}}"
+        --output "{{.EVIDENCE_DIR}}/artifact-identity"
+    timeout: 2m
+
+  artifact-verify:
+    desc: Verify current artifact bytes against an existing identity manifest
+    requires:
+      vars: [ARTIFACT_MANIFEST, ARTIFACT_ROOT]
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/artifact_identity.py verify
+        --manifest "{{.ARTIFACT_MANIFEST}}"
+        --root "{{.ARTIFACT_ROOT}}"
+        --output "{{.EVIDENCE_DIR}}/artifact-identity"
+    timeout: 2m
+
   preflight:
     desc: Run fast, non-mutating repository pre-flight hooks
     cmds:
