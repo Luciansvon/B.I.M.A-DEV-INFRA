@@ -58,6 +58,19 @@ diagnostics must not be used to satisfy the held-out gate.
 PR #28 run `34730811769` correctly parsed and gated all five records, but the
 Ubuntu and Windows P3-P5 assertion still expected the former production count
 of zero. The assertion is updated to the reviewed count of five; replacement
-hosted evidence is required before this increment is complete. This new
-shared-workflow failure is not silently added as a sixth active record because
-it has not received independent review.
+hosted evidence passed. This new shared-workflow failure is not silently added
+as a sixth active record because it has not received independent review.
+
+## Replacement hosted evidence
+
+- Infrastructure CI run `34730928028`: workflow lint, Ubuntu 24.04 and Windows
+  2025 passed at the corrected revision.
+- Both operating systems ran all `111` tests and emitted canonical record files
+  with SHA-256 `c61c37e0e226971c476e8c9f15d3a94ae93ac3adccbae6bf343ed428f5b505ac`.
+- Both record summaries report `5` real active records. Both memory reports are
+  `BLOCKED: INSUFFICIENT_REAL_CASES`, `database_created=false`.
+- Both benchmark reports are `BLOCKED: INSUFFICIENT_REAL_CASES`, query count
+  `0`, metrics `null`, `database_created=false`.
+- Both repository audits passed with `146` files and zero findings.
+- Trusted launcher run `34730928155`: launcher and Policy Gate returned `ALLOW`,
+  reason `MATCHED_REPOSITORY_AUDIT_RULE`, and `verifier_launched=true`.
