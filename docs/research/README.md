@@ -37,4 +37,12 @@ EVIDENCE    -> tests / logs / reports / artifacts
 
 The 69-source focused pass overlaps thematically with the earlier 160-source GitHub research and is tracked as its own research set rather than being added arithmetically to the prior unique-source count.
 
+## 2026-09-13 — Optional Spec Kit authoring adapter
+
+This pass evaluates Spec Kit as a provider-neutral authoring layer below B.I.M.A governance and above deterministic verification. It does not activate a package, preset, workflow, adapter, or consumer.
+
+| Document | Purpose | Sources |
+|---|---|---:|
+| [`SOURCES-SPEC-KIT-ADAPTER-2026-09-13.md`](./SOURCES-SPEC-KIT-ADAPTER-2026-09-13.md) | Pinned upstream, community, standards, platform, and research evidence | 74 |
+
 Future research passes should create dated ledgers instead of silently replacing these files. That preserves how conclusions changed as GitHub features, agent tooling, pricing, community practices, and deprecations evolve.
