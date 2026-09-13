@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `633d6e6d1a59789f01d0fafb57af649a659ef3f1` before this record-conversion increment.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `79c8e3efbed494f2c27b4b50cc8785614e56a6e6` before this Spec Kit audit increment.
 
 ## Completed baseline
 
@@ -61,12 +61,15 @@ Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics
 | Graphify context | Pinned candidate, measured native-search tasks and allowed data scope | A/B on DEV-INFRA + AI-COLOR-COMPARE; task success, missing edges, total context/time/build cost; code-only first |
 | ReleaseProof | #8's competitor/reuse/demand gate and one project-owned release case | Same-artifact provenance + installer behavior; one format and explicit expectations |
 | Local QA SLM | Step 2; relevant consumer; >=1,000 verified total benchmark cases with held-out split | Rules/retrieval comparison, unfine-tuned candidates first, calibration, critical errors, total cost and shadow-mode outcomes |
+| Spec Kit authoring adapter | Two distinct reviewed project demands, pinned stable release, native baseline tasks and approved thresholds | Read-only artifact/composition validator first; paired traceability, missing-artifact, acceptance, false-block, security, time/token and upgrade evidence; per-project opt-in only |
 
 Graphify does not block memory or ReleaseProof. ReleaseProof does not block test normalization or model benchmark data collection. Model runtime/training remains blocked until its prerequisites are met; a single audit consumer is not itself a build-log benchmark corpus. Training is optional after baseline inference demonstrates a need.
 
 - [x] Implement a deterministic experiment request/decision gate with pinned baseline, dataset identity, thresholds, budget, permissions, reject criteria, rollback and reviewed demand evidence.
 - [x] Require at least two distinct reviewed project repositories for `READY`; require >=1,000 verified held-out cases for Local QA SLM.
 - [ ] Run any experiment. None is currently authorized or active.
+
+Spec Kit was audited against stable `v1.0.6` in the [adapter architecture audit](audits/SPEC-KIT-ADAPTER-AUDIT-2026-09-13.md) using a [74-source ledger](research/SOURCES-SPEC-KIT-ADAPTER-2026-09-13.md). It remains a provider-neutral authoring candidate: no package, preset, workflow, adapter or consumer is installed. B.I.M.A governance, Policy Gate, reviewed verifiers and canonical evidence remain authoritative.
 
 ## 5. Additional providers only with a measured consumer need
 

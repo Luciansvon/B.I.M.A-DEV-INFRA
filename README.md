@@ -21,6 +21,7 @@ An additive result-normalization pilot parses bounded Rust libtest summaries int
 Failure memory is not active: the portable production set currently contains `5/100` real reviewed cases and `0/10` held-out queries, so index and benchmark commands return `BLOCKED` without creating a database. Optional experiments/providers are also inactive until the same reviewed need exists in at least two projects. These gates are implemented; they are not waivers or execution authority.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
+- [Optional Spec Kit adapter architecture audit](docs/audits/SPEC-KIT-ADAPTER-AUDIT-2026-09-13.md)
 - [Task command validation](docs/audits/VALIDATION-2026-09-09-TASKFILE.md)
 - [Pre-flight validation](docs/audits/VALIDATION-2026-09-09-PREK.md)
 - [Action-validator validation](docs/audits/VALIDATION-2026-09-09-ACTION-VALIDATOR.md)
