@@ -18,7 +18,7 @@ The first Policy Gate increment is executable: strict `bima-project.v1`, `bima-p
 
 An additive result-normalization pilot parses bounded Rust libtest summaries into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted action proof passed on Ubuntu and Windows in run `34470140936`. The AI-COLOR migration is closed without a consumer change; v1 pins remain active. A separate known-failure classifier requires an exact owner-reviewed expiring signature and never authorizes retry.
 
-Failure memory is not active: the portable production set currently contains `5/100` real reviewed cases and `0/10` held-out queries, so index and benchmark commands return `BLOCKED` without creating a database. Optional experiments/providers are also inactive until the same reviewed need exists in at least two projects. These gates are implemented; they are not waivers or execution authority.
+Failure memory is not active: the portable production set currently contains `6/100` real reviewed cases and `0/10` held-out queries, so index and benchmark commands return `BLOCKED` without creating a database. Optional experiments/providers are also inactive until the same reviewed need exists in at least two projects. These gates are implemented; they are not waivers or execution authority.
 
 - [Audit findings and validation status](docs/audits/AUDIT-2026-09-08.md)
 - [Optional Spec Kit adapter architecture audit](docs/audits/SPEC-KIT-ADAPTER-AUDIT-2026-09-13.md)
@@ -54,6 +54,7 @@ Failure memory is not active: the portable production set currently contains `5/
 - [Experiment-readiness gate](docs/standards/EXPERIMENT-GATE.md)
 - [P0-P5 local validation](docs/audits/VALIDATION-2026-09-12-P0-P5.md)
 - [Failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORDS.md)
+- [Sixth failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORD-006.md)
 - [Repository governance validation](docs/audits/VALIDATION-2026-09-12-REPOSITORY-GOVERNANCE.md)
 - [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)

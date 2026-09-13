@@ -1,6 +1,6 @@
 # Failure-memory benchmark v1
 
-Status: **Executable mechanics; production benchmark blocked at 5/100 records and 0/10 held-out queries.**
+Status: **Executable mechanics; production benchmark blocked at 6/100 records and 0/10 held-out queries.**
 
 The benchmark request binds a held-out query set to the canonical failure-record digest and declares acceptance thresholds before execution. At least 100 real, reviewed, `ACTIVE` failure records and 10 held-out queries are required before the SQLite index is built.
 
