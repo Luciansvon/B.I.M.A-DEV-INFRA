@@ -58,8 +58,9 @@ diagnostics must not be used to satisfy the held-out gate.
 PR #28 run `34730811769` correctly parsed and gated all five records, but the
 Ubuntu and Windows P3-P5 assertion still expected the former production count
 of zero. The assertion is updated to the reviewed count of five; replacement
-hosted evidence passed. This new shared-workflow failure is not silently added
-as a sixth active record because it has not received independent review.
+hosted evidence passed. It was not added in that increment. Bima later reviewed
+it independently, and it was converted separately in the [sixth activation
+report].
 
 ## Replacement hosted evidence
 
@@ -74,3 +75,5 @@ as a sixth active record because it has not received independent review.
 - Both repository audits passed with `146` files and zero findings.
 - Trusted launcher run `34730928155`: launcher and Policy Gate returned `ALLOW`,
   reason `MATCHED_REPOSITORY_AUDIT_RULE`, and `verifier_launched=true`.
+
+[sixth activation report]: VALIDATION-2026-09-13-FAILURE-RECORD-006.md

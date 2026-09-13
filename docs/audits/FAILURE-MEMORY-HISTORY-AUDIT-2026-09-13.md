@@ -64,3 +64,15 @@ They were converted to canonical active records with validation documented in
 
 [PR #27 review record]: https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/pull/27#issuecomment-5647770201
 [the activation report]: VALIDATION-2026-09-13-FAILURE-RECORDS.md
+
+## Second follow-up — 2026-09-13
+
+The first five-record activation exposed one additional shared-workflow case:
+the hosted P3-P5 assertion still expected the former zero-record corpus. Bima
+independently approved this sixth candidate in the [PR #28 review record]. It
+was converted separately with evidence in the [sixth activation report]. The
+portable corpus is now `6/100`; held-out queries remain `0/10`, and no
+production database is created.
+
+[PR #28 review record]: https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/pull/28#issuecomment-5650572173
+[sixth activation report]: VALIDATION-2026-09-13-FAILURE-RECORD-006.md
