@@ -2,8 +2,8 @@
 
 ## Verdict
 
-Local implementation is `PASS`; hosted evidence is pending. The additive
-aggregator applies the architecture's fixed required-check precedence without
+Local and hosted implementation evidence is `PASS`. The additive aggregator
+applies the architecture's fixed required-check precedence without
 executing project commands, changing consumer pins, authorizing retry, or
 calling a model.
 
@@ -40,15 +40,26 @@ Starting `main` revision:
   inputs.
 
 Local Task/pre-flight binaries are not installed on this machine, so local
-actionlint, action-validator, pinact, zizmor, and prek are `NOT RUN`. The
-workflow installs their reviewed pinned versions; hosted workflow/security
-evidence must be inspected before final completion.
+actionlint, action-validator, pinact, zizmor, and prek are `NOT RUN`. Their
+reviewed pinned versions passed in the hosted workflow-lint job.
 
 ## Hosted evidence
 
-Pending pull-request Ubuntu 24.04 and Windows 2025 artifacts. Do not treat this
-section as hosted `PASS` until run IDs and inspected aggregate outputs are
-recorded.
+- PR #31 code revision:
+  `97e41bb24ddfcd0d34ccaca2ff5034297fb28a2c`.
+- Infrastructure CI run [`34753773782`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34753773782): workflow lint, Ubuntu 24.04, and Windows 2025 passed.
+- Both inspected aggregate artifacts report `PASS`,
+  `ALL_REQUIRED_CHECKS_PASSED`, required `1/1`, and zero unresolved required
+  checks for pull-request merge subject
+  `a01c4e17446bb142150e332cb47d82829e193e76`.
+- Both plans have canonical SHA-256
+  `5fcef394468b4784979a3f8a480cddfd8a0135a1901321298be997abd67c4504`.
+  Result digests differ because attempt IDs are platform-specific; aggregate
+  semantics match.
+- Ubuntu and Windows each ran `127` tests. Both repository-audit artifacts
+  report `PASS`, `158` files, `181` local links, and zero findings.
+- Trusted launcher run [`34753773924`](https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34753773924) returned `ALLOW`,
+  `MATCHED_REPOSITORY_AUDIT_RULE`, and `verifier_launched=true`.
 
 ## Boundary
 

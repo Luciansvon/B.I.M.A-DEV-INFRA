@@ -37,7 +37,7 @@ Exit evidence: bounded positive/negative fixtures, decision report and one enfor
 - [x] Validate the additive v2 adapter/action in DEV-INFRA hosted run `34470140936`: Ubuntu and Windows both returned `PASS`, `ALL_EXPECTED_TESTS_PASSED`, `29/29`, at the same source and policy hashes.
 - [x] Close AI-COLOR v2 migration without a consumer change. Keep v1 readers and pins active; no opt-in/rollback exercise is required unless a future consumer need reopens migration.
 - [x] Implement additive `bima-verification-plan.v1` and `bima-verification-aggregate.v1` contracts with deterministic `FAIL > BLOCKED > UNKNOWN > PASS` precedence, missing-result detection, flaky protection, and visible optional non-pass results.
-- [ ] Publish and inspect hosted Ubuntu/Windows aggregate artifacts. No consumer pin change is required for this core proof.
+- [x] Publish and inspect hosted Ubuntu/Windows aggregate artifacts in run `34753773782`. Both report `PASS`, `ALL_REQUIRED_CHECKS_PASSED`, required `1/1`, and no unresolved required check. No consumer pin changed.
 
 Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
 
