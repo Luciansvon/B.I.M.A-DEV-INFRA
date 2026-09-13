@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `f3efba0d06e6d5f0c6450cbd7060cffbdcfb748f`.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `633d6e6d1a59789f01d0fafb57af649a659ef3f1` before this record-conversion increment.
 
 ## Completed baseline
 
@@ -45,12 +45,12 @@ Exit evidence: successful and failing real examples, malicious/malformed/missing
 - [x] Implement a rebuildable single-writer SQLite + FTS5 index gated to local storage outside repositories, synchronization folders and network paths.
 - [x] Prove canonical import/export, invalidation exclusion, access filtering and integrity-checked backup/rebuild with synthetic contract fixtures.
 - [x] Implement a held-out lexical benchmark gate with deterministic recall@k, MRR, false-match and stale-hit metrics.
-- [ ] Collect at least 100 real failure/fix cases for the first meaningful retrieval pilot; preserve a held-out query set and report limitations.
+- [ ] Collect at least 100 real failure/fix cases for the first meaningful retrieval pilot; 5 independently reviewed shared-infrastructure cases are canonical, while the held-out query set remains empty.
 - [ ] Run and publish the production retrieval benchmark after both the 100-real-case and 10-held-out-query gates are satisfied.
 
-Current activation: `BLOCKED`, `0/100` real reviewed cases. The production set is intentionally empty and no database is created below the gate.
+Current activation: `BLOCKED`, `5/100` real reviewed cases and `0/10` held-out queries. No database is created below the gate.
 
-History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were found. They remain outside the production record set until independent review; approval of all five would move the corpus only to `5/100`, while held-out queries remain `0/10`.
+History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were found, independently reviewed by Bima in PR #27, and converted to canonical active records. The corpus is `5/100`; held-out queries remain `0/10`.
 
 Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics and retained verification references. Schema collection does not wait for 100 cases; advanced database adoption does.
 

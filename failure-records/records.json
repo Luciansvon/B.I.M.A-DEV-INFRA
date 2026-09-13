@@ -1,5 +1,291 @@
 {
   "schema": "bima-failure-record-set.v1",
   "dataset_id": "dev-infra-reviewed-failures",
-  "records": []
+  "records": [
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "devinfra-action-reference-linter-compat-20260910",
+      "case_kind": "real",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "shared_infrastructure",
+        "project_id": null,
+        "repositories": ["Luciansvon/B.I.M.A-DEV-INFRA"],
+        "command_ref": "task preflight and task workflow-lint",
+        "rule_version": "zizmor-1.30.0-actionlint-1.7.12",
+        "environment": {
+          "os": "ubuntu-24.04",
+          "arch": "x86_64",
+          "toolchain": "prek 0.5.2; zizmor 1.30.0; actionlint 1.7.12"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-10T11:05:44Z",
+        "reason_code": "LOCAL_ACTION_LINTER_SYNTAX_CONFLICT",
+        "signature_sha256": "a98b7cfdb9e3db1108d12ad3a603af6d5c31728372ac777d5da5c658fdf7d07b",
+        "reproduction_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34469480213",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34469803989"
+        ]
+      },
+      "cause": {
+        "summary": "Zizmor required its newer $/ self-repository syntax while actionlint 1.7.12 rejected that syntax as an action reference without a ref.",
+        "confirmed_at": "2026-09-10T11:11:02Z",
+        "evidence_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/commit/32ba789255a714a8800e807e7a68943d34bb39ec"
+        ]
+      },
+      "fix": {
+        "summary": "Retain GitHub's supported ./ local-action reference and add a path-scoped zizmor self-repository suppression documenting the actionlint compatibility boundary.",
+        "revision": "32ba789255a714a8800e807e7a68943d34bb39ec",
+        "verification_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34470140936",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34710656453"
+        ]
+      },
+      "review": {
+        "owner": "codex-curation",
+        "reviewed_by": "Luciansvon",
+        "reviewed_at": "2026-09-12T18:15:44Z",
+        "last_revalidated_at": "2026-09-12T18:16:54Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    },
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "devinfra-dependabot-cooldown-20260909",
+      "case_kind": "real",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "shared_infrastructure",
+        "project_id": null,
+        "repositories": ["Luciansvon/B.I.M.A-DEV-INFRA"],
+        "command_ref": "task preflight",
+        "rule_version": "zizmor-1.30.0",
+        "environment": {
+          "os": "windows",
+          "arch": "x86_64",
+          "toolchain": "zizmor 1.30.0"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-09T06:01:42Z",
+        "reason_code": "DEPENDABOT_COOLDOWN_MISSING",
+        "signature_sha256": "02e5862e89f166dcdc1d4df89161d4314455ab6fbdec51c2f252f72108085873",
+        "reproduction_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/blob/a180c0633a9e48d289297eb8aae29e474160e62a/docs/audits/VALIDATION-2026-09-09-ZIZMOR.md"
+        ]
+      },
+      "cause": {
+        "summary": "The repository's GitHub Actions Dependabot configuration had no update cooldown, triggering zizmor's dependabot-cooldown finding.",
+        "confirmed_at": "2026-09-09T06:06:39Z",
+        "evidence_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/commit/a180c0633a9e48d289297eb8aae29e474160e62a"
+        ]
+      },
+      "fix": {
+        "summary": "Set the GitHub Actions Dependabot default cooldown to seven days while retaining immediate security updates.",
+        "revision": "a180c0633a9e48d289297eb8aae29e474160e62a",
+        "verification_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34317637553",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34710656453"
+        ]
+      },
+      "review": {
+        "owner": "codex-curation",
+        "reviewed_by": "Luciansvon",
+        "reviewed_at": "2026-09-12T18:15:44Z",
+        "last_revalidated_at": "2026-09-12T18:16:54Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    },
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "devinfra-pinact-version-comment-20260912",
+      "case_kind": "real",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "shared_infrastructure",
+        "project_id": null,
+        "repositories": ["Luciansvon/B.I.M.A-DEV-INFRA"],
+        "command_ref": "task preflight",
+        "rule_version": "pinact-4.1.1",
+        "environment": {
+          "os": "ubuntu-24.04",
+          "arch": "x86_64",
+          "toolchain": "prek 0.5.2; pinact 4.1.1"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-12T17:02:22Z",
+        "reason_code": "PINACT_VERSION_COMMENT_REQUIRED",
+        "signature_sha256": "aade4b32d65876fa1bf9e1fe92f83fcc0499478de0d0dda4bddfa478544a62b6",
+        "reproduction_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707022884",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707271646"
+        ]
+      },
+      "cause": {
+        "summary": "Pinact 4.1.1 requires a recognized version-shaped comment beside a full-SHA reusable-workflow pin; no comment and the descriptive trusted-launcher-v1 label were both rejected.",
+        "confirmed_at": "2026-09-12T17:09:19Z",
+        "evidence_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/commit/d409ea264fe60d17eacdc2735007f0369f9c452c"
+        ]
+      },
+      "fix": {
+        "summary": "Annotate the reviewed full-SHA reusable-workflow pin with the pinact-compatible version label # v1.",
+        "revision": "d409ea264fe60d17eacdc2735007f0369f9c452c",
+        "verification_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707530700",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707772773",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34710656453"
+        ]
+      },
+      "review": {
+        "owner": "codex-curation",
+        "reviewed_by": "Luciansvon",
+        "reviewed_at": "2026-09-12T18:15:44Z",
+        "last_revalidated_at": "2026-09-12T18:16:54Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    },
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "devinfra-posix-network-path-20260912",
+      "case_kind": "real",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "shared_infrastructure",
+        "project_id": null,
+        "repositories": ["Luciansvon/B.I.M.A-DEV-INFRA"],
+        "command_ref": "python -I -m unittest discover -s tests -v",
+        "rule_version": "failure-memory-v1",
+        "environment": {
+          "os": "ubuntu-24.04",
+          "arch": "x86_64",
+          "toolchain": "Python 3.13.15"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-12T17:02:22Z",
+        "reason_code": "NETWORK_PATH_NORMALIZED_BEFORE_GUARD",
+        "signature_sha256": "fc811bd75d49a2ef94357a2c3bfbcf41aba50230abb908ab4472739410550853",
+        "reproduction_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707022884"
+        ]
+      },
+      "cause": {
+        "summary": "On POSIX, resolving //server/share before checking the raw prefix erased network-path identity and caused the test to attempt creation under /server.",
+        "confirmed_at": "2026-09-12T17:06:52Z",
+        "evidence_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/commit/1103ac3978441253251a9a818a4977fbdbdb350a"
+        ]
+      },
+      "fix": {
+        "summary": "Reject raw paths beginning with either UNC backslashes or double forward slashes before calling Path.resolve().",
+        "revision": "1103ac3978441253251a9a818a4977fbdbdb350a",
+        "verification_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707530700",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707772773",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34710656453"
+        ]
+      },
+      "review": {
+        "owner": "codex-curation",
+        "reviewed_by": "Luciansvon",
+        "reviewed_at": "2026-09-12T18:15:44Z",
+        "last_revalidated_at": "2026-09-12T18:16:54Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    },
+    {
+      "schema": "bima-failure-record.v1",
+      "id": "devinfra-trust-bundle-id-drift-20260912",
+      "case_kind": "real",
+      "status": "ACTIVE",
+      "scope": {
+        "kind": "global",
+        "promotion_basis": "shared_infrastructure",
+        "project_id": null,
+        "repositories": ["Luciansvon/B.I.M.A-DEV-INFRA"],
+        "command_ref": ".github/workflows/trusted-repository-audit.yml",
+        "rule_version": "trusted-policy-launcher-v1",
+        "environment": {
+          "os": "ubuntu-24.04",
+          "arch": "x86_64",
+          "toolchain": "GitHub Actions; Python 3.13"
+        }
+      },
+      "failure": {
+        "observed_at": "2026-09-12T17:02:22Z",
+        "reason_code": "TRUST_BUNDLE_ID_MISMATCH",
+        "signature_sha256": "56e456f7a9fcc93e66089dacf1fb1523860d554b5da15eaac08cbf6655ba3778",
+        "reproduction_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707023160"
+        ]
+      },
+      "cause": {
+        "summary": "The trusted launcher workflow hardcoded dev-infra-repository-audit-v1 while the committed trust bundle identifier is dev-infra-repository-audit.v1.",
+        "confirmed_at": "2026-09-12T17:06:52Z",
+        "evidence_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/commit/1103ac3978441253251a9a818a4977fbdbdb350a"
+        ]
+      },
+      "fix": {
+        "summary": "Use the committed bundle identifier and bind a workflow consistency test directly to the checked-in trust-bundle JSON.",
+        "revision": "1103ac3978441253251a9a818a4977fbdbdb350a",
+        "verification_refs": [
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707530859",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34707772966",
+          "https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/actions/runs/34710656615"
+        ]
+      },
+      "review": {
+        "owner": "codex-curation",
+        "reviewed_by": "Luciansvon",
+        "reviewed_at": "2026-09-12T18:15:44Z",
+        "last_revalidated_at": "2026-09-12T18:16:03Z"
+      },
+      "access": {
+        "classification": "public",
+        "allowed_projects": []
+      },
+      "supersedes": [],
+      "superseded_by": null,
+      "invalidation_reason": null,
+      "expires_at": null
+    }
+  ]
 }

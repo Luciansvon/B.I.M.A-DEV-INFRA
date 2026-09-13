@@ -2,7 +2,7 @@
   "schema": "bima-failure-memory-benchmark-request.v1",
   "benchmark_id": "dev-infra-failure-memory-held-out",
   "dataset_id": "dev-infra-reviewed-failures",
-  "record_set_sha256": "e007cf150512512b989a7b88d7bda169f45064846b4f1e5d9d7c3e3dc725da45",
+  "record_set_sha256": "c61c37e0e226971c476e8c9f15d3a94ae93ac3adccbae6bf343ed428f5b505ac",
   "held_out": true,
   "acceptance": {
     "k": 5,
