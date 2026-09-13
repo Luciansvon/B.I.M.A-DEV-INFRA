@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A verification aggregate v1",
+  "type": "object",
+  "required": ["schema", "verdict", "reason_code", "identity", "policy", "plan_sha256", "checks", "counts", "unresolved_required", "optional_non_pass"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-verification-aggregate.v1"},
+    "verdict": {"enum": ["PASS", "FAIL", "UNKNOWN", "BLOCKED"]},
+    "reason_code": {"enum": ["ALL_REQUIRED_CHECKS_PASSED", "REQUIRED_CHECK_FAILED", "REQUIRED_CHECK_BLOCKED", "REQUIRED_EVIDENCE_MISSING", "REQUIRED_CHECK_UNKNOWN", "REQUIRED_CHECK_FLAKY"]},
+    "identity": {
+      "type": "object",
+      "required": ["aggregate_id", "project_id", "repository", "subject_revision", "subject_dirty"],
+      "additionalProperties": false,
+      "properties": {
+        "aggregate_id": {"type": "string", "minLength": 1},
+        "project_id": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "subject_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "subject_dirty": {"type": "boolean"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["revision", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "revision": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "checks": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": ["check_id", "applicability", "state", "verdict", "reason_code", "stability", "result_sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {"type": "string", "minLength": 1},
+          "applicability": {"enum": ["required", "optional"]},
+          "state": {"enum": ["reported", "missing"]},
+          "verdict": {"enum": ["PASS", "FAIL", "UNKNOWN", "BLOCKED"]},
+          "reason_code": {"type": "string", "minLength": 1},
+          "stability": {"enum": ["unassessed", "consistent_observed", "flaky"]},
+          "result_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["required", "optional"],
+      "additionalProperties": false,
+      "properties": {
+        "required": {"$ref": "#/$defs/counts"},
+        "optional": {"$ref": "#/$defs/counts"}
+      }
+    },
+    "unresolved_required": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "optional_non_pass": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+  },
+  "$defs": {
+    "counts": {
+      "type": "object",
+      "required": ["declared", "reported", "missing", "pass", "fail", "unknown", "blocked", "flaky"],
+      "additionalProperties": false,
+      "properties": {
+        "declared": {"type": "integer", "minimum": 0},
+        "reported": {"type": "integer", "minimum": 0},
+        "missing": {"type": "integer", "minimum": 0},
+        "pass": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0},
+        "blocked": {"type": "integer", "minimum": 0},
+        "flaky": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Capability, policy and evidence contract
 
-Status: **Accepted design contract under [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md); runtime implementation pending.**
+Status: **Accepted target contract under [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md); selected capabilities are implemented incrementally and tracked in [ARCHITECTURE](ARCHITECTURE.md) plus [NEXT](../NEXT.md).**
 Date: 2026-09-10. Current executable contracts remain the linked v1 standards.
 
 ## 1. Ownership and deployment

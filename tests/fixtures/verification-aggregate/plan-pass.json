@@ -1,0 +1,18 @@
+{
+  "schema": "bima-verification-plan.v1",
+  "aggregate_id": "ci-required-checks",
+  "project": {
+    "id": "ai-color-compare",
+    "repository": "Luciansvon/AI-COLOR-COMPARE"
+  },
+  "subject": {
+    "revision": "0000000000000000000000000000000000000000",
+    "dirty": false
+  },
+  "policy": {
+    "revision": "ai-color-result-normalization-v1",
+    "sha256": "acacecb0984e2797fd6d90d86ca0f7123a9f1c964224a374be5e052e160acd90"
+  },
+  "required_checks": ["rust-core-tests"],
+  "optional_checks": []
+}
