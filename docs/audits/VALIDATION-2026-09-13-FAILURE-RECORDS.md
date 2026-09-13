@@ -52,3 +52,12 @@ These five records improve the reviewed corpus but do not activate retrieval.
 Do not create or populate production SQLite/FTS files before `100` real active
 records and `10` genuinely held-out queries exist. Synthetic queries or copied
 diagnostics must not be used to satisfy the held-out gate.
+
+## First hosted attempt
+
+PR #28 run `34730811769` correctly parsed and gated all five records, but the
+Ubuntu and Windows P3-P5 assertion still expected the former production count
+of zero. The assertion is updated to the reviewed count of five; replacement
+hosted evidence is required before this increment is complete. This new
+shared-workflow failure is not silently added as a sixth active record because
+it has not received independent review.

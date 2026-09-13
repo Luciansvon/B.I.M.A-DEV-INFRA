@@ -193,7 +193,7 @@ jobs:
               Path('.artifacts/failure-memory-benchmark/report.json').read_text(encoding='utf-8'))
           experiment = json.loads(
               Path('.artifacts/experiment-gate/decision.json').read_text(encoding='utf-8'))
-          assert failure_summary['real_verified_records'] == 0
+          assert failure_summary['real_verified_records'] == 5
           assert memory['status'] == 'BLOCKED'
           assert memory['reason_code'] == 'INSUFFICIENT_REAL_CASES'
           assert memory['database_created'] is False
