@@ -28,6 +28,8 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
         self.git(destination, "config", "user.name", "Test")
         self.git(destination, "config", "user.email", "test@example.invalid")
         self.git(destination, "config", "commit.gpgsign", "false")
+        self.git(destination, "config", "gc.auto", "0")
+        self.git(destination, "config", "maintenance.auto", "false")
         self.git(destination, "add", ".")
         self.git(destination, "commit", "-qm", "fixture")
         return self.git(destination, "rev-parse", "HEAD")

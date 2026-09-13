@@ -29,6 +29,12 @@ Pending pull-request Ubuntu/Windows artifacts. A green workflow status alone is
 not sufficient; inspect manifest and verification bytes before changing this
 status.
 
+The first Ubuntu PR attempt exposed a pre-existing cleanup flake in the trusted
+launcher test fixture: assertions completed, then temporary `.git` removal saw
+the directory change concurrently. The bounded rerun passed. The fixture now
+disables Git automatic GC and maintenance before committing; final hosted proof
+must come from a new commit, not the successful rerun alone.
+
 ## Boundaries
 
 This increment proves byte identity for declared local files. It does not prove
