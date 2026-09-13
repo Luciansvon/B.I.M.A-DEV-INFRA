@@ -54,3 +54,13 @@ canonical `bima-failure-record.v1` entries with distinct owner and reviewer
 identities and run the record validator. Do not create held-out queries from
 unapproved candidates, and do not create the production SQLite index below the
 100-record gate.
+
+## Follow-up — 2026-09-13
+
+Bima independently approved all five candidates in the [PR #27 review record].
+They were converted to canonical active records with validation documented in
+[the activation report]. The production index and benchmark remain blocked at
+`5/100` records and `0/10` held-out queries.
+
+[PR #27 review record]: https://github.com/Luciansvon/B.I.M.A-DEV-INFRA/pull/27#issuecomment-5647770201
+[the activation report]: VALIDATION-2026-09-13-FAILURE-RECORDS.md

@@ -1,6 +1,6 @@
 # Failure-memory benchmark v1
 
-Status: **Executable mechanics; production benchmark blocked at 0/100 records and 0/10 held-out queries.**
+Status: **Executable mechanics; production benchmark blocked at 5/100 records and 0/10 held-out queries.**
 
 The benchmark request binds a held-out query set to the canonical failure-record digest and declares acceptance thresholds before execution. At least 100 real, reviewed, `ACTIVE` failure records and 10 held-out queries are required before the SQLite index is built.
 
@@ -22,4 +22,4 @@ python -I automation/failure_memory_benchmark.py \
   --report .artifacts/failure-memory-benchmark/report.json
 ```
 
-The checked-in production query set remains empty until real reviewed cases exist. Synthetic unit cases prove metric calculation and gate behavior only.
+The checked-in production query set remains empty until the corpus is large enough to freeze at least 10 genuinely held-out queries. Synthetic unit cases prove metric calculation and gate behavior only.

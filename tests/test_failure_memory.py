@@ -60,7 +60,7 @@ class FailureMemoryTests(unittest.TestCase):
             decision = json.loads(report.read_text(encoding="utf-8"))
             self.assertEqual(decision["status"], "BLOCKED")
             self.assertEqual(decision["reason_code"], "INSUFFICIENT_REAL_CASES")
-            self.assertEqual(decision["real_verified_records"], 0)
+            self.assertEqual(decision["real_verified_records"], 5)
             self.assertFalse(database.exists())
 
     def test_ready_corpus_builds_searchable_index_and_round_trips(self):

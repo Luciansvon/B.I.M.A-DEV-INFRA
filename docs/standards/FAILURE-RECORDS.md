@@ -1,6 +1,6 @@
 # Portable failure records v1
 
-Status: **Executable contract; production corpus empty.**
+Status: **Executable contract; production corpus has 5/100 active real records.**
 
 `bima-failure-record-set.v1` is the portable source of truth. Each record contains reproduced failure evidence, confirmed cause evidence, scoped fix and verification evidence, owner, independent reviewer, lifecycle, access policy and supersession links. Strict JSON parsing rejects duplicate keys, non-finite values, unknown fields, invalid ordering and inconsistent lifecycle links.
 

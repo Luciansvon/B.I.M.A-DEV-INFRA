@@ -1,6 +1,6 @@
 # Failure memory v1
 
-Status: **Index mechanics verified; production activation blocked at 0/100 real cases.**
+Status: **Index mechanics verified; production activation blocked at 5/100 real cases.**
 
 The portable record set is authoritative. SQLite with FTS5 is a disposable, single-writer derived index. A build requires at least 100 real, reviewed, `ACTIVE` records; below that threshold the command returns `BLOCKED`, exit `3`, and creates no database.
 
