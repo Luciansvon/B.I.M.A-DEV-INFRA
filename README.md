@@ -12,7 +12,7 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 The accepted target is the [capability-based verification architecture](docs/architecture/ARCHITECTURE.md), established in [ADR-0009](docs/decisions/ADR-0009-capability-verification-architecture.md). Its [design contract](docs/architecture/CAPABILITY-CONTRACT.md) and [single delivery order](docs/NEXT.md) reconcile the prior plans. The [plan audit](docs/audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) distinguishes accepted design from implemented capabilities.
 
-The capability map below contains both shipped contracts and gated research. The executable core now includes beta repository hygiene, a trusted reusable launcher for that audit, canonical evidence, bounded failure routing, fail-closed required-check aggregation, portable reviewed failure records, a rebuildable SQLite/FTS5 index gate, and a deterministic experiment-readiness gate.
+The capability map below contains both shipped contracts and gated research. The executable core now includes beta repository hygiene, a trusted reusable launcher for that audit, canonical evidence, bounded failure routing, fail-closed required-check aggregation, deterministic artifact-byte identity, portable reviewed failure records, a rebuildable SQLite/FTS5 index gate, and a deterministic experiment-readiness gate.
 
 The first Policy Gate increment is executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only `repository-audit.v1`. A reusable trusted launcher now binds the caller checkout to a protected DEV-INFRA workflow SHA and a checked-in policy hash. It has no generic command/provider loader, network access, credentials or model calls. Hosted launcher proof passed in run `34707376819`; no project consumer pin changed.
 
@@ -43,9 +43,11 @@ Failure memory is not active: the portable production set currently contains `6/
 - [Policy Gate local validation](docs/audits/VALIDATION-2026-09-10-POLICY-GATE.md)
 - [Result normalization v2 contract](docs/standards/RESULT-NORMALIZATION.md)
 - [Verification aggregate v1 contract](docs/standards/VERIFICATION-AGGREGATE.md)
+- [Artifact identity v1 contract](docs/standards/ARTIFACT-IDENTITY.md)
 - [Rust result normalization action contract](docs/standards/RESULT-NORMALIZATION-ACTION.md)
 - [Result normalizer validation](docs/audits/VALIDATION-2026-09-10-RESULT-NORMALIZER.md)
 - [Verification aggregate validation](docs/audits/VALIDATION-2026-09-13-VERIFICATION-AGGREGATE.md)
+- [Artifact identity validation](docs/audits/VALIDATION-2026-09-13-ARTIFACT-IDENTITY.md)
 - [Result normalization action validation](docs/audits/VALIDATION-2026-09-10-RESULT-NORMALIZATION-ACTION.md)
 - [Known failure registry v1 contract](docs/standards/KNOWN-FAILURE-REGISTRY.md)
 - [Known failure registry local validation](docs/audits/VALIDATION-2026-09-10-KNOWN-FAILURE-REGISTRY.md)
@@ -62,6 +64,7 @@ Failure memory is not active: the portable production set currently contains `6/
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
 - [Aggregate verification and SLM-last decision](docs/decisions/ADR-0010-verification-aggregate-and-slm-last.md)
+- [Artifact identity before release automation](docs/decisions/ADR-0011-artifact-identity-before-release.md)
 - [Cost-aware command decision](docs/decisions/ADR-0002-cost-aware-command-contract.md)
 - [Offline workflow-security decision](docs/decisions/ADR-0006-zizmor-offline.md)
 - [Canonical evidence decision](docs/decisions/ADR-0007-canonical-evidence.md)
@@ -75,6 +78,8 @@ task test
 task audit
 task evidence
 task agent-packet
+task artifact-manifest ARTIFACT_REQUEST=... ARTIFACT_ROOT=...
+task artifact-verify ARTIFACT_MANIFEST=... ARTIFACT_ROOT=...
 task preflight
 task workflow-lint
 task check

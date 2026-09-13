@@ -48,7 +48,7 @@ Authorization happens before every consequential operation, including a retry or
 | Capability | Current implementation on `main` | Activation boundary |
 |---|---|---|
 | Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
-| Verification | Beta repository hygiene, additive Rust libtest normalization, and fail-closed required/optional check aggregation; none executes a declared project command | DEV-INFRA hosted proof is required; consumer migration stays closed without change |
+| Verification | Beta repository hygiene, additive Rust libtest normalization, fail-closed required/optional check aggregation, and deterministic artifact-byte identity; none executes a declared project command | DEV-INFRA hosted proof is required; consumer migration stays closed without change |
 | Evidence | `bima-evidence.v1` remains active; `bima-verification-result.v2` preserves attempts/counts and fail-closed unknowns | v1 stays active because no consumer opt-in was approved |
 | Failure routing | `bima-agent-packet.v1`; exact-match known-failure classification with owner/reviewer, expiry, retry denial and DEV-INFRA two-OS regression | Hosted consumer routing proof before integration or retry policy |
 | Policy Gate | Strict v1 validation plus a reusable trusted launcher bound to called-workflow SHA, trusted bundle/hash, clean separate checkouts and `repository-audit.v1` | Hosted launcher proof passed; add operations only from measured consumers |
@@ -64,6 +64,10 @@ repository audit result.json
   -> canonical.json + canonical.sha256
   -> execution.json (volatile metadata)
   -> packet.json only for fail/error
+
+declared final artifact files
+  -> manifest.json (subject + policy + path + size + SHA-256)
+  -> verification.json before each consuming stage
 ```
 
 `pass` emits no packet. `fail` routes to machine. `error` marks agent eligibility only. No existing command launches a model. [EVIDENCE-CONTRACT](../standards/EVIDENCE-CONTRACT.md) and [AGENT-PACKET](../standards/AGENT-PACKET.md) remain the executable v1 definitions.
@@ -88,4 +92,4 @@ A lesson becomes shared only when its confirmed cause belongs to shared infrastr
 
 Native search and reviewed incident records are the baselines. Graphify is a code-only context experiment. Local SLMs, sandbox providers, PostgreSQL branches, durable workflows, security-response systems and external project UIs remain optional. No candidate brand appears in mandatory core policy.
 
-Build/sign/package transformations are explicitly linked by digest; release verification covers both provenance and behavior of the final distributed artifact. Release/signing/deployment remain separately authorized adapters. See the [plan audit](../audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) for the disposition of every plan and tool group.
+Artifact Identity v1 now binds declared local files to exact bytes and can detect missing, changed, or unsafe paths. It does not build, test application behavior, sign, attest, upload, or publish. Build/sign/package transformations are explicitly linked by digest; release verification covers both provenance and behavior of the final distributed artifact. Release/signing/deployment remain separately authorized adapters. See the [plan audit](../audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) for the disposition of every plan and tool group.

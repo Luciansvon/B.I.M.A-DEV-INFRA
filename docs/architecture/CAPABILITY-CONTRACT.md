@@ -63,7 +63,7 @@ A policy file is not a sandbox. Enforcement must live in the trusted runner's cr
 
 A provider request/result uses the capability's versioned contract, preserves native outputs, and includes provider/version, subject, operation/attempt IDs, request/decision references, lifecycle status, evidence manifest, usage and cleanup result. CLI, API and MCP are interchangeable transports, not interchangeable trust guarantees. A provider supplies observations; the trusted adapter/verifier applies acceptance rules.
 
-The evidence manifest lists each expected file/ref, digest, size, media type, role, owning project, sensitivity and retention location. Validate path containment, links, size and identity before accepting content. Remote refs require authorized retrieval; metadata must not cause arbitrary URL fetching. Successful process exit with missing/wrong-subject output is invalid evidence.
+The evidence manifest lists each expected file/ref, digest, size, media type, role, owning project, sensitivity and retention location. The local-file subset is implemented as [Artifact Identity v1](../standards/ARTIFACT-IDENTITY.md): strict declared regular files, canonical relative paths, bounded streaming SHA-256, and fail-closed re-verification. Remote references and retrieval are not implemented. Validate path containment, links, size and identity before accepting content. Metadata must not cause arbitrary URL fetching. Successful process exit with missing/wrong-subject output is invalid evidence.
 
 An optional provider may degrade to an approved baseline only if all required capabilities remain satisfied. Record the omission/fallback. Required unavailable provider or unsupported operation yields BLOCKED. Optional capability failure remains visible in that capability's result; it does not disappear into the required-scope PASS. Unknown provider IDs/versions fail profile validation. No vendor-specific logic may override required checks.
 
@@ -138,7 +138,7 @@ Graphify experiments use matched tasks on DEV-INFRA and AI-COLOR-COMPARE, with p
 
 ## 7. Release and specialized consumers
 
-ReleaseProof verifies two independent claims about one identified artifact: source/build provenance and installed/runtime behavior. Require expected app identity/version, intended Lite/Full differences and project-owned installer assertions. Build/package/sign transformations must record input/output digests; test the final distributed bytes and publish those same bytes. Signing after testing without re-verifying the changed artifact violates the same-artifact rule.
+ReleaseProof verifies two independent claims about one identified artifact: source/build provenance and installed/runtime behavior. Artifact Identity v1 supplies only the exact-byte link between stages; it satisfies neither claim alone. Require expected app identity/version, intended Lite/Full differences and project-owned installer assertions. Build/package/sign transformations must record input/output digests; test the final distributed bytes and publish those same bytes. Signing after testing without re-verifying the changed artifact violates the same-artifact rule.
 
 Checksums, SBOMs, signatures and valid attestations each prove limited properties. Release-note assertions use stable claim IDs linked to tests/evidence, and unsupported claims remain unverified. Model prose never satisfies a release requirement. Untrusted installer/binary inspection needs runner isolation and exported evidence before teardown; no GUI or Windows capability is presumed from a provider's CLI support.
 
