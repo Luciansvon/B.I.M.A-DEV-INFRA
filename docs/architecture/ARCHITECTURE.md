@@ -48,12 +48,12 @@ Authorization happens before every consequential operation, including a retry or
 | Capability | Current implementation on `main` | Activation boundary |
 |---|---|---|
 | Command surface | Task test/audit/evidence/packet/preflight/workflow checks | Reuse explicit implemented commands only |
-| Verification | Beta repository hygiene plus additive Rust libtest normalization and a consumer action that never executes the declared command | DEV-INFRA action passed two hosted OS jobs; consumer migration is closed without change |
+| Verification | Beta repository hygiene, additive Rust libtest normalization, and fail-closed required/optional check aggregation; none executes a declared project command | DEV-INFRA hosted proof is required; consumer migration stays closed without change |
 | Evidence | `bima-evidence.v1` remains active; `bima-verification-result.v2` preserves attempts/counts and fail-closed unknowns | v1 stays active because no consumer opt-in was approved |
 | Failure routing | `bima-agent-packet.v1`; exact-match known-failure classification with owner/reviewer, expiry, retry denial and DEV-INFRA two-OS regression | Hosted consumer routing proof before integration or retry policy |
 | Policy Gate | Strict v1 validation plus a reusable trusted launcher bound to called-workflow SHA, trusted bundle/hash, clean separate checkouts and `repository-audit.v1` | Hosted launcher proof passed; add operations only from measured consumers |
 | Memory | Portable reviewed records, rebuildable SQLite/FTS5, and held-out recall/MRR/false/stale-hit benchmark gate | Production activation is blocked at `6/100` real cases and `0/10` held-out queries |
-| Models/context graph | Deterministic experiment gate; no model/provider runtime | Requires demand from >=2 projects; local QA SLM also requires >=1,000 verified held-out cases |
+| Models/context graph | Deterministic experiment gate; no model/provider runtime | SLM is the final roadmap stage and still requires a relevant consumer plus >=1,000 verified benchmark cases |
 | Sandboxes/durable workflows/DB branching/security response | No shared implementation | Disabled until a real consumer demonstrates need |
 | Repository governance | `main` protection and repository-level Action SHA enforcement verified active; Apache-2.0 selected | Retain inspected enforcement and the detectable license file |
 

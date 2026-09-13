@@ -143,6 +143,44 @@ jobs:
           [[ "$NORMALIZED_VERDICT" == "PASS" ]]
           [[ "$NORMALIZED_REASON" == "ALL_EXPECTED_TESTS_PASSED" ]]
           [[ "$NORMALIZED_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      - name: Aggregate required verification results
+        shell: bash
+        env:
+          SUBJECT_REVISION: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          plan = json.loads(
+              Path('tests/fixtures/verification-aggregate/plan-pass.json').read_text(
+                  encoding='utf-8'))
+          plan['subject']['revision'] = os.environ['SUBJECT_REVISION']
+          destination = Path('.artifacts/verification-plan/plan.json')
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_text(
+              json.dumps(plan, ensure_ascii=True, sort_keys=True,
+                         separators=(',', ':')) + '\n',
+              encoding='utf-8', newline='\n')
+          PY
+          python -I automation/verification_aggregate.py \
+            --plan .artifacts/verification-plan/plan.json \
+            --result .artifacts/result-normalization/result.json \
+            --output .artifacts/verification-aggregate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          aggregate = json.loads(
+              Path('.artifacts/verification-aggregate/aggregate.json').read_text(
+                  encoding='utf-8'))
+          assert aggregate['verdict'] == 'PASS'
+          assert aggregate['reason_code'] == 'ALL_REQUIRED_CHECKS_PASSED'
+          assert aggregate['counts']['required']['declared'] == 1
+          assert aggregate['counts']['required']['pass'] == 1
+          assert aggregate['unresolved_required'] == []
+          PY
       - name: Verify P3-P5 gated core contracts
         shell: bash
         run: |
@@ -222,6 +260,8 @@ jobs:
           path: |
             .artifacts/tests.log
             .artifacts/result-normalization/result.json
+            .artifacts/verification-plan/plan.json
+            .artifacts/verification-aggregate/aggregate.json
             .artifacts/failure-records/records.json
             .artifacts/failure-records/summary.json
             .artifacts/failure-memory/report.json

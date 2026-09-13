@@ -1,6 +1,6 @@
 # ADR-0009 — Capability-based verification with explicit authority
 
-Status: **Accepted architecture baseline; new runtime capabilities are not implemented.**
+Status: **Accepted architecture baseline; implemented capability status is tracked in `ARCHITECTURE.md` and `NEXT.md`.**
 Date: 2026-09-10.
 Decision owner: Bima, through the request to audit all plans and establish the architecture; Solo execution.
 

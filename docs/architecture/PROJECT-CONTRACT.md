@@ -2,7 +2,7 @@
 
 Projects consuming B.I.M.A-DEV-INFRA keep their own architecture and incident history, but expose enough metadata for shared workflows to operate safely.
 
-Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration includes the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md), its narrow [Policy Gate v1](../standards/POLICY-GATE.md), and the [trusted reusable launcher](../standards/TRUSTED-POLICY-LAUNCHER.md). Policy Gate v1 authorizes only repository audit; it is not a generic application-command interface.
+Target semantics are governed by [ADR-0009](../decisions/ADR-0009-capability-verification-architecture.md) and [CAPABILITY-CONTRACT](CAPABILITY-CONTRACT.md). Current executable integration includes the [repository-audit v1 interface](../standards/REPOSITORY-AUDIT.md), its narrow [Policy Gate v1](../standards/POLICY-GATE.md), the [trusted reusable launcher](../standards/TRUSTED-POLICY-LAUNCHER.md), and additive [verification aggregation](../standards/VERIFICATION-AGGREGATE.md). Policy Gate v1 authorizes only repository audit; aggregation reads normalized evidence and is not a generic application-command interface.
 
 ## Minimum project metadata
 

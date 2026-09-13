@@ -3,6 +3,7 @@
 import argparse
 from datetime import datetime, timezone
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -16,11 +17,6 @@ MAX_VALIDITY_DAYS = 90
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 UTC_TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
-RESULT_FIELDS = {
-    "schema", "verdict", "identity", "adapter", "command", "policy",
-    "environment", "attempt", "execution", "applicability", "outcome",
-    "stability", "sources", "diagnostics",
-}
 ENTRY_FIELDS = {
     "id", "owner", "reviewed_by", "reason", "issue_ref", "created_at",
     "expires_at", "scope", "outcome_reason_code", "diagnostic_signatures",
@@ -34,6 +30,19 @@ SCOPE_FIELDS = {
 
 class RegistryError(ValueError):
     """Registry or result input violates the supported contract."""
+
+
+def _load_result_contract():
+    path = Path(__file__).with_name("verification_result_contract.py")
+    spec = importlib.util.spec_from_file_location("bima_verification_result_contract", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("verification result contract cannot be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+result_contract = _load_result_contract()
 
 
 def _exact(value, fields, label):
@@ -122,115 +131,10 @@ def _nonnegative_integer(value, label):
 
 
 def validate_result(value):
-    _exact(value, RESULT_FIELDS, "result")
-    if value["schema"] != "bima-verification-result.v2":
-        raise RegistryError("unsupported result schema")
-    if value["verdict"] not in {"PASS", "FAIL", "UNKNOWN", "BLOCKED"}:
-        raise RegistryError("unsupported result verdict")
-    _exact(value["identity"], {
-        "project_id", "repository", "subject_revision", "subject_dirty", "check_id",
-    }, "result identity")
-    for field in ("project_id", "repository", "subject_revision", "check_id"):
-        _string(value["identity"][field], f"result identity {field}")
-    if not re.fullmatch(r"[0-9a-f]{40}", value["identity"]["subject_revision"]):
-        raise RegistryError("result subject revision must be a full Git SHA")
-    if type(value["identity"]["subject_dirty"]) is not bool:
-        raise RegistryError("result subject_dirty must be boolean")
-    if value["adapter"] != "rust-libtest-text.v1":
-        raise RegistryError("unsupported result adapter")
-    _validate_identity_hash(value["command"], "result command")
-    _validate_identity_hash(value["policy"], "result policy", "revision")
-    _validate_environment(value["environment"], "result environment")
-    _exact(value["attempt"], {"id", "sequence", "equivalence_key"}, "result attempt")
-    _identifier(value["attempt"]["id"], "result attempt id")
-    if type(value["attempt"]["sequence"]) is not int or not 1 <= value["attempt"]["sequence"] <= 100:
-        raise RegistryError("result attempt sequence is invalid")
-    _string(value["attempt"]["equivalence_key"], "result equivalence_key", 128)
-    _exact(value["execution"], {"lifecycle", "exit_code"}, "result execution")
-    if value["execution"]["lifecycle"] != "completed":
-        raise RegistryError("result execution lifecycle is unsupported")
-    if type(value["execution"]["exit_code"]) is not int or not 0 <= value["execution"]["exit_code"] <= 255:
-        raise RegistryError("result exit code is invalid")
-    if value["applicability"] not in {"required", "optional"}:
-        raise RegistryError("result applicability is unsupported")
-    _exact(value["outcome"], {
-        "value", "reason_code", "expected_tests", "observed_tests", "counts", "suites",
-    }, "result outcome")
-    if value["outcome"]["value"] not in {"pass", "fail", "unknown", "not_run"}:
-        raise RegistryError("unsupported result outcome")
-    _string(value["outcome"]["reason_code"], "result reason code", 128)
-    _nonnegative_integer(value["outcome"]["expected_tests"], "result expected tests")
-    if value["outcome"]["expected_tests"] < 1:
-        raise RegistryError("result expected tests must be positive")
-    _nonnegative_integer(value["outcome"]["observed_tests"], "result observed tests")
-    _exact(value["outcome"]["counts"], {
-        "passed", "failed", "ignored", "measured", "filtered_out",
-    }, "result counts")
-    for field, count in value["outcome"]["counts"].items():
-        _nonnegative_integer(count, f"result count {field}")
-    if not isinstance(value["outcome"]["suites"], list) or len(value["outcome"]["suites"]) > 100:
-        raise RegistryError("result suites are invalid")
-    for index, suite in enumerate(value["outcome"]["suites"]):
-        _exact(suite, {"status", "passed", "failed", "ignored", "measured", "filtered_out"},
-               f"result suite {index}")
-        if suite["status"] not in {"ok", "failed"}:
-            raise RegistryError("result suite status is unsupported")
-        for field in ("passed", "failed", "ignored", "measured", "filtered_out"):
-            _nonnegative_integer(suite[field], f"result suite {index} {field}")
-        if (suite["status"] == "failed") != (suite["failed"] > 0):
-            raise RegistryError("result suite status and failed count disagree")
-    calculated_counts = {
-        field: sum(suite[field] for suite in value["outcome"]["suites"])
-        for field in ("passed", "failed", "ignored", "measured", "filtered_out")
-    }
-    if value["outcome"]["counts"] != calculated_counts:
-        raise RegistryError("result counts do not equal the retained suites")
-    calculated_observed = (
-        calculated_counts["passed"] + calculated_counts["failed"]
-        + calculated_counts["ignored"]
-    )
-    if value["outcome"]["observed_tests"] != calculated_observed:
-        raise RegistryError("result observed test count is inconsistent")
-    expected_outcomes = {"PASS": "pass", "FAIL": "fail", "UNKNOWN": "unknown"}
-    if value["verdict"] in expected_outcomes and value["outcome"]["value"] != expected_outcomes[value["verdict"]]:
-        raise RegistryError("result verdict and outcome disagree")
-    if value["verdict"] == "FAIL" and (
-            calculated_counts["failed"] == 0 or value["execution"]["exit_code"] == 0):
-        raise RegistryError("FAIL result lacks a reported failed test and nonzero exit")
-    if value["verdict"] == "PASS" and (
-            calculated_counts["failed"] != 0
-            or value["execution"]["exit_code"] != 0
-            or value["outcome"]["expected_tests"] != calculated_observed):
-        raise RegistryError("PASS result does not satisfy its declared test expectation")
-    _exact(value["stability"], {"value", "equivalence_key"}, "result stability")
-    if value["stability"]["value"] not in {"unassessed", "consistent_observed", "flaky"}:
-        raise RegistryError("result stability is unsupported")
-    _string(value["stability"]["equivalence_key"], "result stability equivalence key", 128)
-    if value["stability"]["equivalence_key"] != value["attempt"]["equivalence_key"]:
-        raise RegistryError("result stability and attempt equivalence keys disagree")
-    if not isinstance(value["sources"], list) or not 1 <= len(value["sources"]) <= 2:
-        raise RegistryError("result sources are invalid")
-    source_roles = set()
-    for index, source in enumerate(value["sources"]):
-        _exact(source, {"role", "sha256", "size_bytes"}, f"result source {index}")
-        if source["role"] not in {"native-test-output", "failure-log"} or source["role"] in source_roles:
-            raise RegistryError("result source role is invalid or duplicated")
-        source_roles.add(source["role"])
-        _sha(source["sha256"], f"result source {index} sha256")
-        _nonnegative_integer(source["size_bytes"], f"result source {index} size")
-        if source["size_bytes"] > MAX_INPUT_BYTES:
-            raise RegistryError("result source exceeds the byte limit")
-    if "native-test-output" not in source_roles:
-        raise RegistryError("result lacks native test output identity")
-    if not isinstance(value["diagnostics"], list) or len(value["diagnostics"]) > MAX_DIAGNOSTICS:
-        raise RegistryError("result diagnostics are invalid")
-    for index, diagnostic in enumerate(value["diagnostics"]):
-        _validate_diagnostic(diagnostic, f"result diagnostic {index}")
-        if diagnostic["tool"] != "typescript" or not re.fullmatch(r"TS\d+", diagnostic["code"]):
-            raise RegistryError("result diagnostic tool or code is unsupported")
-        if len(diagnostic["path"]) > 256 or len(diagnostic["message"]) > 240:
-            raise RegistryError("result diagnostic exceeds the supported bound")
-    return value
+    try:
+        return result_contract.validate_result(value)
+    except result_contract.VerificationResultError as exc:
+        raise RegistryError(str(exc)) from exc
 
 
 def _signature_key(value):

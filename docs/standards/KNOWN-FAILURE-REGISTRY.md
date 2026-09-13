@@ -6,6 +6,10 @@ Status: **Executable exact-match classifier with DEV-INFRA hosted regression; co
 
 `known_failure_registry.py` determines whether one canonical `bima-verification-result.v2` failure exactly matches a reviewed, time-bounded registry entry. It classifies routing only. It does not change the underlying `FAIL`, mark a test flaky, execute a remedy or authorize a retry.
 
+Its strict v2 input validation is shared with the verification aggregator through
+`verification_result_contract.py`; classifier matching and output semantics are
+unchanged.
+
 ## Required entry fields
 
 Every `bima-known-failure-registry.v1` entry requires:

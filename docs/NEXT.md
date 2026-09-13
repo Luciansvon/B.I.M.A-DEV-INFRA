@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), accepted 2026-09-10. Status refreshed 2026-09-13 against `origin/main` at `79c8e3efbed494f2c27b4b50cc8785614e56a6e6` before this Spec Kit audit increment.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md). Status refreshed 2026-09-13 against `origin/main` at `bb5a7f7072e5294557798813081544aee492ddfc` before the aggregate-verification increment.
 
 ## Completed baseline
 
@@ -36,6 +36,8 @@ Exit evidence: bounded positive/negative fixtures, decision report and one enfor
 - [x] Implement a narrow exact-match known-failure registry with mandatory owner/reviewer, maximum 90-day expiry and explicit `automatic_retry_allowed=false`; DEV-INFRA hosted cross-platform regression passes. Consumer integration remains pending.
 - [x] Validate the additive v2 adapter/action in DEV-INFRA hosted run `34470140936`: Ubuntu and Windows both returned `PASS`, `ALL_EXPECTED_TESTS_PASSED`, `29/29`, at the same source and policy hashes.
 - [x] Close AI-COLOR v2 migration without a consumer change. Keep v1 readers and pins active; no opt-in/rollback exercise is required unless a future consumer need reopens migration.
+- [x] Implement additive `bima-verification-plan.v1` and `bima-verification-aggregate.v1` contracts with deterministic `FAIL > BLOCKED > UNKNOWN > PASS` precedence, missing-result detection, flaky protection, and visible optional non-pass results.
+- [x] Publish and inspect hosted Ubuntu/Windows aggregate artifacts in run `34753773782`. Both report `PASS`, `ALL_REQUIRED_CHECKS_PASSED`, required `1/1`, and no unresolved required check. No consumer pin changed.
 
 Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
 
@@ -60,13 +62,12 @@ Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics
 |---|---|---|
 | Graphify context | Pinned candidate, measured native-search tasks and allowed data scope | A/B on DEV-INFRA + AI-COLOR-COMPARE; task success, missing edges, total context/time/build cost; code-only first |
 | ReleaseProof | #8's competitor/reuse/demand gate and one project-owned release case | Same-artifact provenance + installer behavior; one format and explicit expectations |
-| Local QA SLM | Step 2; relevant consumer; >=1,000 verified total benchmark cases with held-out split | Rules/retrieval comparison, unfine-tuned candidates first, calibration, critical errors, total cost and shadow-mode outcomes |
 | Spec Kit authoring adapter | Two distinct reviewed project demands, pinned stable release, native baseline tasks and approved thresholds | Read-only artifact/composition validator first; paired traceability, missing-artifact, acceptance, false-block, security, time/token and upgrade evidence; per-project opt-in only |
 
-Graphify does not block memory or ReleaseProof. ReleaseProof does not block test normalization or model benchmark data collection. Model runtime/training remains blocked until its prerequisites are met; a single audit consumer is not itself a build-log benchmark corpus. Training is optional after baseline inference demonstrates a need.
+Graphify does not block memory or ReleaseProof. ReleaseProof does not block test normalization. Model runtime/training is moved to the final roadmap stage; a single audit consumer is not itself a build-log benchmark corpus.
 
 - [x] Implement a deterministic experiment request/decision gate with pinned baseline, dataset identity, thresholds, budget, permissions, reject criteria, rollback and reviewed demand evidence.
-- [x] Require at least two distinct reviewed project repositories for `READY`; require >=1,000 verified held-out cases for Local QA SLM.
+- [x] Require at least two distinct reviewed project repositories for `READY`.
 - [ ] Run any experiment. None is currently authorized or active.
 
 Spec Kit was audited against stable `v1.0.6` in the [adapter architecture audit](audits/SPEC-KIT-ADAPTER-AUDIT-2026-09-13.md) using a [74-source ledger](research/SOURCES-SPEC-KIT-ADAPTER-2026-09-13.md). It remains a provider-neutral authoring candidate: no package, preset, workflow, adapter or consumer is installed. B.I.M.A governance, Policy Gate, reviewed verifiers and canonical evidence remain authoritative.
@@ -80,3 +81,22 @@ Spec Kit was audited against stable `v1.0.6` in the [adapter architecture audit]
 All provider categories are represented by the experiment-readiness contract. That is a gate implementation, not provider installation or activation.
 
 Every experiment declares baseline, dataset/task identity, acceptance thresholds before execution, costs, reject criteria, permissions and rollback/removal. No provider list is an installation plan. See the [audit matrix](audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md).
+
+## 6. Final optional stage — local SLM
+
+- [x] Encode the minimum `1,000` verified-case readiness threshold in the
+  deterministic experiment gate. This is a blocker contract, not SLM
+  implementation or activation.
+- [ ] Reconsider a local QA SLM only after the deterministic control plane,
+  useful non-model adapters, Failure Memory baseline, and relevant consumer
+  evidence are mature.
+- [ ] Retain the minimum gate: deterministic preprocessing, a real relevant
+  consumer, and at least 1,000 verified benchmark cases with a protected
+  held-out split.
+- [ ] Benchmark rules plus lexical retrieval against untuned candidate models
+  before any training. Reject on false-green, fabricated evidence, permission
+  bypass, worse task success, or worse total cost.
+- [ ] Keep the SLM optional. It cannot create PASS, authorize retries, or become
+  a mandatory dependency of shared infrastructure.
+
+This is intentionally the last roadmap stage under [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md).
