@@ -99,3 +99,7 @@ Verified the external Final Audit Ledger claim-by-claim. The `4ebd5df` launcher 
 ## 2026-10-28 - Merge #34 and re-pin trusted launcher proof (#34)
 
 Merged the contract-hygiene increment at `67736411bf55c4d7b1559b3f473a2da8f92475ba` and re-pinned `trusted-launcher-proof.yml` to that commit. Hosted proof run `40622237968` returned launcher/policy `ALLOW`, `verifier_launched=true`, policy `49075f44...`, and a passing 171-file fixture audit at `53307aa...`. Infrastructure CI run `40622237932` passed both repository audits with 149 tests per OS. The pin covers the reviewed reusable workflow bytes; no consumer pin changed.
+
+## 2026-10-28 - Bind pull-request audits to the base policy (#36)
+
+Accepted ADR-0012 and made the trusted launcher read the subject project and audit policy from the GitHub-provided pull-request base commit; `push`, `schedule` and `workflow_dispatch` keep the checked-out policy. The repository audit accepts exact base bytes through `--policy-file`, so the head policy is never consulted, and the launcher refuses unknown or non-ancestor bases and policy-path changes. Added adversarial tests for base selection, deleted required files, policy-path switching, unknown bases and the push path. Hosted CI run `40625331336` passed workflow lint plus Ubuntu/Windows audits with 155 tests per OS and zero findings; re-pinned proof run `40625331457` returned launcher/policy `ALLOW`, `verifier_launched=true`, and a passing 171-file audit whose `policy_sha256` equals the base `.bima/audit.json`. No consumer pin changed.
