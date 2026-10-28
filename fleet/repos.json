@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "repositories": [
+    {
+      "repository": "Luciansvon/AI-COLOR-COMPARE",
+      "workflow": ".github/workflows/bima-shared-audit.yml"
+    },
+    {
+      "repository": "Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE",
+      "workflow": ".github/workflows/repository-audit.yml"
+    }
+  ]
+}
