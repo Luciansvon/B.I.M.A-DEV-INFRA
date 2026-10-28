@@ -58,13 +58,7 @@ def strict_json(text):
     return json.loads(text, object_pairs_hook=pairs, parse_constant=constant)
 
 
-def load_policy(root, name):
-    if name is None:
-        return DEFAULT_POLICY.copy(), None
-    path = safe_path(root, name)
-    if not path.is_file() or path.stat().st_size > MAX_POLICY_BYTES:
-        raise ValueError("policy must be a regular file of at most 65536 bytes")
-    raw = path.read_bytes()
+def parse_policy(root, raw):
     policy = strict_json(raw.decode("utf-8"))
     if not isinstance(policy, dict) or set(policy) != set(DEFAULT_POLICY):
         raise ValueError("policy must contain schema_version, required_files, max_file_bytes only")
@@ -81,6 +75,25 @@ def load_policy(root, name):
     if type(size) is not int or not 1 <= size <= 10485760:
         raise ValueError("max_file_bytes must be an integer from 1 to 10485760")
     return policy, hashlib.sha256(raw).hexdigest()
+
+
+def load_policy(root, name, policy_file=None):
+    # policy_file carries the exact base-commit bytes chosen by the trusted launcher.
+    if policy_file is not None:
+        source = Path(policy_file)
+        if not source.is_absolute():
+            raise ValueError("policy file must be an absolute path")
+        if source.is_symlink() or (hasattr(source, "is_junction") and source.is_junction()):
+            raise ValueError("policy file must not be a link or junction")
+        if not source.is_file() or source.stat().st_size > MAX_POLICY_BYTES:
+            raise ValueError("policy must be a regular file of at most 65536 bytes")
+        return parse_policy(root, source.read_bytes())
+    if name is None:
+        return DEFAULT_POLICY.copy(), None
+    path = safe_path(root, name)
+    if not path.is_file() or path.stat().st_size > MAX_POLICY_BYTES:
+        raise ValueError("policy must be a regular file of at most 65536 bytes")
+    return parse_policy(root, path.read_bytes())
 
 
 def markdown_links(text):
@@ -101,7 +114,7 @@ def markdown_links(text):
             yield number, match.group(1).strip("<>")
 
 
-def audit(root, policy_name=None):
+def audit(root, policy_name=None, policy_file=None):
     root = root.resolve()
     result = {"schema_version": 1, "module": "repository-audit", "status": "error",
               "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -119,7 +132,7 @@ def audit(root, policy_name=None):
             raise ValueError("root must be the Git repository top level")
         result["revision"] = git(root, "rev-parse", "HEAD").decode("ascii").strip()
         result["dirty"] = bool(git(root, "status", "--porcelain", "--untracked-files=normal"))
-        policy, result["policy_sha256"] = load_policy(root, policy_name)
+        policy, result["policy_sha256"] = load_policy(root, policy_name, policy_file)
         names = sorted(set(os.fsdecode(n) for n in git(
             root, "ls-files", "--cached", "--others", "--exclude-standard", "-z").split(b"\0") if n))
         if not names or len(names) > MAX_FILES:
@@ -175,7 +188,7 @@ def audit(root, policy_name=None):
                 finding("unreadable-file", name, "file is missing, unsafe, or not UTF-8 text")
         result["status"] = "fail" if result["findings"] else "pass"
     except (OSError, ValueError, RecursionError, subprocess.SubprocessError):
-        finding("audit-error", policy_name or ".", "cannot audit repository or policy; check Git root, HEAD, paths, and policy contract")
+        finding("audit-error", str(policy_file or policy_name or "."), "cannot audit repository or policy; check Git root, HEAD, paths, and policy contract")
     return result
 
 
@@ -196,10 +209,14 @@ def write_report(result, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
-    parser.add_argument("--policy", help="repository-relative JSON policy; omission uses built-in defaults")
+    policy = parser.add_mutually_exclusive_group()
+    policy.add_argument("--policy", help="repository-relative JSON policy; omission uses built-in defaults")
+    policy.add_argument(
+        "--policy-file", type=Path,
+        help="absolute exact policy bytes supplied by the trusted launcher")
     parser.add_argument("--output", type=Path, required=True, help="trusted output directory outside audited inputs")
     args = parser.parse_args()
-    result = audit(args.root, args.policy)
+    result = audit(args.root, args.policy, args.policy_file)
     write_report(result, args.output)
     print(f"repository-audit: {result['status']}; files={result['files_checked']}; findings={len(result['findings'])}")
     return {"pass": 0, "fail": 1, "error": 2}[result["status"]]

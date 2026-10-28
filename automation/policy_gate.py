@@ -339,7 +339,8 @@ def _git(root, *args):
 
 
 def execute_repository_audit(root, project, policy, request, expected_policy_sha256,
-                             actor, issued_at, expires_at, policy_raw=None):
+                             actor, issued_at, expires_at, policy_raw=None,
+                             audit_policy_file=None):
     root = root.resolve()
     decision = evaluate(project, policy, request, expected_policy_sha256, actor,
                         issued_at, expires_at, policy_raw)
@@ -365,9 +366,12 @@ def execute_repository_audit(root, project, policy, request, expected_policy_sha
 
     project_operation = _operation(project["operations"], request["operation_id"])
     audit_output = output / "audit"
+    audit_policy = (
+        ["--policy-file", str(audit_policy_file)] if audit_policy_file is not None
+        else ["--policy", project_operation["audit_policy"]])
     run = subprocess.run(
         [sys.executable, "-I", str(Path(repository_audit.__file__).resolve()),
-         "--root", str(root), "--policy", project_operation["audit_policy"],
+         "--root", str(root), *audit_policy,
          "--output", str(audit_output)],
         cwd=root, capture_output=True, text=True, timeout=request["timeout_seconds"])
     result_path = audit_output / "result.json"

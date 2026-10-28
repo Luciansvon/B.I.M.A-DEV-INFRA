@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -33,6 +34,11 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
         self.git(destination, "add", ".")
         self.git(destination, "commit", "-qm", "fixture")
         return self.git(destination, "rev-parse", "HEAD")
+
+    def commit(self, root, message):
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", message)
+        return self.git(root, "rev-parse", "HEAD")
 
     def fixture(self, temporary):
         temporary = Path(temporary)
@@ -106,6 +112,103 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
                 "49075f4408d07a0d9a4d12db43f14dcc72e5795e1cd75fde729294b74a085161",
             )
 
+    def test_pull_request_uses_base_audit_policy(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra, subject, revision, evidence = self.fixture(temporary)
+            base = self.git(subject, "rev-parse", "HEAD")
+            base_policy = (subject / ".bima/audit.json").read_bytes()
+            policy = json.loads(base_policy)
+            policy["max_file_bytes"] = 1
+            (subject / ".bima/audit.json").write_text(json.dumps(policy), encoding="utf-8")
+            head_policy = (subject / ".bima/audit.json").read_bytes()
+            self.commit(subject, "weaken audit policy in the pull request")
+            run = self.run_launcher(
+                infra, subject, evidence,
+                self.environment(
+                    revision, BIMA_EVENT_NAME="pull_request", BIMA_BASE_SHA=base))
+            self.assertEqual(run.returncode, 0, run.stderr)
+            decision = self.load_evidence(evidence)
+            self.assertEqual(decision["decision"], "ALLOW")
+            result = json.loads(
+                (subject / ".artifacts/policy-gate/audit/result.json")
+                .read_text(encoding="utf-8"))
+            self.assertEqual(
+                result["policy_sha256"], hashlib.sha256(base_policy).hexdigest())
+            self.assertNotEqual(
+                result["policy_sha256"], hashlib.sha256(head_policy).hexdigest())
+
+    def test_pull_request_base_policy_detects_deleted_required_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra, subject, revision, evidence = self.fixture(temporary)
+            base = self.git(subject, "rev-parse", "HEAD")
+            (subject / "AGENTS.md").unlink()
+            self.commit(subject, "delete a required file")
+            run = self.run_launcher(
+                infra, subject, evidence,
+                self.environment(
+                    revision, BIMA_EVENT_NAME="pull_request", BIMA_BASE_SHA=base))
+            self.assertEqual(run.returncode, 1, run.stderr)
+            decision = self.load_evidence(evidence)
+            self.assertEqual(decision["decision"], "ALLOW")
+            self.assertTrue(decision["verifier_launched"])
+            result = json.loads(
+                (subject / ".artifacts/policy-gate/audit/result.json")
+                .read_text(encoding="utf-8"))
+            self.assertEqual(result["status"], "fail")
+            self.assertIn(
+                "required-file", [item["code"] for item in result["findings"]])
+
+    def test_pull_request_cannot_switch_the_audit_policy_path(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra, subject, revision, evidence = self.fixture(temporary)
+            base = self.git(subject, "rev-parse", "HEAD")
+            project_path = subject / ".bima/project.json"
+            project = json.loads(project_path.read_text(encoding="utf-8"))
+            project["operations"][0]["audit_policy"] = ".bima/other.json"
+            project_path.write_text(json.dumps(project), encoding="utf-8")
+            self.commit(subject, "switch audit policy path")
+            run = self.run_launcher(
+                infra, subject, evidence,
+                self.environment(
+                    revision, BIMA_EVENT_NAME="pull_request", BIMA_BASE_SHA=base))
+            self.assertEqual(run.returncode, 3, run.stderr)
+            decision = self.load_evidence(evidence)
+            self.assertEqual(decision["reason_code"], "AUDIT_POLICY_PATH_CHANGED")
+            self.assertFalse(decision["verifier_launched"])
+
+    def test_pull_request_requires_a_known_base_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra, subject, revision, evidence = self.fixture(temporary)
+            run = self.run_launcher(
+                infra, subject, evidence,
+                self.environment(
+                    revision, BIMA_EVENT_NAME="pull_request", BIMA_BASE_SHA="f" * 40))
+            self.assertEqual(run.returncode, 3, run.stderr)
+            decision = self.load_evidence(evidence)
+            self.assertEqual(decision["reason_code"], "PR_BASE_UNKNOWN")
+            self.assertFalse(decision["verifier_launched"])
+
+    def test_push_uses_the_checked_out_audit_policy(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra, subject, revision, evidence = self.fixture(temporary)
+            base = self.git(subject, "rev-parse", "HEAD")
+            policy_path = subject / ".bima/audit.json"
+            policy = json.loads(policy_path.read_bytes())
+            policy["max_file_bytes"] = 1
+            policy_path.write_text(json.dumps(policy), encoding="utf-8")
+            head_policy = policy_path.read_bytes()
+            self.commit(subject, "weaken audit policy on push")
+            run = self.run_launcher(
+                infra, subject, evidence,
+                self.environment(
+                    revision, BIMA_EVENT_NAME="push", BIMA_BASE_SHA=base))
+            self.assertEqual(run.returncode, 1, run.stderr)
+            result = json.loads(
+                (subject / ".artifacts/policy-gate/audit/result.json")
+                .read_text(encoding="utf-8"))
+            self.assertEqual(
+                result["policy_sha256"], hashlib.sha256(head_policy).hexdigest())
+
     def test_project_scope_elevation_is_denied_without_verifier(self):
         with tempfile.TemporaryDirectory() as temporary:
             infra, subject, revision, evidence = self.fixture(temporary)
@@ -149,6 +252,10 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
             .read_text(encoding="utf-8"))
         self.assertNotIn("trust-bundle-id:", workflow)
         self.assertIn(f"BIMA_TRUST_BUNDLE_ID: {bundle['bundle_id']}", workflow)
+        self.assertIn("fetch-depth: 0", workflow)
+        self.assertIn(
+            "BIMA_BASE_SHA: ${{ github.event.pull_request.base.sha }}", workflow)
+        self.assertNotIn("base-sha:", workflow)
 
     def test_committed_policy_tamper_fails_bundle_hash(self):
         with tempfile.TemporaryDirectory() as temporary:

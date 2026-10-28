@@ -1,6 +1,6 @@
 # ADR-0012 - Subject audit-policy trust boundary
 
-Status: Proposed.
+Status: Accepted.
 Date: 2026-10-28.
 Decision owner: Bima.
 
@@ -54,19 +54,33 @@ arbitrary workflow input; shallow checkouts and merge commits need explicit
 handling; policy changes require a separate merged PR before they take effect;
 tests and documentation must cover the new path.
 
-Open questions: derive the base commit from the pull-request event or from the
-merge commit's first parent; decide behavior for `push` and `workflow_dispatch`;
-confirm the reusable workflow can pass the base identity without adding a
-spoofable input.
+Open questions resolved by implementation: the base commit is the
+GitHub-provided `pull_request.base.sha`, never a `workflow_call` input; `push`,
+`schedule` and `workflow_dispatch` keep using the checked-out policy; the
+reusable workflow passes the event identity through environment variables set
+from the GitHub event, not through caller-controlled inputs.
+
+## Implementation
+
+The reusable workflow checks out the subject with full history, then passes
+`github.event_name` and `github.event.pull_request.base.sha` as environment
+identity. On `pull_request`, the launcher verifies the base commit exists and is
+an ancestor of the subject, validates the base project declaration, refuses a
+changed `audit_policy` path, and materializes the base policy bytes outside both
+checkouts. The repository audit reads those exact bytes, so the head policy is
+never consulted. Missing or malformed base artifacts deny before the verifier.
 
 ## Evidence
 
-- `automation/trusted_policy_launcher.py:201-205`
-- `automation/policy_gate.py:366-372`
-- `.bima/project.json:12`
-- `policies/trust-bundles/dev-infra-repository-audit.v1.json:6-7`
-- `tests/test_trusted_policy_launcher.py:90-105`
-- `docs/standards/SECURITY-BASELINE.md:27`
+- `automation/trusted_policy_launcher.py:_base_audit_policy`
+- `automation/trusted_policy_launcher.py:launch`
+- `automation/repository_audit.py:load_policy`
+- `automation/policy_gate.py:execute_repository_audit`
+- `.github/workflows/trusted-repository-audit.yml`
+- `.bima/project.json`
+- `policies/trust-bundles/dev-infra-repository-audit.v1.json`
+- `tests/test_trusted_policy_launcher.py`
+- `tests/test_repository_audit.py`
 - External Final Audit Ledger, `SEC-HIGH-01`, 2026-10-28.
 
 ## Supersedes / Superseded by

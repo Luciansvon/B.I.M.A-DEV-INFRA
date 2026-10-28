@@ -1,3 +1,4 @@
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -109,6 +110,19 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(result["status"], "pass")
         self.assertEqual(len(result["policy_sha256"]), 64)
         self.assertEqual(len(result["validator_sha256"]), 64)
+
+    def test_absolute_policy_file_uses_exact_bytes(self):
+        policy = Path(self.temp.name) / "base-audit.json"
+        policy.write_bytes(json.dumps(audit.DEFAULT_POLICY).encode("utf-8"))
+        result = audit.audit(self.root, policy_file=policy)
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(
+            result["policy_sha256"], hashlib.sha256(policy.read_bytes()).hexdigest())
+        relative = audit.audit(self.root, policy_file=Path("base-audit.json"))
+        self.assertEqual(relative["status"], "error")
+        missing = audit.audit(
+            self.root, policy_file=Path(self.temp.name) / "absent.json")
+        self.assertEqual(missing["status"], "error")
 
     def test_deep_json_does_not_abort_audit(self):
         self.put("deep.json", "[" * 2000 + "0" + "]" * 2000)
