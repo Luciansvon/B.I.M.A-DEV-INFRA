@@ -56,6 +56,7 @@ Failure memory is not active: the portable production set remains below the acti
 - [Failure-memory index gate](docs/standards/FAILURE-MEMORY.md)
 - [Failure-memory benchmark gate](docs/standards/FAILURE-MEMORY-BENCHMARK.md)
 - [Benchmark framework](docs/standards/BENCHMARK-FRAMEWORK.md)
+- [Security and supply-chain template](docs/standards/SECURITY-SUPPLY-CHAIN.md)
 - [Experiment-readiness gate](docs/standards/EXPERIMENT-GATE.md)
 - [P0-P5 local validation](docs/audits/VALIDATION-2026-09-12-P0-P5.md)
 - [Failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORDS.md)
@@ -466,7 +467,7 @@ Also avoid workflows that simply add another network hop without improving safet
 - [ ] research/PDF template
 - [ ] hardware/HIL template
 - [ ] visual regression template
-- [ ] security/supply-chain template
+- [x] security/supply-chain template (workflow-hardening checks hosted-proven; dependency review needs a consumer with manifests)
 - [ ] release template
 - [ ] monitoring template
 
