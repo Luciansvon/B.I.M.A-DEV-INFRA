@@ -35,7 +35,7 @@ Policy JSON has exactly these fields:
 }
 ```
 
-These are also the built-in defaults. Policy is at most 64 KiB. `required_files` has 1–100 unique safe repository-relative paths. `max_file_bytes` is an integer from 1 through 10,485,760. Unknown fields, duplicate JSON keys, non-finite numbers, booleans in integer fields, unsupported versions, and absent explicitly supplied policies fail closed. Symlinks, junctions, absolute paths, Git internals, and traversal are rejected for policy/required paths.
+These are also the built-in defaults. Policy is at most 64 KiB. `required_files` has 1-128 unique safe repository-relative paths. `max_file_bytes` is an integer from 1 through 10,485,760. Unknown fields, duplicate JSON keys, non-finite numbers, booleans in integer fields, unsupported versions, and absent explicitly supplied policies fail closed. Symlinks, junctions, absolute paths, Git internals, and traversal are rejected for policy/required paths.
 
 ## Checks and boundaries
 

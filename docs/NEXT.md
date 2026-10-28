@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-10-28 against `main` at `4ebd5df21a9e71d4b19ecfd9e48cfaab79293b67`; Artifact Identity is complete at contract level but has no real build/release consumer.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-10-28 against `main` at `b4fea628f8b725f4afc1f716b25e9c0995688857` plus the Phase 3 hardening increment; Artifact Identity is complete at contract level but has no real build/release consumer.
 
 ## Completed baseline
 
@@ -8,6 +8,7 @@ Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verificat
 - [x] External fixture with reviewed matching pins and inspected [evidence](audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md).
 - [x] Historical [AI-COLOR-COMPARE consumer](audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md), paired v1 pins and canonical evidence. The proposed v2 migration is closed without a consumer change.
 - [x] Audit #3/#8/#9/#15/#17 and RFC-0001; select capability-based architecture and document [contracts](architecture/CAPABILITY-CONTRACT.md). This completes the design decision only.
+- [x] Phase 3 cross-repository infrastructure: project template and bootstrap, hash-pinned workflow catalog, workflow-status dashboard on GitHub Pages, and explicit fleet dispatch with a dry-run default.
 
 ## 0. Governance activation — owner decisions
 
@@ -106,3 +107,14 @@ Every experiment declares baseline, dataset/task identity, acceptance thresholds
   a mandatory dependency of shared infrastructure.
 
 This is intentionally the last roadmap stage under [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md).
+
+## 7. Phase 4 — consumer convergence, provenance and governed intelligence
+
+The Phase 3 hardening increment closed the local contract gaps; the remaining
+work needs real consumers, hosted runs or accumulated reviewed cases.
+
+- [ ] End-to-end artifact identity in release workflows: verify `Artifact Identity v1` against the downloaded release assets before draft publication, prove the fail-closed path on a changed byte, and prove the `AI-COLOR-COMPARE` `main` (`0.3.11+`) release path.
+- [ ] Fleet-wide supply-chain and trusted-audit adoption: prove `security-supply-chain.yml` dependency review on a consumer with real manifests, expand `trusted-repository-audit.yml` callers, and record proven consumers in the catalog.
+- [ ] Read-only fleet pin freshness: compare consumer workflow pins with reviewed catalog entries and surface drift without mutating consumer repositories.
+- [ ] Reviewed failure-memory corpus and lexical retrieval pilot: reach `>=100` independently reviewed real records and `>=10` held-out queries, then publish the SQLite/FTS5 BM25 baseline. Both gates stay blocking; no record is split to inflate the count.
+- [ ] Demand-gated domain templates and two-project experiments: `Spec Kit` read-only validator, `Graphify` code-only A/B, `ReleaseProof`, and the remaining Phase 2 domain templates only after `experiment_gate.py` returns `READY`; the local SLM remains last behind `>=1,000` verified cases.

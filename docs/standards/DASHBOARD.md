@@ -28,6 +28,7 @@ A `HTTP 404 ... not found on the default branch` answer means the file is not re
 
 ```json
 {
+  "schema": "bima-dashboard-status.v1",
   "schema_version": 1,
   "repository": "owner/name",
   "branch": "main",
@@ -49,7 +50,8 @@ A `HTTP 404 ... not found on the default branch` answer means the file is not re
 
 The command exits `2` and writes nothing when:
 
-- the catalog is unreadable, has a duplicate or invalid ID, an unknown entry field, an invalid status, summary or consumers list;
+- the catalog is unreadable, has duplicate JSON keys or non-finite numbers, a duplicate or invalid ID, an unknown entry field, an invalid status, summary or consumers list;
+- the run input has duplicate JSON keys or non-finite numbers;
 - the workflows directory is empty, unreadable or holds more than 50 YAML files;
 - `--fetch` is used without `--repository`;
 - neither `--runs` nor `--fetch` is given;

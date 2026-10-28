@@ -57,6 +57,22 @@ FIELD_SET_PARITY = {
     "bima-trust-bundle.v1.schema.json": (
         ("trusted_policy_launcher", "BUNDLE_FIELDS", ()),
     ),
+    "bima-workflow-catalog.v1.schema.json": (
+        ("workflow_catalog", "TOP_KEYS", ()),
+        ("workflow_catalog", "ENTRY_KEYS", ("$defs", "entry")),
+    ),
+    "bima-fleet.v1.schema.json": (
+        ("fleet_dispatch", "TOP_KEYS", ()),
+        ("fleet_dispatch", "ENTRY_KEYS", ("$defs", "entry")),
+    ),
+    "bima-fleet-evidence.v1.schema.json": (
+        ("fleet_dispatch", "EVIDENCE_FIELDS", ()),
+        ("fleet_dispatch", "DISPATCH_FIELDS", ("$defs", "dispatch")),
+    ),
+    "bima-dashboard-status.v1.schema.json": (
+        ("dashboard", "TOP_KEYS", ()),
+        ("dashboard", "RUN_KEYS", ("$defs", "run")),
+    ),
 }
 
 # Top-level field sets that no validator exports as a constant. Each entry
@@ -114,6 +130,9 @@ EXPLICIT_EXCEPTIONS = {
     ("bima-project.v1.schema.json", ()):
         "policy_gate.validate_project inlines the top-level set; "
         "no exported field-set constant exists.",
+    ("bima-release-evidence.v1.schema.json", ()):
+        "release.yml writes this document from its jq block in the "
+        "'Create and publish release' step; no exported field-set constant exists.",
     ("bima-trusted-launcher-decision.v1.schema.json", ()):
         "trusted_policy_launcher._decision assembles the decision inline; "
         "no exported field-set constant exists.",

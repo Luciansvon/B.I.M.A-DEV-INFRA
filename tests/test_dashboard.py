@@ -29,7 +29,8 @@ def catalog_entry(identifier, summary="Example workflow."):
 def write_inputs(root, runs, workflows=("alpha.yml", "beta.yml")):
     catalog = root / "catalog.json"
     catalog.write_text(
-        json.dumps({"schema_version": 1,
+        json.dumps({"schema": "bima-workflow-catalog.v1",
+                    "schema_version": 1,
                     "workflows": [catalog_entry("alpha"), catalog_entry("beta")]}),
         encoding="utf-8")
     workflows_dir = root / "workflows"
@@ -53,6 +54,7 @@ def run(catalog, workflows_dir, runs, output):
 
 def runs_document(workflows):
     return {
+        "schema": "bima-dashboard-status.v1",
         "schema_version": 1,
         "repository": "owner/repo",
         "branch": "main",
@@ -93,7 +95,8 @@ class DashboardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             catalog = root / "catalog.json"
-            catalog.write_text(json.dumps({"schema_version": 1, "workflows": [
+            catalog.write_text(json.dumps({"schema": "bima-workflow-catalog.v1",
+                                           "schema_version": 1, "workflows": [
                 catalog_entry("alpha", "<script>alert(1)</script>")]}), encoding="utf-8")
             workflows_dir = root / "workflows"
             workflows_dir.mkdir()
@@ -143,6 +146,27 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.missing_workflow(
             "HTTP 403: Resource not accessible by integration\n"))
         self.assertFalse(dashboard.missing_workflow("error connecting to api.github.com\n"))
+
+    def test_strict_json_rejects_duplicates_and_nonfinite_values(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            catalog, workflows_dir, runs_path = write_inputs(root, runs_document({}))
+            cases = [
+                ('{"schema": "bima-dashboard-status.v1", "schema_version": 1,'
+                 ' "repository": "owner/repo", "branch": "main",'
+                 ' "generated_at": "2026-10-28T00:00:00Z",'
+                 ' "workflows": {}, "workflows": {}}', "duplicate key"),
+                ('{"schema": "bima-dashboard-status.v1", "schema_version": 1,'
+                 ' "repository": "owner/repo", "branch": "main",'
+                 ' "generated_at": NaN, "workflows": {}}', "non-finite number"),
+            ]
+            for raw, message in cases:
+                with self.subTest(message=message):
+                    runs_path.write_text(raw, encoding="utf-8")
+                    result = run(catalog, workflows_dir, runs_path, root / "out")
+                    self.assertEqual(result.returncode, 2)
+                    self.assertIn(message, result.stderr)
+            self.assertFalse((root / "out" / "index.html").exists())
 
     def test_missing_input_mode_fails(self):
         with tempfile.TemporaryDirectory() as temporary:

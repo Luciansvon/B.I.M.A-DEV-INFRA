@@ -20,15 +20,19 @@ Every entry has exactly these fields:
 | `sha256` | SHA-256 of the workflow file |
 | `summary` | One printable line, at most 200 characters |
 
-The top level has exactly `schema_version` (integer `1`) and `workflows` (1–50 entries). Unknown fields, duplicate keys, non-finite numbers and duplicate IDs fail closed.
+The top level has exactly `schema` (constant `bima-workflow-catalog.v1`), `schema_version` (integer `1`) and `workflows` (1–50 entries). Unknown fields, duplicate keys, non-finite numbers and duplicate IDs fail closed.
 
 ## Validation
 
 ```bash
 python -I automation/workflow_catalog.py
+# or
+task catalog
 ```
 
 The check fails when a listed workflow or documentation file is missing, a workflow does not declare `workflow_call:`, the recorded SHA-256 does not match the file, or the entry shape is wrong. Output: `workflow-catalog: pass; workflows=<n>`.
+
+The document shape is published as `schemas/bima-workflow-catalog.v1.schema.json` and its field sets are checked against `automation/workflow_catalog.py` by `tests/test_schema_contract_parity.py`.
 
 The SHA-256 pins the reviewed workflow bytes. Any workflow edit requires a catalog update in the same change; that is intentional review friction, not an automation failure.
 

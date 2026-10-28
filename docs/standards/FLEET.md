@@ -8,14 +8,14 @@ Status: **experimental**. One explicit list, one workflow, no organization disco
 
 ## List contract
 
-The file has exactly `schema_version` (integer `1`) and `repositories` (1–30 entries). Each entry has exactly:
+The file has exactly `schema` (constant `bima-fleet.v1`), `schema_version` (integer `1`) and `repositories` (1–30 entries). Each entry has exactly:
 
 | Field | Meaning |
 |---|---|
 | `repository` | `owner/name` |
 | `workflow` | `.github/workflows/<name>.yml`; must stay inside that directory |
 
-Repositories must be unique, case-insensitively. Unknown fields, a duplicate repository, an unsafe path or an out-of-range list fail before anything is dispatched.
+Repositories must be unique, case-insensitively. Unknown fields, duplicate JSON keys, non-finite numbers, a duplicate repository, an unsafe path or an out-of-range list fail before anything is dispatched.
 
 Every entry names its own workflow file, because consumers do not have to use the template's file name.
 
@@ -24,6 +24,8 @@ Every entry names its own workflow file, because consumers do not have to use th
 ```bash
 # Plan only; touches nothing outside the local evidence file.
 python -I automation/fleet_dispatch.py --output .artifacts/fleet
+# or
+task fleet-plan
 
 # Trigger the real dispatch.
 python -I automation/fleet_dispatch.py --apply --output .artifacts/fleet-apply
@@ -39,6 +41,7 @@ Without `--apply` the tool never calls GitHub.
 
 ```json
 {
+  "schema": "bima-fleet-evidence.v1",
   "schema_version": 1,
   "mode": "dry-run",
   "ref": "main",

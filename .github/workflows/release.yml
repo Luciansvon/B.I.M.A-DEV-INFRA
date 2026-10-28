@@ -183,7 +183,8 @@ jobs:
             --argjson dry_run "$DRY_RUN" \
             --argjson published "$published" \
             --argjson assets "$(jq -s '.' "$assets_json")" \
-            '{schema_version: 1, tag: $tag, title: $title, target_sha: $target_sha,
+            '{schema: "bima-release-evidence.v1", schema_version: 1,
+              tag: $tag, title: $title, target_sha: $target_sha,
               prerelease: $prerelease, dry_run: $dry_run, published: $published,
               release_url: (if $release_url == "" then null else $release_url end),
               run_url: $run_url, assets: $assets}' > "$evidence_dir/release.json"

@@ -60,6 +60,7 @@ The caller's publishing job must grant `contents: write`. The called workflow de
 - The caller checkout is untrusted data; the template never executes project code.
 - `persist-credentials: false`; release writes use the job-scoped `GITHUB_TOKEN`.
 - Artifacts are downloaded from the same run, hashed, and uploaded as evidence; no downloaded file is executed.
+- `release.json` is the `bima-release-evidence.v1` document described by `schemas/bima-release-evidence.v1.schema.json`.
 - The template does not sign, attest, rebuild or prove artifact provenance.
 
 ## Compatibility

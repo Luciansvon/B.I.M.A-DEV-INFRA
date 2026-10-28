@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A dashboard status v1",
+  "type": "object",
+  "required": ["schema", "schema_version", "repository", "branch", "generated_at", "workflows"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-dashboard-status.v1"},
+    "schema_version": {"const": 1},
+    "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+    "branch": {"type": "string", "minLength": 1, "maxLength": 100},
+    "generated_at": {"type": "string", "minLength": 1},
+    "workflows": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/run"}
+    }
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "required": ["status", "conclusion", "created_at", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["queued", "in_progress", "completed", "waiting", "pending", "requested", null]},
+        "conclusion": {"enum": ["success", "failure", "skipped", "cancelled", "timed_out", "action_required", "neutral", "stale", null]},
+        "created_at": {"type": "string", "maxLength": 40},
+        "url": {"type": "string", "pattern": "^https://", "maxLength": 500}
+      }
+    }
+  }
+}

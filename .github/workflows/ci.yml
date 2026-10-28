@@ -129,7 +129,7 @@ jobs:
         env:
           SUBJECT_REVISION: ${{ github.sha }}
         run: |
-          python - <<'PY'
+          python -I - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -149,7 +149,7 @@ jobs:
             --plan .artifacts/verification-plan/plan.json \
             --result .artifacts/result-normalization/result.json \
             --output .artifacts/verification-aggregate
-          python - <<'PY'
+          python -I - <<'PY'
           import json
           from pathlib import Path
 
@@ -167,7 +167,7 @@ jobs:
         env:
           SUBJECT_REVISION: ${{ github.sha }}
         run: |
-          python - <<'PY'
+          python -I - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -195,7 +195,7 @@ jobs:
             --manifest .artifacts/artifact-identity/manifest.json \
             --root . \
             --output .artifacts/artifact-identity
-          python - <<'PY'
+          python -I - <<'PY'
           import hashlib
           import json
           from pathlib import Path
@@ -256,7 +256,7 @@ jobs:
           set -e
           [[ "$experiment_status" == "3" ]]
 
-          python - <<'PY'
+          python -I - <<'PY'
           import json
           from pathlib import Path
 
@@ -284,11 +284,14 @@ jobs:
           assert experiment['reason_code'] == 'INSUFFICIENT_CROSS_PROJECT_DEMAND'
           assert experiment['execution_started'] is False
           PY
+      - name: Validate workflow catalog
+        shell: bash
+        run: python -I automation/workflow_catalog.py
       - name: Plan fleet dispatch
         shell: bash
         run: |
           python -I automation/fleet_dispatch.py --output .artifacts/fleet
-          python - <<'PY'
+          python -I - <<'PY'
           import json
           from pathlib import Path
 

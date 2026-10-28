@@ -65,8 +65,8 @@ def parse_policy(root, raw):
     if type(policy["schema_version"]) is not int or policy["schema_version"] != 1:
         raise ValueError("unsupported policy schema_version")
     required = policy["required_files"]
-    if not isinstance(required, list) or not required or len(required) > 100:
-        raise ValueError("required_files must contain 1 to 100 paths")
+    if not isinstance(required, list) or not required or len(required) > 128:
+        raise ValueError("required_files must contain 1 to 128 paths")
     for item in required:
         safe_path(root, item)
     if len(set(required)) != len(required):

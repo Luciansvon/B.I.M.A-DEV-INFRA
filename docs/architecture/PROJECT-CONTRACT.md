@@ -89,7 +89,7 @@ The initial strict versioned JSON profile and compatibility fixtures are impleme
 - Runner OS/architecture, relevant environment/toolchain/fixture constraints and resource limits.
 - Scoped writable outputs, approved network/credential needs, evidence sensitivity, retention owner and cleanup requirements.
 - Trusted policy reference and requested operation scope. Actor identity/approval are supplied by the trusted executor, never self-asserted by project content.
-- Byte-hashed text inputs normalized explicitly, such as LF `.gitattributes` rules; see [GKI-0001](../incidents/GLOBAL-KNOWN-ISSUES.md).
+- Byte-hashed text inputs normalized explicitly, such as LF `.gitattributes` rules; see [GKI-0001](../incidents/GLOBAL-KNOWN-ISSUES.md). The project template ships these rules by default.
 
 Schema-valid project commands remain executable untrusted code until the runner trust boundary permits them. Advisory discovery cannot execute them or override explicit declarations. Required missing checks/providers cannot become successful through fallback. Optional unavailable capabilities must remain visible, and a passing required scope must not imply those optional checks passed.
 

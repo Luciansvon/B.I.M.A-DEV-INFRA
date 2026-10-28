@@ -14,8 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 WORKFLOW = re.compile(r"^\.github/workflows/[A-Za-z0-9._-]+\.ya?ml$")
 REF = re.compile(r"^[A-Za-z0-9._/-]{1,100}$")
-TOP_KEYS = {"schema_version", "repositories"}
+TOP_KEYS = {"schema", "schema_version", "repositories"}
 ENTRY_KEYS = {"repository", "workflow"}
+EVIDENCE_FIELDS = {"schema", "schema_version", "mode", "ref", "generated_at",
+                   "dispatches"}
+DISPATCH_FIELDS = {"repository", "workflow", "status", "run_id", "run_url",
+                   "error"}
 LIMIT_REPOSITORIES = 30
 LIMIT_ERROR = 300
 
@@ -24,13 +28,37 @@ class FleetError(RuntimeError):
     """The fleet file or one dispatch is not acceptable."""
 
 
+def reject_duplicates(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate key: {key}")
+        result[key] = value
+    return result
+
+
+def reject_constant(value):
+    raise ValueError(f"non-finite number: {value}")
+
+
+def strict_loads(text):
+    return json.loads(text, object_pairs_hook=reject_duplicates,
+                      parse_constant=reject_constant)
+
+
 def load_fleet(path):
     try:
-        document = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
         raise FleetError(f"cannot read fleet file: {exc}") from exc
+    try:
+        document = strict_loads(text)
+    except ValueError as exc:
+        raise FleetError(f"invalid JSON in fleet file: {exc}") from exc
     if not isinstance(document, dict) or set(document) != TOP_KEYS:
         raise FleetError(f"fleet keys must be exactly {sorted(TOP_KEYS)}")
+    if document["schema"] != "bima-fleet.v1":
+        raise FleetError("schema must be bima-fleet.v1")
     if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise FleetError("schema_version must be the integer 1")
     repositories = document["repositories"]
@@ -82,7 +110,7 @@ def newest_dispatch_run(entry):
     try:
         completed = subprocess.run(command, capture_output=True, text=True,
                                    timeout=60, check=False)
-        runs = json.loads(completed.stdout) if completed.returncode == 0 else None
+        runs = strict_loads(completed.stdout) if completed.returncode == 0 else None
     except (OSError, subprocess.TimeoutExpired, ValueError):
         return None
     if not isinstance(runs, list) or not runs or not isinstance(runs[0], dict):
@@ -117,7 +145,7 @@ def dispatch(entry, ref):
     details = {}
     if body:
         try:
-            details = json.loads(body)
+            details = strict_loads(body)
         except ValueError:
             details = {}
     if not isinstance(details, dict):
@@ -159,6 +187,7 @@ def main(argv=None):
         else:
             dispatches = [planned(entry) for entry in repositories]
         evidence = {
+            "schema": "bima-fleet-evidence.v1",
             "schema_version": 1,
             "mode": "apply" if arguments.apply else "dry-run",
             "ref": ref,

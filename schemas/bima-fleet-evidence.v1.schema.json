@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A fleet dispatch evidence v1",
+  "type": "object",
+  "required": ["schema", "schema_version", "mode", "ref", "generated_at", "dispatches"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-fleet-evidence.v1"},
+    "schema_version": {"const": 1},
+    "mode": {"enum": ["dry-run", "apply"]},
+    "ref": {"type": "string", "minLength": 1, "maxLength": 100},
+    "generated_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "dispatches": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {"$ref": "#/$defs/dispatch"}
+    }
+  },
+  "$defs": {
+    "dispatch": {
+      "type": "object",
+      "required": ["repository", "workflow", "status", "run_id", "run_url", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+        "workflow": {"type": "string", "pattern": "^\\.github/workflows/[A-Za-z0-9._-]+\\.ya?ml$"},
+        "status": {"enum": ["planned", "dispatched", "failed"]},
+        "run_id": {"type": ["integer", "null"], "minimum": 1},
+        "run_url": {"type": ["string", "null"], "pattern": "^https://"},
+        "error": {"type": ["string", "null"], "maxLength": 300}
+      }
+    }
+  }
+}

@@ -26,6 +26,20 @@ tasks:
       - '"{{.PYTHON}}" -I automation/local_contracts.py'
     timeout: 3m
 
+  catalog:
+    desc: Validate the reusable workflow catalog against the real workflows
+    cmds:
+      - '"{{.PYTHON}}" -I automation/workflow_catalog.py'
+    timeout: 1m
+
+  fleet-plan:
+    desc: Plan the explicit repository fleet dispatch without calling GitHub
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/fleet_dispatch.py
+        --output "{{.EVIDENCE_DIR}}/fleet"
+    timeout: 1m
+
   audit:
     desc: Run repository hygiene and write JSON/Markdown evidence
     cmds:
@@ -102,6 +116,8 @@ tasks:
       - task: preflight
       - task: test
       - task: contracts
+      - task: catalog
+      - task: fleet-plan
       - task: audit
       - task: evidence
       - task: agent-packet
