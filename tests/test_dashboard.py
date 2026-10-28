@@ -126,6 +126,16 @@ class DashboardTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("workflows=2", result.stdout)
 
+    def test_unfinished_run_has_no_conclusion(self):
+        normalized = dashboard.normalize_run({
+            "status": "in_progress",
+            "conclusion": "",
+            "createdAt": "2026-10-28T05:14:27Z",
+            "url": "https://github.com/owner/repo/actions/runs/2",
+        })
+        self.assertIsNone(normalized["conclusion"])
+        self.assertEqual(normalized["status"], "in_progress")
+
     def test_unregistered_workflow_is_not_a_failure(self):
         self.assertTrue(dashboard.missing_workflow(
             "HTTP 404: workflow dashboard.yml not found on the default branch "
