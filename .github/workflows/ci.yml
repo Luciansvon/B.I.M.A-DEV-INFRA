@@ -284,6 +284,22 @@ jobs:
           assert experiment['reason_code'] == 'INSUFFICIENT_CROSS_PROJECT_DEMAND'
           assert experiment['execution_started'] is False
           PY
+      - name: Plan fleet dispatch
+        shell: bash
+        run: |
+          python -I automation/fleet_dispatch.py --output .artifacts/fleet
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          evidence = json.loads(
+              Path('.artifacts/fleet/evidence.json').read_text(encoding='utf-8'))
+          assert evidence['mode'] == 'dry-run'
+          assert evidence['ref'] == 'main'
+          assert evidence['dispatches']
+          assert all(item['status'] == 'planned' for item in evidence['dispatches'])
+          assert all(item['run_id'] is None for item in evidence['dispatches'])
+          PY
       - name: Audit repository
         if: ${{ !cancelled() }}
         run: task audit
@@ -312,6 +328,7 @@ jobs:
             .artifacts/failure-memory/report.json
             .artifacts/failure-memory-benchmark/report.json
             .artifacts/experiment-gate/decision.json
+            .artifacts/fleet/evidence.json
             .artifacts/audit/result.json
             .artifacts/audit/report.md
             .artifacts/evidence/canonical.json
