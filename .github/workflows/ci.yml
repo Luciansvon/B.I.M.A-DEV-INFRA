@@ -326,6 +326,8 @@ jobs:
     name: Security and supply chain
     permissions:
       contents: read
-    uses: ./.github/workflows/security-supply-chain.yml
+    uses: ./.github/workflows/security-supply-chain.yml # zizmor: ignore[self-repository] actionlint 1.7.12 does not support $/ references
     with:
       artifact-name: security-supply-chain-self-test
+      # This repository has no dependency manifests, so dependency review has nothing to compare.
+      dependency-review: false

@@ -42,7 +42,7 @@ class SecuritySupplyChainTests(unittest.TestCase):
         self.assertIn("--fix=false --no-api", text)
         self.assertIn("--offline --strict-collection", text)
         remote = [item for item in REMOTE_USES.findall(text)
-                  if not item.startswith("./")]
+                  if not item.startswith(("./", "$/"))]
         self.assertTrue(remote)
         for reference in remote:
             with self.subTest(reference=reference):
@@ -66,7 +66,9 @@ class SecuritySupplyChainTests(unittest.TestCase):
     def test_ci_uses_the_shared_installer_and_self_test(self):
         text = CI.read_text(encoding="utf-8")
         self.assertIn(
-            "uses: ./.github/workflows/security-supply-chain.yml", text)
+            "uses: ./.github/workflows/security-supply-chain.yml "
+            "# zizmor: ignore[self-repository]", text)
+        self.assertIn("dependency-review: false", text)
         self.assertIn(
             "bash automation/install_security_tools.sh", text)
         self.assertEqual(text.count("bima-security-tools"), 2)

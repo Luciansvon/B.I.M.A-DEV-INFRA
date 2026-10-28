@@ -24,7 +24,7 @@ Tool versions and SHA-256 digests live in `automation/install_security_tools.sh`
 | Input | Required | Type | Default | Description |
 |---|---:|---|---|---|
 | `artifact-name` | no | string | `security-supply-chain` | Unique evidence artifact prefix per call |
-| `dependency-review` | no | boolean | `true` | Run dependency review on pull requests; disable only when the caller has no dependency graph or GHAS |
+| `dependency-review` | no | boolean | `true` | Run dependency review on pull requests; disable only when the caller has no dependency manifests, dependency graph or GHAS |
 
 ## Outputs
 
@@ -68,7 +68,7 @@ The workflow uploads `summary.txt` plus one log per tool. `summary.txt` records 
 
 ## Compatibility
 
-Callers pin a full DEV-INFRA commit SHA in `uses:`; the template reads `job.workflow_repository` and `job.workflow_sha` for its own infrastructure checkout, so the same reviewed revision supplies both the workflow and the installer. `dependency-review-action` v5 requires Actions Runner v2.327.1 or newer; GitHub-hosted runners satisfy this. Dependency review requires a public repository or a private repository with GitHub Advanced Security and the dependency graph enabled. Set `dependency-review: false` only when that prerequisite is unavailable, and record the missing coverage; do not treat the skip as a passing dependency review.
+Callers pin a full DEV-INFRA commit SHA in `uses:`; the template reads `job.workflow_repository` and `job.workflow_sha` for its own infrastructure checkout, so the same reviewed revision supplies both the workflow and the installer. `dependency-review-action` v5 requires Actions Runner v2.327.1 or newer; GitHub-hosted runners satisfy this. Dependency review requires a public repository or a private repository with GitHub Advanced Security plus the dependency graph enabled, and at least one supported dependency manifest. Set `dependency-review: false` only when one of those prerequisites is unavailable, and record the missing coverage; do not treat the skip as a passing dependency review.
 
 A template change follows the normal pin update: checksum review, local/CI self-test, hosted run, then consumer pin updates.
 
@@ -78,4 +78,6 @@ Pinact proves only that a full SHA is present, not that it belongs to the named 
 
 ## Self-test
 
-`ci.yml` calls `./.github/workflows/security-supply-chain.yml` on push, pull request and manual dispatch. The self-test proves the template against this repository's own workflows, local Action and Dependabot configuration. Consumer compatibility still requires its own pinned call and check result.
+`ci.yml` calls `./.github/workflows/security-supply-chain.yml` on push, pull request and manual dispatch. The call stays workspace-relative because actionlint v1.7.12 cannot parse GitHub's `$/` self-repository syntax; a narrow `zizmor: ignore[self-repository]` records that tool limit. The self-test proves action-validator, pinact and zizmor against this repository's own workflows, local Action and Dependabot configuration.
+
+DEV-INFRA has no dependency manifests, so its dependency graph is empty and dependency review has nothing to compare. The self-test therefore passes `dependency-review: false` and does not claim that scope as proven. The dependency-review job is hosted-proven only when a consumer with at least one supported manifest calls this template.
