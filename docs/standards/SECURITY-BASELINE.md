@@ -6,9 +6,10 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 
 - Declare `permissions: contents: read`; add write scopes only for a documented module that needs them.
 - Pin external Actions and consumed infrastructure to full commit SHAs. Dependabot proposes Actions updates; humans review them and their check results.
-- Verify downloaded CI tools against a fixed SHA-256 digest before execution. The current `actionlint`, prek, action-validator, pinact, and zizmor release binaries are versioned and digest-checked.
+- Verify downloaded CI tools against a fixed SHA-256 digest before execution. `automation/install_security_tools.sh` is the single source for the versioned, digest-checked action-validator, pinact, and zizmor binaries; actionlint and prek stay in their existing pinned steps.
 - Enforce full-length commit SHAs for remote Actions and reusable workflows with pinact's read-only offline mode. This baseline does not yet verify version comments, SHA provenance, or minimum release age.
 - Run zizmor's regular-persona offline audits without automatic fixes. The gate covers locally decidable GitHub workflow, local Action, and Dependabot risks; online-only audits remain explicitly outside this increment.
+- Offer the reviewed checks to consumers through the reusable [security/supply-chain template](SECURITY-SUPPLY-CHAIN.md), which also runs GitHub dependency review on pull requests when the caller's repository supports it.
 - Delay routine Dependabot version updates for seven days. GitHub security updates are not delayed by this cooldown.
 - Use GitHub-hosted ephemeral runners for untrusted pull requests. No `pull_request_target` execution of PR code, self-hosted runner, deployment environment, or inherited secrets in the initial audit module.
 - Disable persisted checkout credentials. Pass configurable strings through environment variables or action inputs; never interpolate them into shell source.
@@ -25,7 +26,7 @@ All Actions are allowed at repository level; the shipped workflow pins are narro
 
 ## What this does not prove
 
-Repository hygiene and offline workflow checks do not provide platform-side repository analysis, discover vulnerable application dependencies, analyze application source, validate every workflow security property, or establish release readiness. Keep those gates explicit when their modules are added. For pull-request audits the subject audit policy is read from the base commit, so a PR cannot weaken the policy that evaluates it; push, schedule and manual runs still use the checked-out policy, so protect those refs.
+Repository hygiene and offline workflow checks do not provide platform-side repository analysis, discover vulnerable application dependencies, analyze application source, validate every workflow security property, or establish release readiness. Keep those gates explicit when their modules are added. Dependency review covers pull-request dependency changes only, requires a public repository or GitHub Advanced Security plus the dependency graph, and does not scan the full dependency history. For pull-request audits the subject audit policy is read from the base commit, so a PR cannot weaken the policy that evaluates it; push, schedule and manual runs still use the checked-out policy, so protect those refs.
 
 ## Runner and version policy
 
