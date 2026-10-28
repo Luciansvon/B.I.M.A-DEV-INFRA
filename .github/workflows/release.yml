@@ -1,0 +1,213 @@
+name: Reusable release publication
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: New release tag; vX.Y.Z with an optional -prerelease suffix
+        required: true
+        type: string
+      title:
+        description: Release title
+        required: true
+        type: string
+      notes-file:
+        description: Repository-relative file with the release notes
+        required: true
+        type: string
+      target-sha:
+        description: Full 40-character commit SHA that the new tag must point at
+        required: true
+        type: string
+      artifact-pattern:
+        description: Glob selecting only the build artifacts to publish from this run
+        required: true
+        type: string
+      prerelease:
+        description: Mark the release as a prerelease
+        required: false
+        type: boolean
+        default: false
+      dry-run:
+        description: Validate inputs, artifacts and tag policy without creating anything
+        required: false
+        type: boolean
+        default: false
+      artifact-name:
+        description: Unique evidence artifact prefix for each call in a workflow or matrix
+        required: false
+        type: string
+        default: release-evidence
+    outputs:
+      release-url:
+        description: Published release URL; empty on dry-run
+        value: ${{ jobs.publish.outputs.release-url }}
+      evidence-artifact-id:
+        description: Uploaded release evidence artifact ID
+        value: ${{ jobs.publish.outputs.evidence-artifact-id }}
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      # Create and publish the release and its new tag; the template refuses an existing tag.
+      contents: write
+    outputs:
+      release-url: ${{ steps.release.outputs.release-url }}
+      evidence-artifact-id: ${{ steps.evidence.outputs.artifact-id }}
+    steps:
+      - name: Checkout caller as untrusted data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download release artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: ${{ inputs.artifact-pattern }}
+          path: ${{ runner.temp }}/release-assets
+          merge-multiple: true
+      - name: Validate inputs and tag policy
+        id: validate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          TARGET_SHA: ${{ inputs.target-sha }}
+          NOTES_FILE: ${{ inputs.notes-file }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "tag must match vX.Y.Z or vX.Y.Z-prerelease; got: $TAG" >&2
+            exit 2
+          fi
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "target-sha must be a full lowercase commit SHA" >&2
+            exit 2
+          fi
+
+          notes_path="$(realpath -- "$NOTES_FILE")"
+          if [[ "$notes_path" != "$GITHUB_WORKSPACE"/* || ! -f "$notes_path" || -L "$NOTES_FILE" ]]; then
+            echo "notes-file must be a regular file inside the caller checkout" >&2
+            exit 2
+          fi
+
+          assets_root="$RUNNER_TEMP/release-assets"
+          mapfile -t assets < <(find "$assets_root" -type f | sort)
+          if [[ "${#assets[@]}" -eq 0 ]]; then
+            echo "artifact-pattern selected no release assets" >&2
+            exit 2
+          fi
+
+          declare -A names=()
+          for asset in "${assets[@]}"; do
+            name="$(basename -- "$asset")"
+            [[ -z "${names[$name]:-}" ]] || { echo "duplicate release asset name: $name" >&2; exit 2; }
+            [[ "$(stat -c %s -- "$asset")" -gt 0 ]] || { echo "empty release asset: $name" >&2; exit 2; }
+            names[$name]=1
+          done
+
+          tag_status="$(gh api -i "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" 2>/dev/null | awk 'NR==1 { print $2 }')" || true
+          if [[ "$tag_status" == "200" ]]; then
+            echo "tag $TAG already exists; release tags are not overwritten" >&2
+            exit 2
+          fi
+          if [[ "$tag_status" != "404" ]]; then
+            echo "could not verify tag status (HTTP ${tag_status:-unknown})" >&2
+            exit 2
+          fi
+
+          {
+            printf 'assets=%s\n' "${#assets[@]}"
+            printf 'notes_file=%s\n' "$notes_path"
+            printf 'tag_status=%s\n' "$tag_status"
+          } > "$RUNNER_TEMP/release-validation.txt"
+
+      - name: Create and publish release
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          TITLE: ${{ inputs.title }}
+          TARGET_SHA: ${{ inputs.target-sha }}
+          NOTES_FILE: ${{ inputs.notes-file }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+
+          mapfile -t assets < <(find "$RUNNER_TEMP/release-assets" -type f | sort)
+          notes_path="$(realpath -- "$NOTES_FILE")"
+          evidence_dir="$RUNNER_TEMP/release"
+          mkdir -p "$evidence_dir"
+
+          release_url=""
+          published="false"
+          if [[ "$DRY_RUN" == "true" ]]; then
+            echo "dry-run: no release or tag created"
+          else
+            create_args=(release create "$TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY"
+              --target "$TARGET_SHA" --title "$TITLE" --notes-file "$notes_path" --draft)
+            [[ "$PRERELEASE" == "true" ]] && create_args+=(--prerelease)
+            draft_url="$(gh "${create_args[@]}")"
+            release_url="$(gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false)"
+            published="true"
+            printf 'draft_url=%s\n' "$draft_url" >> "$RUNNER_TEMP/release-validation.txt"
+          fi
+
+          assets_json="$RUNNER_TEMP/release-assets.jsonl"
+          : > "$assets_json"
+          for asset in "${assets[@]}"; do
+            jq -nc \
+              --arg name "$(basename -- "$asset")" \
+              --arg sha256 "$(sha256sum -- "$asset" | awk '{ print $1 }')" \
+              --argjson size "$(stat -c %s -- "$asset")" \
+              '{name: $name, size: $size, sha256: $sha256}' >> "$assets_json"
+          done
+
+          jq -n \
+            --arg tag "$TAG" \
+            --arg title "$TITLE" \
+            --arg target_sha "$TARGET_SHA" \
+            --arg release_url "$release_url" \
+            --arg run_url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --argjson prerelease "$PRERELEASE" \
+            --argjson dry_run "$DRY_RUN" \
+            --argjson published "$published" \
+            --argjson assets "$(jq -s '.' "$assets_json")" \
+            '{schema_version: 1, tag: $tag, title: $title, target_sha: $target_sha,
+              prerelease: $prerelease, dry_run: $dry_run, published: $published,
+              release_url: (if $release_url == "" then null else $release_url end),
+              run_url: $run_url, assets: $assets}' > "$evidence_dir/release.json"
+
+          printf 'release-url=%s\n' "$release_url" >> "$GITHUB_OUTPUT"
+          {
+            printf '## Release %s\n\n' "$TAG"
+            printf -- '- dry run: `%s`\n' "$DRY_RUN"
+            printf -- '- published: `%s`\n' "$published"
+            printf -- '- target: `%s`\n' "$TARGET_SHA"
+            printf -- '- assets: %s\n' "${#assets[@]}"
+            if [[ -n "$release_url" ]]; then
+              printf -- '- release: %s\n' "$release_url"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve release evidence
+        id: evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ inputs.artifact-name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/release-validation.txt
+            ${{ runner.temp }}/release/release.json
+          if-no-files-found: warn
+          retention-days: 14
