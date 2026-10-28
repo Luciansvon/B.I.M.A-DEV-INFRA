@@ -1,0 +1,41 @@
+name: Release template self-test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asset:
+    name: Build self-test asset
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Create release asset
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset"
+          printf 'release template self-test\n' > "$RUNNER_TEMP/asset/release-self-test.txt"
+      - name: Upload release asset
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-self-test-asset
+          path: ${{ runner.temp }}/asset/release-self-test.txt
+
+  publish:
+    name: Release template dry run
+    needs: asset
+    permissions:
+      # The called workflow needs this to create a real release; this self-test only runs dry-run.
+      contents: write
+    uses: ./.github/workflows/release.yml # zizmor: ignore[self-repository] actionlint 1.7.12 does not support $/ references
+    with:
+      tag: v0.0.0-self-test
+      title: Release template self-test
+      notes-file: .github/release-self-test-notes.md
+      target-sha: ${{ github.sha }}
+      artifact-pattern: release-self-test-asset
+      dry-run: true

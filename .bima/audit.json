@@ -10,6 +10,8 @@
     ".github/actions/normalize-rust-libtest/action.yml",
     ".github/workflows/ci.yml",
     ".github/workflows/security-supply-chain.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/release-template-self-test.yml",
     ".github/workflows/trusted-launcher-proof.yml",
     ".github/workflows/trusted-repository-audit.yml",
     "automation/benchmark_contract.py",
@@ -79,6 +81,7 @@
     "docs/standards/WORKFLOW-CONTRACT.md",
     "docs/standards/SECURITY-BASELINE.md",
     "docs/standards/SECURITY-SUPPLY-CHAIN.md",
+    "docs/standards/RELEASE.md",
     "docs/standards/REPOSITORY-AUDIT.md"
   ],
   "max_file_bytes": 1048576
