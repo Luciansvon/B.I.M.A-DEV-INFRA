@@ -27,6 +27,7 @@ The first `--apply` attempt in this session returned `status=dispatched` with `r
 
 - `python -I -m unittest discover -s tests -p "test_fleet_dispatch.py"`: 6 tests, OK.
 - zizmor on the modified `ci.yml`: no findings.
+- Hosted run `40638462572`: 190 tests per OS, `fleet-dispatch: pass; mode=dry-run; repositories=2; failed=0` on Ubuntu and Windows, repository audit 204 files / 0 findings, and the `fleet/evidence.json` artifact retained.
 
 ## Boundaries
 
