@@ -130,7 +130,9 @@ Added `automation/dashboard.py`, which lists every workflow file, asks the GitHu
 
 `.github/workflows/dashboard.yml` renders on pull requests, pushes to `main`, a daily 03:17 UTC schedule and manual dispatch, then deploys through pinned `upload-pages-artifact` v5.0.0 and `deploy-pages` v5.0.1 actions. The deploy job is gated off pull requests so a PR cannot publish. GitHub Pages was enabled with `build_type=workflow`.
 
-Local verification: 6 dashboard tests passed; a real fetch against `main` rendered 8 workflow files with 3 direct runs and 5 without; zizmor reported no findings. Hosted evidence is recorded in the pull request and the deploy run.
+Local verification: 6 dashboard tests passed; a real fetch against `main` rendered 8 workflow files with 3 direct runs and 5 without; zizmor reported no findings.
+
+Hosted: the pull-request build (`40636515977`) rendered `workflows=8; missing=5` and skipped the deploy job as designed. The first `main` deploy (`40636808638`) failed closed on `ci.yml: invalid conclusion`; run `40637436825` deployed successfully after the unfinished-run fix, and <https://luciansvon.github.io/B.I.M.A-DEV-INFRA/> serves the page with its `status.json`.
 
 ## 2026-10-28 - Repository fleet dispatch
 
@@ -138,4 +140,4 @@ Added `fleet/repos.json` as the whole scope of the fleet: an explicit `owner/nam
 
 The dispatch call sends the ref as a JSON body. The API deployment used here answered `204` with no run details, so the tool now records the newest manual run before the call and compares afterwards to attach the run link; the first attempt in this session recorded `run_id=null` for both entries.
 
-Local verification: 6 fleet tests passed; the dry-run plan reported `repositories=2`; `--apply` triggered `40637742495` in AI-COLOR-COMPARE and `40637756778` in the fixture, both `workflow_dispatch` runs with a successful `audit / audit` job. CI now runs the dry-run plan on Ubuntu and Windows and keeps its evidence. Exact evidence is in the [fleet dispatch validation record](audits/VALIDATION-2026-10-28-FLEET-DISPATCH.md).
+Local verification: 6 fleet tests passed; the dry-run plan reported `repositories=2`; `--apply` triggered `40637742495` in AI-COLOR-COMPARE and `40637756778` in the fixture, both `workflow_dispatch` runs with a successful `audit / audit` job. Hosted run `40638462572` ran 190 tests per OS, planned the fleet on Ubuntu and Windows, and audited 204 files with zero findings. Exact evidence is in the [fleet dispatch validation record](audits/VALIDATION-2026-10-28-FLEET-DISPATCH.md).
