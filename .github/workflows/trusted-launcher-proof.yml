@@ -14,6 +14,6 @@ jobs:
     name: Trusted repository audit proof
     permissions:
       contents: read
-    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/trusted-repository-audit.yml@67736411bf55c4d7b1559b3f473a2da8f92475ba # v1
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/trusted-repository-audit.yml@49e7424e88f2512d4a5ef753730e6dfe293a8fbd # v1
     with:
       artifact-name: trusted-launcher-proof
