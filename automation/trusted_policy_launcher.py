@@ -2,6 +2,7 @@
 
 import argparse
 from datetime import datetime, timedelta, timezone
+import contextlib
 import hashlib
 import importlib.util
 import json
@@ -10,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+import tempfile
 
 
 POLICY_GATE_SCRIPT = Path(__file__).resolve().with_name("policy_gate.py")
@@ -33,6 +35,8 @@ REQUIRED_ENV = {
     "BIMA_RUN_ID",
     "BIMA_RUN_ATTEMPT",
 }
+# GitHub event identity, read only to select the pull-request base-policy path.
+OPTIONAL_ENV = {"BIMA_EVENT_NAME", "BIMA_BASE_SHA"}
 BUNDLE_FIELDS = {
     "schema", "bundle_id", "workflow_repository", "workflow_path",
     "policy_path", "policy_sha256", "operation_id", "decision_ttl_seconds",
@@ -99,6 +103,62 @@ def _git(root, *args):
             timeout=30).stdout.decode("utf-8").strip()
     except (OSError, subprocess.SubprocessError, UnicodeError) as exc:
         raise LauncherError("GIT_IDENTITY_ERROR", "cannot establish checkout identity") from exc
+
+
+def _git_bytes(root, *args):
+    try:
+        return subprocess.run(
+            ["git", "-C", str(root), *args], check=True, capture_output=True,
+            timeout=30).stdout
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise LauncherError("GIT_IDENTITY_ERROR", "cannot establish checkout identity") from exc
+
+
+def _base_audit_policy(subject_root, base_sha, project_path, project, project_operation):
+    """Read the pull-request base policy without trusting a workflow input."""
+    if not REVISION.fullmatch(base_sha):
+        raise LauncherError("PR_BASE_INVALID", "pull request base SHA is not a full revision")
+    try:
+        _git_bytes(subject_root, "cat-file", "-e", f"{base_sha}^{{commit}}")
+    except LauncherError as exc:
+        raise LauncherError("PR_BASE_UNKNOWN", "pull request base commit is not available") from exc
+    try:
+        subprocess.run(
+            ["git", "-C", str(subject_root), "merge-base", "--is-ancestor", base_sha, "HEAD"],
+            check=True, capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise LauncherError(
+            "PR_BASE_NOT_ANCESTOR", "pull request base is not an ancestor of the subject") from exc
+    relative = _relative_path(project_path, "project declaration")
+    try:
+        raw_project = _git_bytes(subject_root, "cat-file", "blob", f"{base_sha}:{relative}")
+    except LauncherError as exc:
+        raise LauncherError(
+            "BASE_PROJECT_MISSING", "pull request base has no project declaration") from exc
+    try:
+        base_project = policy_gate.validate_project(policy_gate.strict_json(raw_project))
+    except policy_gate.ContractError as exc:
+        raise LauncherError(
+            "INVALID_BASE_PROJECT", "base project declaration violates its contract") from exc
+    if base_project["repository"] != project["repository"]:
+        raise LauncherError(
+            "BASE_REPOSITORY_MISMATCH", "base project declaration does not match caller repository")
+    base_operation = next(
+        (item for item in base_project["operations"] if item["id"] == project_operation["id"]), None)
+    if base_operation is None:
+        raise LauncherError(
+            "BASE_OPERATION_MISSING", "base project does not declare the trusted operation")
+    if base_operation["audit_policy"] != project_operation["audit_policy"]:
+        raise LauncherError(
+            "AUDIT_POLICY_PATH_CHANGED",
+            "audit policy path differs from the pull request base")
+    try:
+        return _git_bytes(
+            subject_root, "cat-file", "blob",
+            f"{base_sha}:{base_operation['audit_policy']}")
+    except LauncherError as exc:
+        raise LauncherError(
+            "BASE_AUDIT_POLICY_MISSING", "pull request base has no audit policy") from exc
 
 
 def validate_bundle(value, bundle_id):
@@ -209,6 +269,11 @@ def launch(infra_root, subject_root, bundle_id, project_path, environment, now=N
         (item for item in project["operations"] if item["id"] == bundle["operation_id"]), None)
     if project_operation is None:
         raise LauncherError("PROJECT_OPERATION_MISSING", "project does not declare the trusted operation")
+    base_policy_raw = None
+    if environment.get("BIMA_EVENT_NAME") == "pull_request":
+        base_policy_raw = _base_audit_policy(
+            subject_root, environment.get("BIMA_BASE_SHA", ""), project_path,
+            project, project_operation)
 
     subject_revision = _git(subject_root, "rev-parse", "HEAD")
     run_seed = {
@@ -239,9 +304,16 @@ def launch(infra_root, subject_root, bundle_id, project_path, environment, now=N
     issued_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     expires_at = expires.strftime("%Y-%m-%dT%H:%M:%SZ")
     actor = f"github-actions:{environment['BIMA_TRUSTED_ACTOR']}"
-    decision, result = policy_gate.execute_repository_audit(
-        subject_root, project, policy, request, bundle["policy_sha256"], actor,
-        issued_at, expires_at, policy_raw)
+    with contextlib.ExitStack() as stack:
+        audit_policy_file = None
+        if base_policy_raw is not None:
+            directory = stack.enter_context(
+                tempfile.TemporaryDirectory(prefix="bima-audit-policy-"))
+            audit_policy_file = Path(directory) / "audit.json"
+            audit_policy_file.write_bytes(base_policy_raw)
+        decision, result = policy_gate.execute_repository_audit(
+            subject_root, project, policy, request, bundle["policy_sha256"], actor,
+            issued_at, expires_at, policy_raw, audit_policy_file)
     launched = decision["decision"] == "ALLOW" and result is not None
     return _decision(
         decision["decision"], decision["reason_code"], environment, bundle_id,
@@ -256,7 +328,7 @@ def main():
     parser.add_argument("--project-path", default=".bima/project.json")
     parser.add_argument("--evidence-output", type=Path, required=True)
     args = parser.parse_args()
-    environment = {name: os.environ.get(name, "") for name in REQUIRED_ENV}
+    environment = {name: os.environ.get(name, "") for name in REQUIRED_ENV | OPTIONAL_ENV}
     output = None
     try:
         output = _safe_output(args.evidence_output, args.infra_root, args.subject_root)

@@ -25,7 +25,7 @@ All Actions are allowed at repository level; the shipped workflow pins are narro
 
 ## What this does not prove
 
-Repository hygiene and offline workflow checks do not provide platform-side repository analysis, discover vulnerable application dependencies, analyze application source, validate every workflow security property, or establish release readiness. Keep those gates explicit when their modules are added. A policy or ignore change can weaken a check; review it together with workflow and validator changes.
+Repository hygiene and offline workflow checks do not provide platform-side repository analysis, discover vulnerable application dependencies, analyze application source, validate every workflow security property, or establish release readiness. Keep those gates explicit when their modules are added. For pull-request audits the subject audit policy is read from the base commit, so a PR cannot weaken the policy that evaluates it; push, schedule and manual runs still use the checked-out policy, so protect those refs.
 
 ## Runner and version policy
 

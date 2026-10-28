@@ -33,6 +33,8 @@ jobs:
         with:
           path: subject
           persist-credentials: false
+          # Pull-request audit policy is read from the base commit, so its history must exist.
+          fetch-depth: 0
       - name: Checkout the exact called workflow revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -54,6 +56,8 @@ jobs:
           BIMA_WORKFLOW_SHA: ${{ job.workflow_sha }}
           BIMA_RUN_ID: ${{ github.run_id }}
           BIMA_RUN_ATTEMPT: ${{ github.run_attempt }}
+          BIMA_EVENT_NAME: ${{ github.event_name }}
+          BIMA_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           BIMA_TRUST_BUNDLE_ID: dev-infra-repository-audit.v1
           BIMA_PROJECT_PATH: ${{ inputs.project-path }}
         run: |
