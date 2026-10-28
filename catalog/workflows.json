@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "workflows": [
+    {
+      "id": "repository-audit",
+      "path": ".github/workflows/repository-audit.yml",
+      "status": "beta",
+      "docs": "docs/standards/REPOSITORY-AUDIT.md",
+      "consumers": [
+        "Luciansvon/AI-COLOR-COMPARE",
+        "Luciansvon/B.I.M.A-DEV-INFRA-FIXTURE"
+      ],
+      "summary": "Offline repository hygiene audit with canonical evidence retained for 14 days.",
+      "sha256": "ade6f3febf7cc975ace5d96f7ad85eeda6d9f903de3ce7bde2f79bb6e204686b"
+    },
+    {
+      "id": "security-supply-chain",
+      "path": ".github/workflows/security-supply-chain.yml",
+      "status": "experimental",
+      "docs": "docs/standards/SECURITY-SUPPLY-CHAIN.md",
+      "consumers": [],
+      "summary": "Workflow-hardening checks plus pull-request dependency review for a consumer repository.",
+      "sha256": "5bf6ed28878d41c5e5d0bb5f44716d149a4e2d7d7d7678d4e516beeaf38dc72c"
+    },
+    {
+      "id": "release",
+      "path": ".github/workflows/release.yml",
+      "status": "experimental",
+      "docs": "docs/standards/RELEASE.md",
+      "consumers": [
+        "Luciansvon/AI-COLOR-COMPARE"
+      ],
+      "summary": "Publish one release from the calling run assets with a new tag and SHA-256 evidence.",
+      "sha256": "2c26952bc5bdfb812acd854dc72d2098db10afbdf1343e794708bb48f1e27c4f"
+    },
+    {
+      "id": "trusted-repository-audit",
+      "path": ".github/workflows/trusted-repository-audit.yml",
+      "status": "experimental",
+      "docs": "docs/standards/TRUSTED-POLICY-LAUNCHER.md",
+      "consumers": [],
+      "summary": "Bind separate subject and infrastructure checkouts and launch the trusted policy verifier.",
+      "sha256": "084de3562bb791a947da32728d2b78babd412c1bbf2cec9ecccb156954ffbbff"
+    }
+  ]
+}

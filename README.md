@@ -58,6 +58,8 @@ Failure memory is not active: the portable production set remains below the acti
 - [Benchmark framework](docs/standards/BENCHMARK-FRAMEWORK.md)
 - [Security and supply-chain template](docs/standards/SECURITY-SUPPLY-CHAIN.md)
 - [Release publication template](docs/standards/RELEASE.md)
+- [Project repository template](docs/standards/PROJECT-TEMPLATE.md)
+- [Reusable workflow catalog](docs/standards/WORKFLOW-CATALOG.md)
 - [Experiment-readiness gate](docs/standards/EXPERIMENT-GATE.md)
 - [P0-P5 local validation](docs/audits/VALIDATION-2026-09-12-P0-P5.md)
 - [Failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORDS.md)
@@ -469,13 +471,13 @@ Also avoid workflows that simply add another network hop without improving safet
 - [ ] hardware/HIL template
 - [ ] visual regression template
 - [x] security/supply-chain template (workflow-hardening checks hosted-proven; dependency review needs a consumer with manifests)
-- [ ] release template
+- [x] release template (dry-run and real fixture publication hosted-proven; AI-COLOR consumer rehearsal passed on the v0.3.10 source; current main needs a 0.3.11 release to prove that path)
 - [ ] monitoring template
 
 ### Phase 3 — Cross-repository infrastructure
 
-- [ ] repository template
-- [ ] reusable workflow catalog
+- [x] repository template (scaffold plus pinned audit call; GitHub settings stay manual)
+- [x] reusable workflow catalog (hash-pinned entries validated against the real workflows)
 - [ ] dashboard / GitHub Pages
 - [x] portable experiment request/decision history contract; no provider experiment active
 - [ ] organization/repository fleet automation

@@ -1,0 +1,21 @@
+name: B.I.M.A shared repository audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    permissions:
+      contents: read
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/repository-audit.yml@__INFRA_REF__ # v1
+    with:
+      infra-ref: __INFRA_REF__
+      policy-path: .bima/audit.json
+      artifact-name: project-audit
