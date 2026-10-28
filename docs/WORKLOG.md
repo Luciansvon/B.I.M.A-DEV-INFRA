@@ -95,3 +95,7 @@ Added additive request, manifest and verification contracts binding declared art
 ## 2026-10-28 - Audit ledger adjudication and low-risk hardening (#33)
 
 Verified the external Final Audit Ledger claim-by-claim. The `4ebd5df` launcher pin and the `upload-artifact`/`setup-python`/`prek`/`zizmor` updates are correct. The ledger's "Pytest 147 PASS, 2 SKIPPED" claim is contradicted by the canonical `unittest` runs (149 tests, 0 skipped, Ubuntu and Windows); its 171-file audit count is local-only because `user.md` is untracked. Added `-I` to both Python calls in the normalization action, ignored `.env*` and `*.pem`, and recorded the subject audit-policy trust gap as [ADR-0012](decisions/ADR-0012-subject-audit-policy-trust.md). No workflow pin, contract, required context, or consumer changed.
+
+## 2026-10-28 - Merge #34 and re-pin trusted launcher proof (#34)
+
+Merged the contract-hygiene increment at `67736411bf55c4d7b1559b3f473a2da8f92475ba` and re-pinned `trusted-launcher-proof.yml` to that commit. Hosted proof run `40622237968` returned launcher/policy `ALLOW`, `verifier_launched=true`, policy `49075f44...`, and a passing 171-file fixture audit at `53307aa...`. Infrastructure CI run `40622237932` passed both repository audits with 149 tests per OS. The pin covers the reviewed reusable workflow bytes; no consumer pin changed.
