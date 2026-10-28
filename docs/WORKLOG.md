@@ -154,4 +154,4 @@ Template: `templates/project/` now ships `.gitattributes` (LF for JSON, Markdown
 
 Tests: `test_policy_gate.py` now builds a temporary Git subject instead of using the repository root, so the suite no longer needs a `.git` directory in an exported tree.
 
-Local verification: 192 tests ran with 2 skips; `local-contracts: PASS; contracts=10; failed=0`; `workflow-catalog: pass; workflows=4`; `fleet-dispatch: pass; mode=dry-run; repositories=2; failed=0`; `repository-audit: pass; files=212; findings=0`. Hosted Ubuntu/Windows proof is pending the next pull request.
+Local verification: 192 tests ran with 2 skips; `local-contracts: PASS; contracts=10; failed=0`; `workflow-catalog: pass; workflows=4`; `fleet-dispatch: pass; mode=dry-run; repositories=2; failed=0`; `repository-audit: pass; files=212; findings=0`. Hosted proof followed in pull request #46: run `40675725560` passed workflow lint, 192 tests per OS, catalog validation, fleet planning and the repository audit on `ubuntu-24.04` and `windows-2025` with zero findings; dashboard run `40675725801` and trusted-audit proof `40675725794` also passed.

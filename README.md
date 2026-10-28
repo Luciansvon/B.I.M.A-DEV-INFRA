@@ -486,7 +486,7 @@ Also avoid workflows that simply add another network hop without improving safet
 
 ### Phase 4 — Consumer convergence, provenance, and governed intelligence readiness
 
-- [ ] Phase 3 contract hardening (local proof only; hosted proof pending) — strict duplicate-key/non-finite JSON rejection in fleet and dashboard, `-I` isolated Python in every workflow step, Draft 2020-12 schemas for catalog/fleet/fleet evidence/dashboard/release, `task catalog` and `task fleet-plan`, and LF `.gitattributes` rules in `templates/project/` that mitigate GKI-0001 for new projects
+- [x] Phase 3 contract hardening — strict duplicate-key/non-finite JSON rejection in fleet and dashboard, `-I` isolated Python in every workflow step, Draft 2020-12 schemas for catalog/fleet/fleet evidence/dashboard/release, `task catalog` and `task fleet-plan`, and LF `.gitattributes` rules in `templates/project/` that mitigate GKI-0001 for new projects
 - [ ] End-to-end artifact identity in release workflows (`Artifact Identity v1` manifest verification before draft publication, proven fail-closed on a changed byte and on the `AI-COLOR-COMPARE` `main` release path)
 - [ ] Fleet-wide supply-chain and trusted-audit adoption (prove `security-supply-chain.yml` dependency review on a manifest-bearing consumer, expand `trusted-repository-audit.yml` callers, and surface consumer pin drift read-only)
 - [ ] Reviewed failure-memory corpus and lexical retrieval pilot (reach `>=100` independently reviewed real failure/fix records and `>=10` held-out queries to unblock the SQLite/FTS5 BM25 benchmark; the gates stay blocking)
