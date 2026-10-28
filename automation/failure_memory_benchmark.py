@@ -2,11 +2,8 @@
 
 import argparse
 from fractions import Fraction
-import hashlib
 import importlib.util
-import json
 from pathlib import Path
-import re
 import sqlite3
 import sys
 
@@ -20,79 +17,32 @@ failure_memory = importlib.util.module_from_spec(MEMORY_SPEC)
 MEMORY_SPEC.loader.exec_module(failure_memory)
 failure_records = failure_memory.failure_records
 
+CONTRACT_SCRIPT = Path(__file__).resolve().with_name("benchmark_contract.py")
+CONTRACT_SPEC = importlib.util.spec_from_file_location(
+    "bima_failure_memory_benchmark_contract", CONTRACT_SCRIPT)
+if CONTRACT_SPEC is None or CONTRACT_SPEC.loader is None:
+    raise RuntimeError("cannot load the reviewed benchmark contract")
+benchmark_contract = importlib.util.module_from_spec(CONTRACT_SPEC)
+CONTRACT_SPEC.loader.exec_module(benchmark_contract)
 
-MAX_INPUT_BYTES = 4 * 1024 * 1024
+BenchmarkError = benchmark_contract.BenchmarkError
+strict_json = benchmark_contract.strict_json
+load_document = benchmark_contract.load_document
+canonical_bytes = benchmark_contract.canonical_bytes
+_exact = benchmark_contract.validate_exact_fields
+_string = benchmark_contract.validate_string
+_identifier = benchmark_contract.validate_identifier
+_sha256 = benchmark_contract.validate_sha256
+_ppm = benchmark_contract.validate_ppm
+_sorted_ids = benchmark_contract.validate_sorted_ids
+
+
 MAX_QUERIES = 1000
 MINIMUM_QUERIES = 10
-IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REQUEST_FIELDS = {
     "schema", "benchmark_id", "dataset_id", "record_set_sha256",
     "held_out", "acceptance", "queries",
 }
-
-
-class BenchmarkError(ValueError):
-    """Benchmark input or execution violates its deterministic contract."""
-
-
-def _exact(value, fields, label):
-    if not isinstance(value, dict) or set(value) != set(fields):
-        raise BenchmarkError(f"{label} fields do not match the v1 contract")
-
-
-def _string(value, label, maximum=512):
-    if not isinstance(value, str) or not value or len(value) > maximum:
-        raise BenchmarkError(f"{label} is invalid")
-
-
-def _identifier(value, label):
-    if not isinstance(value, str) or not IDENTIFIER.fullmatch(value):
-        raise BenchmarkError(f"{label} is invalid")
-
-
-def _ppm(value, label):
-    if type(value) is not int or not 0 <= value <= 1_000_000:
-        raise BenchmarkError(f"{label} must be integer parts-per-million")
-
-
-def _sorted_ids(value, label, minimum=0):
-    if not isinstance(value, list) or not minimum <= len(value) <= 100:
-        raise BenchmarkError(f"{label} is outside its item bounds")
-    for item in value:
-        _identifier(item, label)
-    if value != sorted(set(value)):
-        raise BenchmarkError(f"{label} must be unique and sorted")
-
-
-def strict_json(raw):
-    def pairs(items):
-        result = {}
-        for key, value in items:
-            if key in result:
-                raise BenchmarkError("duplicate JSON key")
-            result[key] = value
-        return result
-
-    def constant(_):
-        raise BenchmarkError("non-finite JSON number")
-
-    try:
-        return json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
-                          parse_constant=constant)
-    except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
-        raise BenchmarkError("input is not strict UTF-8 JSON") from exc
-
-
-def load_document(path):
-    if path.is_symlink() or not path.is_file() or path.stat().st_size > MAX_INPUT_BYTES:
-        raise BenchmarkError("input must be a regular file within the byte limit")
-    return strict_json(path.read_bytes())
-
-
-def canonical_bytes(value):
-    return (json.dumps(value, ensure_ascii=True, allow_nan=False, sort_keys=True,
-                       separators=(",", ":")) + "\n").encode("utf-8")
 
 
 def validate_request(value):
@@ -101,9 +51,7 @@ def validate_request(value):
         raise BenchmarkError("unsupported benchmark request schema")
     _identifier(value["benchmark_id"], "benchmark_id")
     _identifier(value["dataset_id"], "dataset_id")
-    if not isinstance(value["record_set_sha256"], str) or not SHA256.fullmatch(
-            value["record_set_sha256"]):
-        raise BenchmarkError("record_set_sha256 is invalid")
+    _sha256(value["record_set_sha256"], "record_set_sha256")
     if type(value["held_out"]) is not bool:
         raise BenchmarkError("held_out must be boolean")
 
@@ -161,7 +109,7 @@ def _blocked(request, record_summary, reason_code):
         "benchmark_id": request["benchmark_id"],
         "dataset_id": request["dataset_id"],
         "record_set_sha256": record_summary["record_set_sha256"],
-        "request_sha256": hashlib.sha256(canonical_bytes(request)).hexdigest(),
+        "request_sha256": benchmark_contract.digest(request),
         "status": "BLOCKED",
         "reason_code": reason_code,
         "real_verified_records": record_summary["real_verified_records"],
@@ -254,7 +202,7 @@ def benchmark(record_set, request, database_path, repository_root):
         "benchmark_id": request["benchmark_id"],
         "dataset_id": request["dataset_id"],
         "record_set_sha256": summary["record_set_sha256"],
-        "request_sha256": hashlib.sha256(canonical_bytes(request)).hexdigest(),
+        "request_sha256": benchmark_contract.digest(request),
         "status": "PASS" if passed else "FAIL",
         "reason_code": "ACCEPTANCE_SATISFIED" if passed else "ACCEPTANCE_NOT_SATISFIED",
         "real_verified_records": summary["real_verified_records"],

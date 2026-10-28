@@ -2,7 +2,7 @@
 
 Status: **Executable mechanics; production benchmark blocked below 100 real records and 10 held-out queries.**
 
-The benchmark request binds a held-out query set to the canonical failure-record digest and declares acceptance thresholds before execution. At least 100 real, reviewed, `ACTIVE` failure records and 10 held-out queries are required before the SQLite index is built. Production runs pass `--bind-record-set` so the digest is derived from the checked-in record set at invocation time; a request with a stale pinned digest still fails closed.
+The benchmark request binds a held-out query set to the canonical failure-record digest and declares acceptance thresholds before execution. Shared parsing, bounds and canonical-digest mechanics come from `automation/benchmark_contract.py`; this adapter owns only the retrieval metrics and record-set binding. At least 100 real, reviewed, `ACTIVE` failure records and 10 held-out queries are required before the SQLite index is built. Production runs pass `--bind-record-set` so the digest is derived from the checked-in record set at invocation time; a request with a stale pinned digest still fails closed.
 
 Metrics use deterministic integer parts-per-million:
 
