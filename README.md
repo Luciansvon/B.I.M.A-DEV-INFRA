@@ -60,6 +60,7 @@ Failure memory is not active: the portable production set remains below the acti
 - [Release publication template](docs/standards/RELEASE.md)
 - [Project repository template](docs/standards/PROJECT-TEMPLATE.md)
 - [Reusable workflow catalog](docs/standards/WORKFLOW-CATALOG.md)
+- [Workflow status dashboard](docs/standards/DASHBOARD.md) — rendered at <https://luciansvon.github.io/B.I.M.A-DEV-INFRA/>
 - [Experiment-readiness gate](docs/standards/EXPERIMENT-GATE.md)
 - [P0-P5 local validation](docs/audits/VALIDATION-2026-09-12-P0-P5.md)
 - [Failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORDS.md)
@@ -478,7 +479,7 @@ Also avoid workflows that simply add another network hop without improving safet
 
 - [x] repository template (scaffold plus pinned audit call; GitHub settings stay manual)
 - [x] reusable workflow catalog (hash-pinned entries validated against the real workflows)
-- [ ] dashboard / GitHub Pages
+- [x] dashboard / GitHub Pages (static latest-run snapshot plus the reusable catalog)
 - [x] portable experiment request/decision history contract; no provider experiment active
 - [ ] organization/repository fleet automation
 
