@@ -1,0 +1,126 @@
+name: Reusable security and supply-chain checks
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: Unique artifact prefix for each call in a workflow or matrix
+        required: false
+        type: string
+        default: security-supply-chain
+      dependency-review:
+        description: Run dependency review on pull requests; disable only when the caller has no dependency graph or GHAS
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      artifact-id:
+        description: Uploaded security evidence artifact ID
+        value: ${{ jobs.workflow-security.outputs.artifact-id }}
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-security:
+    name: Workflow security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      artifact-id: ${{ steps.evidence.outputs.artifact-id }}
+    steps:
+      - name: Checkout caller as untrusted data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: subject
+          persist-credentials: false
+      - name: Checkout the exact called workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: infra
+          persist-credentials: false
+      - name: Install verified security tools
+        shell: bash
+        run: bash infra/automation/install_security_tools.sh "$RUNNER_TEMP/bima-security-tools"
+      - name: Run workflow security checks
+        id: checks
+        shell: bash
+        env:
+          TOOLS: ${{ runner.temp }}/bima-security-tools
+          OUTPUT: ${{ runner.temp }}/bima-security
+        run: |
+          set -euo pipefail
+          export PATH="$TOOLS:$PATH"
+          mkdir -p "$OUTPUT"
+          cd subject
+
+          mapfile -t workflows < <(
+            find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | sort)
+          mapfile -t actions < <(
+            find .github/actions -type f \( -name 'action.yml' -o -name 'action.yaml' \) 2>/dev/null | sort)
+          files=("${workflows[@]}" "${actions[@]}")
+
+          if [[ "${#files[@]}" -eq 0 ]]; then
+            printf 'status=error\nreason=no-workflow-inputs\n' > "$OUTPUT/summary.txt"
+            exit 2
+          fi
+
+          {
+            printf 'action-validator=%s\n' "$(action-validator --version 2>&1)"
+            printf 'pinact=%s\n' "$(pinact version 2>&1)"
+            printf 'zizmor=%s\n' "$(zizmor --version 2>&1)"
+            printf 'workflows=%s\n' "${#workflows[@]}"
+            printf 'actions=%s\n' "${#actions[@]}"
+            if [[ -f .github/dependabot.yml ]]; then
+              printf 'dependabot=true\n'
+            else
+              printf 'dependabot=false\n'
+            fi
+          } > "$OUTPUT/summary.txt"
+
+          status=0
+          action-validator --verbose "${files[@]}" 2>&1 | tee "$OUTPUT/action-validator.log" || status=1
+          pinact run --fix=false --no-api "${files[@]}" 2>&1 | tee "$OUTPUT/pinact.log" || status=1
+
+          zizmor_inputs=("${files[@]}")
+          if [[ -f .github/dependabot.yml ]]; then
+            zizmor_inputs+=(".github/dependabot.yml")
+          fi
+          zizmor --offline --strict-collection --no-progress --color=never \
+            --render-links=never --show-audit-urls=always "${zizmor_inputs[@]}" \
+            2>&1 | tee "$OUTPUT/zizmor.log" || status=1
+
+          if [[ "$status" -eq 0 ]]; then
+            printf 'status=pass\n' >> "$OUTPUT/summary.txt"
+          else
+            printf 'status=fail\n' >> "$OUTPUT/summary.txt"
+          fi
+          exit "$status"
+      - name: Preserve security evidence
+        id: evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ inputs.artifact-name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/bima-security/summary.txt
+            ${{ runner.temp }}/bima-security/action-validator.log
+            ${{ runner.temp }}/bima-security/pinact.log
+            ${{ runner.temp }}/bima-security/zizmor.log
+          if-no-files-found: error
+          retention-days: 14
+
+  dependency-review:
+    name: Dependency review
+    if: ${{ inputs.dependency-review && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          fail-on-scopes: runtime
+          comment-summary-in-pr: never

@@ -9,10 +9,12 @@
     ".github/actionlint.yaml",
     ".github/actions/normalize-rust-libtest/action.yml",
     ".github/workflows/ci.yml",
+    ".github/workflows/security-supply-chain.yml",
     ".github/workflows/trusted-launcher-proof.yml",
     ".github/workflows/trusted-repository-audit.yml",
     "automation/benchmark_contract.py",
     "automation/experiment_gate.py",
+    "automation/install_security_tools.sh",
     "automation/failure_memory.py",
     "automation/failure_memory_benchmark.py",
     "automation/failure_records.py",
@@ -76,6 +78,7 @@
     "docs/standards/WORKFLOW-SCHEMA.md",
     "docs/standards/WORKFLOW-CONTRACT.md",
     "docs/standards/SECURITY-BASELINE.md",
+    "docs/standards/SECURITY-SUPPLY-CHAIN.md",
     "docs/standards/REPOSITORY-AUDIT.md"
   ],
   "max_file_bytes": 1048576
