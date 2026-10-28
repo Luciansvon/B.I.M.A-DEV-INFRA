@@ -123,3 +123,11 @@ AI-COLOR-COMPARE adopted the template in PR #15 (`87d7698`). Its first dispatch 
 Added `templates/project/` as a complete scaffold (README, AGENTS, architecture, incidents, audit policy and a pinned shared-audit call) and `automation/bootstrap_project.py`, which writes it into an empty target, refuses an invalid SHA, symlinks, unknown placeholders or a non-empty target, and prints a canonical per-file SHA-256 manifest. Added `catalog/workflows.json` and `automation/workflow_catalog.py`, which fail closed on duplicate keys/IDs, unknown fields, missing files, a non-`workflow_call` workflow, or a SHA-256 that no longer matches the reviewed workflow bytes. The catalog lists the four reusable workflows with status, documentation, proven consumers and summary.
 
 Local verification: 177 tests passed; repository audit 195 files / 0 findings; all 8 executable contracts passed; catalog validation reported `workflows=4`. No consumer pin or existing workflow changed.
+
+## 2026-10-28 - Workflow status dashboard and GitHub Pages
+
+Added `automation/dashboard.py`, which lists every workflow file, asks the GitHub API for its newest run on one branch, and renders `index.html` plus a canonical `status.json`. A first design keyed the table by catalog entry and reported every reusable workflow as missing; the check `gh run list --workflow .github/workflows/release.yml` returned `[]` for all four. Reusable workflows only run inside a caller, so the page now separates a live repository-workflow table from a catalog table that carries review status and proven consumers. A workflow file that is not yet on the default branch answers `HTTP 404`; that single case renders as `no direct runs`, while every other `gh` error still fails the build.
+
+`.github/workflows/dashboard.yml` renders on pull requests, pushes to `main`, a daily 03:17 UTC schedule and manual dispatch, then deploys through pinned `upload-pages-artifact` v5.0.0 and `deploy-pages` v5.0.1 actions. The deploy job is gated off pull requests so a PR cannot publish. GitHub Pages was enabled with `build_type=workflow`.
+
+Local verification: 6 dashboard tests passed; a real fetch against `main` rendered 8 workflow files with 3 direct runs and 5 without; zizmor reported no findings. Hosted evidence is recorded in the pull request and the deploy run.
