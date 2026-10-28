@@ -75,11 +75,11 @@ runs:
           args+=(--failure-log "$BIMA_FAILURE_LOG_PATH")
         fi
         set +e
-        python "$GITHUB_ACTION_PATH/../../../automation/result_normalizer.py" "${args[@]}"
+        python -I "$GITHUB_ACTION_PATH/../../../automation/result_normalizer.py" "${args[@]}"
         status=$?
         set -e
         if [[ -f "$BIMA_OUTPUT_DIRECTORY/result.json" ]]; then
-          python - "$BIMA_OUTPUT_DIRECTORY/result.json" "$GITHUB_OUTPUT" <<'PY'
+          python -I - "$BIMA_OUTPUT_DIRECTORY/result.json" "$GITHUB_OUTPUT" <<'PY'
         import hashlib
         import json
         from pathlib import Path

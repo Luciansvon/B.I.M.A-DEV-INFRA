@@ -29,6 +29,7 @@ These decisions gate claims of protected/governed publication, not unprivileged 
 - [x] Prove locally that subject policy shadowing, scope elevation, workflow-ref substitution, committed policy tampering, repository spoofing and overlapping checkouts fail closed.
 - [x] Publish hosted proof for the new trusted launcher workflow: run `34707376819` returned launcher/policy `ALLOW`, launched the verifier and produced a passing 144-file audit. Run `34707376740` separately passed workflow lint plus the Ubuntu/Windows matrix. No consumer pin changed.
 - [ ] After the current increment merges, re-pin `trusted-launcher-proof.yml` to the merge SHA and require its hosted proof. The current pin covers the reviewed reusable-workflow bytes but not this increment's action/tool bumps.
+- [ ] Decide the subject audit-policy trust boundary in [ADR-0012](decisions/ADR-0012-subject-audit-policy-trust.md) before treating the required audit as a security gate.
 
 Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.
 

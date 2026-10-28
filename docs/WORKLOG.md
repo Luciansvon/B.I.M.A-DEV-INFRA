@@ -91,3 +91,7 @@ Added `bima-verification-plan.v1` and `bima-verification-aggregate.v1` with fixe
 ## 2026-09-13 — Fail-closed artifact identity contract (#32)
 
 Added additive request, manifest and verification contracts binding declared artifact bytes to subject/policy, role, ownership, retention metadata, size and SHA-256; missing, changed or unsafe files fail closed. Hosted run `34767179664` passed with 142 tests per OS, 167 files, 188 links and zero findings, and launcher run `34767179786` returned `ALLOW`. The increment is contract proof only: no build/release consumer uses it and consumer migration remains deferred. See the [artifact identity validation](audits/VALIDATION-2026-09-13-ARTIFACT-IDENTITY.md).
+
+## 2026-10-28 - Audit ledger adjudication and low-risk hardening (#33)
+
+Verified the external Final Audit Ledger claim-by-claim. The `4ebd5df` launcher pin and the `upload-artifact`/`setup-python`/`prek`/`zizmor` updates are correct. The ledger's "Pytest 147 PASS, 2 SKIPPED" claim is contradicted by the canonical `unittest` runs (149 tests, 0 skipped, Ubuntu and Windows); its 171-file audit count is local-only because `user.md` is untracked. Added `-I` to both Python calls in the normalization action, ignored `.env*` and `*.pem`, and recorded the subject audit-policy trust gap as [ADR-0012](decisions/ADR-0012-subject-audit-policy-trust.md). No workflow pin, contract, required context, or consumer changed.

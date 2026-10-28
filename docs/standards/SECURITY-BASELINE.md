@@ -15,6 +15,7 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 - Keep caller checkout (`subject`) separate from executable infrastructure (`infra`). The shared audit never executes caller scripts, installs caller dependencies, or imports caller Python modules. Python runs with `-I`.
 - Set explicit job timeouts. Upload the named evidence files even after a check fails, and fail when evidence is missing. Never upload a whole checkout or arbitrary caller-selected artifact path.
 - Retain artifacts for 14 days. Reports contain repository file paths and finding metadata, not file content; consumers must consider whether their filenames are sensitive.
+- Keep `.env*` and `*.pem` ignored. `.gitignore` is preventive only, not a secret scanner, and `git add -f` bypasses it.
 
 ## Current repository settings
 
