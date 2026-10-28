@@ -72,6 +72,16 @@ def load_catalog(path):
     return catalog
 
 
+def normalize_run(run):
+    """gh reports an empty conclusion while a run is not finished yet."""
+    return {
+        "status": run.get("status"),
+        "conclusion": run.get("conclusion") or None,
+        "created_at": run.get("createdAt"),
+        "url": run.get("url"),
+    }
+
+
 def missing_workflow(stderr):
     """gh reports 404 when a workflow file is not yet on the default branch."""
     return "HTTP 404" in stderr and "not found on the default branch" in stderr
@@ -103,13 +113,7 @@ def fetch_runs(repository, branch, files):
         if not isinstance(runs, list):
             raise DashboardError(f"gh returned a non-list for {name}")
         if runs:
-            run = runs[0]
-            workflows[name] = {
-                "status": run.get("status"),
-                "conclusion": run.get("conclusion"),
-                "created_at": run.get("createdAt"),
-                "url": run.get("url"),
-            }
+            workflows[name] = normalize_run(runs[0])
     return {
         "schema_version": 1,
         "repository": repository,

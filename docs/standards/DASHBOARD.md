@@ -20,6 +20,8 @@ That is the normal state for the four reusable workflows: they run *inside* a ca
 
 A `HTTP 404 ... not found on the default branch` answer means the file is not registered on the default branch yet — for example a workflow added in the pull request being built. It is rendered as `no direct runs`, not as a failure. Any other `gh` error fails the build closed.
 
+`gh` prints an empty conclusion for a run that has not finished. The dashboard stores that as `null` and renders `in progress`; an unexpected conclusion value still fails closed. Because the dashboard runs on every push to `main`, a workflow that also starts on that push is usually shown as in progress rather than passed or failed.
+
 ## Output contract
 
 `status.json`:
