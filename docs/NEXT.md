@@ -1,6 +1,6 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-09-13 against `origin/main` at `46d01d3b9a7c28ffcbab2b10bcd461db959e3634` before the artifact-identity increment.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-10-28 against `main` at `4ebd5df21a9e71d4b19ecfd9e48cfaab79293b67`; Artifact Identity is complete at contract level but has no real build/release consumer.
 
 ## Completed baseline
 
@@ -14,6 +14,8 @@ Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verificat
 - [x] Select Apache-2.0 for permissive cross-project reuse with an explicit patent grant and change-notice obligations.
 - [x] Activate main protection with solo-maintainer approval count `0`. Require workflow-lint and Ubuntu/Windows checks, strict update, admin enforcement, linear history and conversation resolution; prevent force-push/deletion. API state inspected 2026-09-10.
 - [x] Verify compatibility and activate repository-level SHA enforcement. Live Actions permissions reported `sha_pinning_required=true` on 2026-09-12; pinact 4.1.1 passes all current workflows/actions.
+- [x] Require the trusted repository audit proof as a merge context: `Trusted repository audit proof / audit` was added to `main` protection on 2026-10-28, bound to the GitHub Actions app.
+- [x] Enable immutable releases and an active tag ruleset (`Protect release tags`) blocking tag deletion and non-fast-forward updates under `refs/tags/*` with no bypass actors. Verified 2026-10-28.
 
 These decisions gate claims of protected/governed publication, not unprivileged local design or validation work. Retain Dagger PR #2 on its existing closed/deferred branch.
 
@@ -26,6 +28,7 @@ These decisions gate claims of protected/governed publication, not unprivileged 
 - [x] Implement a trusted reusable launcher that binds separate subject/infra checkouts, exact called-workflow SHA, trusted policy bundle/hash and runner identity.
 - [x] Prove locally that subject policy shadowing, scope elevation, workflow-ref substitution, committed policy tampering, repository spoofing and overlapping checkouts fail closed.
 - [x] Publish hosted proof for the new trusted launcher workflow: run `34707376819` returned launcher/policy `ALLOW`, launched the verifier and produced a passing 144-file audit. Run `34707376740` separately passed workflow lint plus the Ubuntu/Windows matrix. No consumer pin changed.
+- [ ] After the current increment merges, re-pin `trusted-launcher-proof.yml` to the merge SHA and require its hosted proof. The current pin covers the reviewed reusable-workflow bytes but not this increment's action/tool bumps.
 
 Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.
 
@@ -52,9 +55,9 @@ Exit evidence: successful and failing real examples, malicious/malformed/missing
 - [ ] Collect at least 100 real failure/fix cases for the first meaningful retrieval pilot; 6 independently reviewed shared-infrastructure cases are canonical, while the held-out query set remains empty.
 - [ ] Run and publish the production retrieval benchmark after both the 100-real-case and 10-held-out-query gates are satisfied.
 
-Current activation: `BLOCKED`, `6/100` real reviewed cases and `0/10` held-out queries. No database is created below the gate.
+Current activation: `BLOCKED`, below the `100`-record and `10`-query thresholds. No database is created below the gate.
 
-History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were independently reviewed by Bima in PR #27 and converted to canonical active records. A sixth shared-workflow failure from that activation was independently reviewed in PR #28 and converted separately. The corpus is `6/100`; held-out queries remain `0/10`.
+History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were independently reviewed by Bima in PR #27 and converted to canonical active records. A sixth shared-workflow failure from that activation was independently reviewed in PR #28 and converted separately. The corpus remains below the `100`-record threshold; held-out queries remain empty.
 
 Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics and retained verification references. Schema collection does not wait for 100 cases; advanced database adoption does.
 

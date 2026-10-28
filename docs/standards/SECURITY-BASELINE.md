@@ -16,13 +16,11 @@ Status: initial baseline; repository settings are a separate enforcement layer.
 - Set explicit job timeouts. Upload the named evidence files even after a check fails, and fail when evidence is missing. Never upload a whole checkout or arbitrary caller-selected artifact path.
 - Retain artifacts for 14 days. Reports contain repository file paths and finding metadata, not file content; consumers must consider whether their filenames are sensitive.
 
-## Repository settings still required
+## Current repository settings
 
-After hosted checks have actually run, configure a `main` ruleset requiring pull requests and both `Repository audit (ubuntu-24.04)` and `Repository audit (windows-2025)` checks. Prevent force pushes and branch deletion. The owner must choose review-count and administrator-bypass policies appropriate for a solo-maintained repository.
+Verified 2026-10-28: `main` protection is active with required contexts `Workflow lint`, `Repository audit (ubuntu-24.04)`, `Repository audit (windows-2025)` and `Trusted repository audit proof / audit`, `0` required approvals, strict required-check updates, linear history, admin enforcement, and force-push/deletion disabled. Repository-level Action SHA pinning is required. Immutable releases are enabled, and the active `Protect release tags` ruleset blocks tag deletion and non-fast-forward updates under `refs/tags/*` with no bypass actors.
 
-The audit on 2026-09-08 found no branch protection or rulesets. Adding YAML alone does not prevent bypassing a failing check. Repository administration settings were inspected, not modified.
-
-The token default was already read-only and workflow PR approval was disabled. Repository-level SHA pinning was not required, and all Actions were allowed. The shipped workflow pins are narrower than those repository settings.
+All Actions are allowed at repository level; the shipped workflow pins are narrower than that setting. The trusted repository audit proof is a required merge context, so a failing launcher or audit blocks merge. The audit on 2026-09-08 found no branch protection or rulesets; adding YAML alone does not prevent bypassing a failing check.
 
 ## What this does not prove
 

@@ -6,7 +6,7 @@ Name: `prek.toml`. Stability: **experimental**. Purpose: reject cheap, determini
 
 ## Scope
 
-Prek v0.5.2 runs bundled hooks plus local system hooks for action-validator v0.9.0, pinact v4.1.1, and zizmor v1.30.0. The configuration has no remote hook repositories, managed hook environments, containers, project-specific application commands, or automatic fixers.
+Prek v0.5.7 runs bundled hooks plus local system hooks for action-validator v0.9.0, pinact v4.1.1, and zizmor v1.31.1. The configuration has no remote hook repositories, managed hook environments, containers, project-specific application commands, or automatic fixers.
 
 The current hooks check:
 
@@ -30,7 +30,7 @@ JSON validation, file-size limits, symlink policy, tests, and actionlint's synta
 
 ## GitHub adapter and evidence
 
-The existing workflow-lint job downloads the prek v0.5.2, action-validator v0.9.0, pinact v4.1.1, and zizmor v1.30.0 Linux amd64 binaries, verifies their fixed SHA-256 digests, and calls `task preflight`. It preserves `.artifacts/prek.log` in the existing workflow-lint artifact, avoiding another runner job.
+The existing workflow-lint job downloads the prek v0.5.7, action-validator v0.9.0, pinact v4.1.1, and zizmor v1.31.1 Linux amd64 binaries, verifies their fixed SHA-256 digests, and calls `task preflight`. It preserves `.artifacts/prek.log` in the existing workflow-lint artifact, avoiding another runner job.
 
 The job has `contents: read`, no secrets, a ten-minute timeout, and no publish side effects. Failure means invalid configuration or any failed hook. The private-key hook is heuristic and does not replace secret scanning.
 

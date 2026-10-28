@@ -20,6 +20,12 @@ tasks:
       - '"{{.PYTHON}}" -I -m unittest discover -s tests -v'
     timeout: 2m
 
+  contracts:
+    desc: Run Python-only fixture-backed contract checks
+    cmds:
+      - '"{{.PYTHON}}" -I automation/local_contracts.py'
+    timeout: 3m
+
   audit:
     desc: Run repository hygiene and write JSON/Markdown evidence
     cmds:
@@ -91,15 +97,16 @@ tasks:
     timeout: 2m
 
   check:
-    desc: Run deterministic pre-flight, tests, audit, and workflow lint
+    desc: Run deterministic pre-flight, tests, contracts, audit, and workflow lint
     cmds:
       - task: preflight
       - task: test
+      - task: contracts
       - task: audit
       - task: evidence
       - task: agent-packet
       - task: workflow-lint
-    timeout: 7m
+    timeout: 9m
 
   diff-check:
     desc: Validate unstaged and staged patch whitespace
@@ -113,4 +120,4 @@ tasks:
     cmds:
       - task: check
       - task: diff-check
-    timeout: 8m
+    timeout: 10m

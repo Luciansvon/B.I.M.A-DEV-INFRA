@@ -15,6 +15,7 @@
     "automation/failure_memory.py",
     "automation/failure_memory_benchmark.py",
     "automation/failure_records.py",
+    "automation/local_contracts.py",
     "automation/canonical_evidence.py",
     "automation/agent_packet.py",
     "automation/artifact_identity.py",
