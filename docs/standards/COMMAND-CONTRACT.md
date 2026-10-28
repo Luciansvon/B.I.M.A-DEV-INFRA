@@ -9,16 +9,23 @@ Name: `Taskfile.yml`. Stability: **experimental**. Purpose: give humans, CI, and
 | Command | Requires | Output/evidence | Failure |
 |---|---|---|---|
 | `task test` | Python 3.11+ | unittest console output; CI preserves `tests.log` | any failed/error test or timeout |
+| `task contracts` | Python 3.11+ | per-contract pass lines and a final `local-contracts: PASS; contracts=<n>; failed=0` summary | any fixture result mismatch, unexpected blocked/unblocked state, subprocess error, or timeout |
 | `task audit` | Python 3.11+, Git | `.artifacts/audit/result.json` and `report.md` | audit finding, configuration error, or timeout |
 | `task evidence` | Python 3.11+ and audit result | canonical JSON, execution metadata, and canonical SHA-256 | missing, malformed, oversized, or incompatible audit result |
 | `task agent-packet` | Python 3.11+ and canonical evidence | bounded packet JSON and SHA-256 only for non-pass evidence | invalid, non-canonical, oversized, or incompatible evidence |
 | `task artifact-manifest` | Python 3.11+, `ARTIFACT_REQUEST`, `ARTIFACT_ROOT` | `.artifacts/artifact-identity/manifest.json` with exact sizes and SHA-256 | invalid declaration, missing/unsafe/oversized artifact, concurrent mutation, or timeout |
 | `task artifact-verify` | Python 3.11+, `ARTIFACT_MANIFEST`, `ARTIFACT_ROOT` | `.artifacts/artifact-identity/verification.json` | changed, missing, unsafe, malformed, or unverifiable artifact |
-| `task preflight` | prek 0.5.2, action-validator 0.9.0, pinact 4.1.1, zizmor 1.30.0, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, workflow-security finding, unsafe filename/content, missing tool, or timeout |
+| `task preflight` | prek 0.5.7, action-validator 0.9.0, pinact 4.1.1, zizmor 1.31.1, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, workflow-security finding, unsafe filename/content, missing tool, or timeout |
 | `task workflow-lint` | actionlint 1.7.12 | version and findings; CI preserves `actionlint.log` | lint finding, missing tool, or timeout |
-| `task check` | dependencies above | combined pre-flight, test, audit, canonical evidence, optional failure packet, and lint results | any component fails |
+| `task check` | dependencies above | combined pre-flight, test, contracts, audit, canonical evidence, optional failure packet, and lint results | any component fails |
 | `task diff-check` | Git | command status | staged or unstaged whitespace error |
-| `task verify` | dependencies above | full current verification result | check or diff-check fails |
+| `task verify` | dependencies above | deterministic local subset of the verification result | check or diff-check fails |
+
+`task verify` is a deterministic local subset, not a mirror of hosted CI.
+Hosted CI remains authoritative: it runs the same fixture scripts with hosted
+identities, preserves and uploads the resulting evidence, and additionally
+executes the trusted policy gate/launcher and the Ubuntu/Windows audit matrix.
+A local pass, including `task contracts`, is not hosted CI proof.
 
 `task build` and `task nightly` are absent until a project-agnostic implementation and evidence contract exist. A placeholder success would be a false green.
 
@@ -43,7 +50,7 @@ GitHub Actions installs Task v3.53.1 with the upstream archive checksum, then ca
 
 ## Local use
 
-Install the pinned Task, prek, action-validator, pinact, zizmor, and actionlint versions, then run `task verify`. Run `prek install` once to enable staged-file hooks before commits. Python-only checks remain directly runnable when those tools are absent. A local pass is not hosted CI proof.
+Install the pinned Task, prek, action-validator, pinact, zizmor, and actionlint versions, then run `task verify`. Run `prek install` once to enable staged-file hooks before commits. Python-only checks remain directly runnable when those tools are absent: `task contracts` exercises the fixture-backed contracts, and `task test` runs the regression suite. A local pass is not hosted CI proof.
 
 ## Security and compatibility
 

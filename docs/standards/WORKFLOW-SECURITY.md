@@ -6,7 +6,7 @@ Name: offline zizmor gate. Stability: **experimental**. Purpose: detect security
 
 ## Scope and command
 
-Zizmor v1.30.0 runs with its default regular persona through prek:
+Zizmor v1.31.1 runs with its default regular persona through prek:
 
 ```text
 zizmor --offline --strict-collection --no-progress --color=never --render-links=never --show-audit-urls=always <selected files>
@@ -16,7 +16,7 @@ The mode is read-only: no `--fix`, remote repository input, GitHub token, API re
 
 ## GitHub adapter and evidence
 
-The existing Ubuntu workflow-lint job downloads the v1.30.0 Linux amd64 archive, verifies SHA-256 `ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed`, and runs `task preflight`. The retained `.artifacts/prek.log` records the zizmor version and hook result. No separate job, permission, secret, or publish side effect is added.
+The existing Ubuntu workflow-lint job downloads the v1.31.1 Linux amd64 archive, verifies SHA-256 `d185f726bdaf92df78273217dfdd24ebcd6b0ef48cf3ce776ff5762b6e138c99`, and runs `task preflight`. The retained `.artifacts/prek.log` records the zizmor version and hook result. No separate job, permission, secret, or publish side effect is added.
 
 ## Failure contract
 
@@ -28,4 +28,4 @@ Any emitted finding or strict collection error fails pre-flight and CI. Findings
 
 ## Compatibility
 
-Official v1.30.0 standalone archives cover Linux, Windows, and macOS. Tool, persona, selected inputs, or audit-mode changes require local positive/negative evidence, checksum review, and hosted validation.
+Official v1.31.1 standalone archives cover Linux, Windows, and macOS. Tool, persona, selected inputs, or audit-mode changes require local positive/negative evidence, checksum review, and hosted validation.

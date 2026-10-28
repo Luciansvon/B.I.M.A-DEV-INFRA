@@ -86,6 +86,7 @@ class FailureMemoryBenchmarkTests(unittest.TestCase):
                     "--database", str(database),
                     "--repository-root", str(ROOT),
                     "--report", str(report),
+                    "--bind-record-set",
                 ],
                 capture_output=True, text=True, timeout=30,
             )
@@ -93,6 +94,71 @@ class FailureMemoryBenchmarkTests(unittest.TestCase):
             result = json.loads(report.read_text(encoding="utf-8"))
             self.assertEqual(result["reason_code"], "INSUFFICIENT_REAL_CASES")
             self.assertIsNone(result["metrics"])
+            self.assertFalse(database.exists())
+
+    def test_seven_record_corpus_is_blocked_not_a_digest_mismatch(self):
+        template = records_module.load_document(FIXTURE)["records"][0]
+        records = []
+        for index in range(7):
+            record = copy.deepcopy(template)
+            record["id"] = f"case-{index:03d}"
+            record["case_kind"] = "real"
+            record["failure"]["signature_sha256"] = f"{index + 1:064x}"
+            record["cause"]["summary"] = f"Unique retrieval token needle{index:03d}."
+            records.append(record)
+        corpus = {
+            "schema": "bima-failure-record-set.v1",
+            "dataset_id": "seven-record-corpus",
+            "records": records,
+        }
+        digest = hashlib.sha256(records_module.canonical_bytes(corpus)).hexdigest()
+        request = {
+            "schema": "bima-failure-memory-benchmark-request.v1",
+            "benchmark_id": "seven-record-benchmark",
+            "dataset_id": "seven-record-corpus",
+            "record_set_sha256": "0" * 64,
+            "held_out": True,
+            "acceptance": {
+                "k": 5,
+                "minimum_recall_ppm": 1_000_000,
+                "minimum_mrr_ppm": 1_000_000,
+                "maximum_false_match_ppm": 0,
+                "maximum_stale_hit_ppm": 0,
+            },
+            "queries": [],
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary = Path(temporary)
+            records_path = temporary / "records.json"
+            queries_path = temporary / "queries.json"
+            database = temporary / "benchmark.sqlite3"
+            report = temporary / "report.json"
+            records_path.write_bytes(records_module.canonical_bytes(corpus))
+            queries_path.write_bytes(benchmark_module.canonical_bytes(request))
+            command = [
+                sys.executable, "-I", str(SCRIPT),
+                "--records", str(records_path),
+                "--queries", str(queries_path),
+                "--database", str(database),
+                "--repository-root", str(ROOT),
+                "--report", str(report),
+            ]
+            unbound = subprocess.run(
+                command, capture_output=True, text=True, timeout=30)
+            self.assertEqual(unbound.returncode, 2, unbound.stderr)
+            self.assertIn("record-set digest does not match", unbound.stderr)
+            self.assertFalse(report.exists())
+            bound = subprocess.run(
+                command + ["--bind-record-set"],
+                capture_output=True, text=True, timeout=30)
+            self.assertEqual(bound.returncode, 3, bound.stderr)
+            result = json.loads(report.read_text(encoding="utf-8"))
+            self.assertEqual(result["status"], "BLOCKED")
+            self.assertEqual(result["reason_code"], "INSUFFICIENT_REAL_CASES")
+            self.assertEqual(result["real_verified_records"], 7)
+            self.assertEqual(result["record_set_sha256"], digest)
+            self.assertIsNone(result["metrics"])
+            self.assertFalse(result["database_created"])
             self.assertFalse(database.exists())
 
     def test_exact_held_out_queries_pass_all_metrics(self):
@@ -146,6 +212,14 @@ class FailureMemoryBenchmarkTests(unittest.TestCase):
                 benchmark_module.BenchmarkError):
             benchmark_module.benchmark(
                 self.corpus, request, Path(temporary) / "benchmark.sqlite3", ROOT)
+        request = copy.deepcopy(self.request)
+        request["dataset_id"] = "other-corpus"
+        with self.assertRaises(benchmark_module.BenchmarkError):
+            benchmark_module.bind_record_set(self.corpus, request)
+        request = copy.deepcopy(self.request)
+        request["record_set_sha256"] = "invalid"
+        with self.assertRaises(benchmark_module.BenchmarkError):
+            benchmark_module.bind_record_set(self.corpus, request)
 
     def test_strict_contract_rejects_duplicates_nonfinite_and_overlap(self):
         with self.assertRaises(benchmark_module.BenchmarkError):

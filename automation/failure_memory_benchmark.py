@@ -140,6 +140,17 @@ def validate_request(value):
     return value
 
 
+def bind_record_set(record_set, request):
+    """Return a validated request bound to the actual record-set digest."""
+    validate_request(request)
+    summary = failure_records.summarize(record_set)
+    if request["dataset_id"] != summary["dataset_id"]:
+        raise BenchmarkError("benchmark dataset_id does not match the record set")
+    bound = dict(request)
+    bound["record_set_sha256"] = summary["record_set_sha256"]
+    return bound
+
+
 def _ppm_fraction(value):
     return (value.numerator * 1_000_000) // value.denominator if value else 0
 
@@ -262,11 +273,16 @@ def main():
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--repository-root", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument(
+        "--bind-record-set", action="store_true",
+        help="bind the request to the canonical digest of --records at invocation time")
     args = parser.parse_args()
     try:
         record_set = failure_records.validate_record_set(
             failure_records.load_document(args.records))
         request = validate_request(load_document(args.queries))
+        if args.bind_record_set:
+            request = bind_record_set(record_set, request)
         report = benchmark(record_set, request, args.database, args.repository_root)
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_bytes(canonical_bytes(report))
