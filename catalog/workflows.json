@@ -1,4 +1,5 @@
 {
+  "schema": "bima-workflow-catalog.v1",
   "schema_version": 1,
   "workflows": [
     {
@@ -31,7 +32,7 @@
         "Luciansvon/AI-COLOR-COMPARE"
       ],
       "summary": "Publish one release from the calling run assets with a new tag and SHA-256 evidence.",
-      "sha256": "2c26952bc5bdfb812acd854dc72d2098db10afbdf1343e794708bb48f1e27c4f"
+      "sha256": "7b02874fc5b451a88cfbc61c4da0ec8de9a90f7ca9c72e2cd14a3849103a112d"
     },
     {
       "id": "trusted-repository-audit",

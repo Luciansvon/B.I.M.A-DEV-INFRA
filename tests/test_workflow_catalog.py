@@ -37,7 +37,8 @@ def write_fixture(root):
     catalog = root / "catalog" / "workflows.json"
     catalog.parent.mkdir(parents=True, exist_ok=True)
     catalog.write_text(
-        json.dumps({"schema_version": 1, "workflows": [entry]}, indent=2) + "\n",
+        json.dumps({"schema": "bima-workflow-catalog.v1",
+                    "schema_version": 1, "workflows": [entry]}, indent=2) + "\n",
         encoding="utf-8")
     return catalog, entry
 
@@ -97,7 +98,8 @@ class WorkflowCatalogTests(unittest.TestCase):
                 (root / ".github" / "workflows" / "sample.yml").read_bytes()
             ).hexdigest()
             catalog.write_text(json.dumps(
-                {"schema_version": 1, "workflows": [entry]}), encoding="utf-8")
+                {"schema": "bima-workflow-catalog.v1", "schema_version": 1,
+                 "workflows": [entry]}), encoding="utf-8")
             result = run(root)
             self.assertEqual(result.returncode, 2)
             self.assertIn("workflow_call", result.stderr)

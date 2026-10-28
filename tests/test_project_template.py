@@ -42,6 +42,16 @@ class ProjectBootstrapTests(unittest.TestCase):
                         "bima-shared-audit.yml").read_text(encoding="utf-8")
             self.assertEqual(workflow.count(SHA), 2)
             self.assertIn("policy-path: .bima/audit.json", workflow)
+            attributes = (target / ".gitattributes").read_text(encoding="utf-8")
+            self.assertIn("*.json text eol=lf", attributes)
+            self.assertIn("*.md text eol=lf", attributes)
+            self.assertIn("*.yml text eol=lf", attributes)
+            self.assertEqual(
+                (target / ".gitignore").read_text(encoding="utf-8"),
+                ".artifacts/\n")
+            for entry in manifest["files"]:
+                data = (target / entry["path"]).read_bytes()
+                self.assertNotIn(b"\r\n", data, entry["path"])
 
     def test_invalid_sha_writes_nothing(self):
         with tempfile.TemporaryDirectory() as temporary:

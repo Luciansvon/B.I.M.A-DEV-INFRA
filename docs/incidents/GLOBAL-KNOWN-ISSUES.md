@@ -47,9 +47,9 @@ Logs, commits, PRs, reports, or external references.
 
 ## GKI-0001 — Text checkout conversion changes evidence byte hashes
 
-Status: Open
+Status: Mitigated
 First observed: 2026-09-08
-Last verified: 2026-09-09
+Last verified: 2026-10-28
 Affected layer: integration / evidence
 Affected projects:
 
@@ -75,6 +75,8 @@ Add a project-owned `.gitattributes` rule that pins shared policy and evidence-i
 ### Prevention
 
 The project-integration guide should require explicit EOL rules for byte-hashed text inputs. Consumer validation should compare committed bytes with hosted evidence and label dirty/local hashes separately.
+
+Mitigated for new projects on 2026-10-28: `templates/project/.gitattributes` pins JSON, Markdown and YAML text to LF and `tests/test_project_template.py` rejects CRLF bytes in every generated file. Existing consumer repositories still need their own reviewed rule; `AI-COLOR-COMPARE` has not been re-verified since this change, so this issue stays `Mitigated`, not `Resolved`.
 
 ### Evidence
 

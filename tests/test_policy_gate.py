@@ -189,17 +189,26 @@ class PolicyGateTests(unittest.TestCase):
 
     def test_isolated_cli_loads_sibling_adapter_and_preserves_deny_exit(self):
         policy_hash = hashlib.sha256((FIXTURES / "policy.json").read_bytes()).hexdigest()
-        run = subprocess.run([
-            sys.executable, "-I", str(SCRIPT),
-            "--root", str(SCRIPT.parents[1]),
-            "--project", str(FIXTURES / "project.json"),
-            "--trusted-policy", str(FIXTURES / "policy.json"),
-            "--request", str(FIXTURES / "request-deny-network.json"),
-            "--expected-policy-sha256", policy_hash,
-            "--actor", "trusted-test-runner",
-            "--issued-at", "2026-09-10T00:00:00Z",
-            "--expires-at", "2026-09-10T23:59:59Z",
-        ], capture_output=True, text=True, timeout=30)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "subject"
+            root.mkdir()
+            self.git(root, "init", "-q")
+            self.put(root, ".gitignore", ".artifacts/\n")
+            self.put(root, "README.md", "# Example\n")
+            self.git(root, "add", ".")
+            self.git(root, "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                     "-c", "commit.gpgsign=false", "commit", "-qm", "fixture")
+            run = subprocess.run([
+                sys.executable, "-I", str(SCRIPT),
+                "--root", str(root),
+                "--project", str(FIXTURES / "project.json"),
+                "--trusted-policy", str(FIXTURES / "policy.json"),
+                "--request", str(FIXTURES / "request-deny-network.json"),
+                "--expected-policy-sha256", policy_hash,
+                "--actor", "trusted-test-runner",
+                "--issued-at", "2026-09-10T00:00:00Z",
+                "--expires-at", "2026-09-10T23:59:59Z",
+            ], capture_output=True, text=True, timeout=30)
         self.assertEqual(run.returncode, 3, run.stderr)
         self.assertIn("DENY; reason=RESOURCE_SCOPE_DENIED", run.stdout)
 

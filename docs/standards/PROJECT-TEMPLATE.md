@@ -26,9 +26,13 @@ The command prints a canonical JSON manifest with each file's path, byte count a
 | `ARCHITECTURE.md` | Project architecture template |
 | `INCIDENTS.md` | Project incident template |
 | `.bima/audit.json` | Minimal repository audit policy (`README.md`, `AGENTS.md`) |
+| `.gitattributes` | Pins `.gitattributes`, `.gitignore`, JSON, Markdown and YAML text to LF so byte-hashed policy inputs stay stable across Windows and Linux checkouts |
+| `.gitignore` | Ignores the local `.artifacts/` evidence directory |
 | `.github/workflows/bima-shared-audit.yml` | Pinned call to the reusable repository audit |
 
 The workflow reference and `infra-ref` input are written to the same commit. Keep them equal when updating.
+
+The `.gitattributes` rules mitigate [GKI-0001](../incidents/GLOBAL-KNOWN-ISSUES.md) for new projects. They cover the scaffold only: an existing repository needs its own reviewed rule before its byte-hashed inputs are portable.
 
 ## Failure contract
 
@@ -43,4 +47,4 @@ The template does not create a GitHub repository, enable Actions, configure bran
 
 ## Self-test
 
-`tests/test_project_template.py` bootstraps a temporary project, checks placeholder replacement, manifest hashes and the generated workflow call, and proves that invalid input and a non-empty target write nothing.
+`tests/test_project_template.py` bootstraps a temporary project, checks placeholder replacement, manifest hashes, the generated workflow call, the LF attributes and the absence of CRLF bytes, and proves that invalid input and a non-empty target write nothing.

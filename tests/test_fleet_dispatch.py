@@ -12,6 +12,7 @@ SCRIPT = ROOT / "automation" / "fleet_dispatch.py"
 
 def fleet(repositories=None):
     return {
+        "schema": "bima-fleet.v1",
         "schema_version": 1,
         "repositories": repositories if repositories is not None else [
             {"repository": "owner/one",
@@ -93,6 +94,28 @@ class FleetDispatchTests(unittest.TestCase):
             result = run(fleet([]), output)
             self.assertEqual(result.returncode, 2)
             self.assertIn("1-30 entries", result.stderr)
+
+    def test_strict_json_rejects_duplicates_and_nonfinite_values(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fleet_path = root / "repos.json"
+            output = root / "evidence"
+            cases = [
+                ('{"schema": "bima-fleet.v1", "schema_version": 1,'
+                 ' "repositories": [], "repositories": []}', "duplicate key"),
+                ('{"schema": "bima-fleet.v1", "schema_version": NaN,'
+                 ' "repositories": []}', "non-finite number"),
+            ]
+            for raw, message in cases:
+                with self.subTest(message=message):
+                    fleet_path.write_text(raw, encoding="utf-8")
+                    result = subprocess.run(
+                        [sys.executable, "-I", str(SCRIPT),
+                         "--fleet", str(fleet_path), "--output", str(output)],
+                        cwd=ROOT, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertIn(message, result.stderr)
+            self.assertFalse((output / "evidence.json").exists())
 
     def test_ref_cannot_escape_the_repository(self):
         with tempfile.TemporaryDirectory() as temporary:

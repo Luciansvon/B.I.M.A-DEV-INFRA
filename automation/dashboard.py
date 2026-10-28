@@ -17,7 +17,7 @@ CONCLUSIONS = {"success", "failure", "skipped", "cancelled", "timed_out",
                "action_required", "neutral", "stale"}
 RUN_STATUSES = {"queued", "in_progress", "completed", "waiting", "pending",
                 "requested"}
-TOP_KEYS = {"schema_version", "repository", "branch", "generated_at", "workflows"}
+TOP_KEYS = {"schema", "schema_version", "repository", "branch", "generated_at", "workflows"}
 RUN_KEYS = {"status", "conclusion", "created_at", "url"}
 CATALOG_KEYS = {"id", "path", "status", "docs", "consumers", "sha256", "summary"}
 LIMITS = {"workflows": 50, "summary": 200, "url": 500}
@@ -27,11 +27,33 @@ class DashboardError(RuntimeError):
     """The dashboard inputs are incomplete or inconsistent."""
 
 
+def reject_duplicates(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate key: {key}")
+        result[key] = value
+    return result
+
+
+def reject_constant(value):
+    raise ValueError(f"non-finite number: {value}")
+
+
+def strict_loads(text):
+    return json.loads(text, object_pairs_hook=reject_duplicates,
+                      parse_constant=reject_constant)
+
+
 def load_json(path, label):
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
         raise DashboardError(f"cannot read {label}: {exc}") from exc
+    try:
+        return strict_loads(text)
+    except ValueError as exc:
+        raise DashboardError(f"invalid JSON in {label}: {exc}") from exc
 
 
 def discover_workflows(directory):
@@ -107,7 +129,7 @@ def fetch_runs(repository, branch, files):
             raise DashboardError(
                 f"gh failed for {name}: {completed.stderr.strip()[:300]}")
         try:
-            runs = json.loads(completed.stdout)
+            runs = strict_loads(completed.stdout)
         except ValueError as exc:
             raise DashboardError(f"gh returned invalid JSON for {name}") from exc
         if not isinstance(runs, list):
@@ -115,6 +137,7 @@ def fetch_runs(repository, branch, files):
         if runs:
             workflows[name] = normalize_run(runs[0])
     return {
+        "schema": "bima-dashboard-status.v1",
         "schema_version": 1,
         "repository": repository,
         "branch": branch,
@@ -127,6 +150,8 @@ def fetch_runs(repository, branch, files):
 def validate_runs(document, files):
     if not isinstance(document, dict) or set(document) != TOP_KEYS:
         raise DashboardError(f"runs keys must be exactly {sorted(TOP_KEYS)}")
+    if document["schema"] != "bima-dashboard-status.v1":
+        raise DashboardError("runs schema must be bima-dashboard-status.v1")
     if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise DashboardError("runs schema_version must be the integer 1")
     if not isinstance(document["repository"], str) or not REPOSITORY.fullmatch(document["repository"]):

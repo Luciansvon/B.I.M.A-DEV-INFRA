@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "B.I.M.A reusable workflow catalog v1",
+  "type": "object",
+  "required": ["schema", "schema_version", "workflows"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bima-workflow-catalog.v1"},
+    "schema_version": {"const": 1},
+    "workflows": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["id", "path", "status", "docs", "consumers", "sha256", "summary"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,39}$"},
+        "path": {"type": "string", "pattern": "^\\.github/workflows/[a-z0-9-]+\\.yml$"},
+        "status": {"enum": ["experimental", "beta", "stable"]},
+        "docs": {"type": "string", "pattern": "^docs/standards/[A-Z0-9-]+\\.md$"},
+        "consumers": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "summary": {"type": "string", "minLength": 1, "maxLength": 200}
+      }
+    }
+  }
+}

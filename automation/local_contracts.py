@@ -279,6 +279,32 @@ def check_failure_memory_benchmark(temporary):
     return "BLOCKED; metrics=null; database_created=false"
 
 
+def check_workflow_catalog(temporary):
+    completed = run("workflow_catalog.py")
+    catalog = load_json(ROOT / "catalog" / "workflows.json")
+    count = len(catalog["workflows"])
+    expect(f"workflows={count}" in completed.stdout,
+           "workflow catalog stdout does not report the entry count")
+    return f"workflows={count}"
+
+
+def check_fleet_dispatch(temporary):
+    output = temporary / "fleet"
+    completed = run("fleet_dispatch.py", "--output", output)
+    fleet = load_json(ROOT / "fleet" / "repos.json")
+    evidence = load_json(output / "evidence.json")
+    expect_equal(evidence["mode"], "dry-run", "fleet mode")
+    expect_equal([item["repository"] for item in evidence["dispatches"]],
+                 [entry["repository"] for entry in fleet["repositories"]],
+                 "fleet repositories")
+    expect(all(item["status"] == "planned" and item["run_id"] is None
+               for item in evidence["dispatches"]),
+           "fleet dry-run dispatched a workflow or resolved a run")
+    expect("mode=dry-run" in completed.stdout,
+           "fleet stdout does not report the dry-run mode")
+    return f"mode=dry-run; repositories={len(evidence['dispatches'])}"
+
+
 def check_experiment_gate(temporary):
     output = temporary / "experiment-gate"
     completed = run(
@@ -330,6 +356,12 @@ def main():
             detail = check_experiment_gate(temporary_path)
             checks.append("experiment-gate")
             print(f"local-contracts: experiment-gate: pass; {detail}")
+            detail = check_workflow_catalog(temporary_path)
+            checks.append("workflow-catalog")
+            print(f"local-contracts: workflow-catalog: pass; {detail}")
+            detail = check_fleet_dispatch(temporary_path)
+            checks.append("fleet-dispatch")
+            print(f"local-contracts: fleet-dispatch: pass; {detail}")
     except (ContractError, OSError, json.JSONDecodeError, KeyError,
             TypeError) as exc:
         print(f"local-contracts: FAIL; {exc}", file=sys.stderr)

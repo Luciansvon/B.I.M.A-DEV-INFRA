@@ -17,7 +17,7 @@ CONSUMER = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 STATUSES = {"experimental", "beta", "stable"}
 ENTRY_KEYS = {"id", "path", "status", "docs", "consumers", "sha256", "summary"}
-TOP_KEYS = {"schema_version", "workflows"}
+TOP_KEYS = {"schema", "schema_version", "workflows"}
 LIMITS = {"workflows": 50, "consumers": 20, "summary": 200}
 
 
@@ -114,6 +114,8 @@ def validate(root, catalog_path):
     document = load_json(catalog_path)
     if not isinstance(document, dict) or set(document) != TOP_KEYS:
         raise CatalogError(f"catalog keys must be exactly {sorted(TOP_KEYS)}")
+    if document["schema"] != "bima-workflow-catalog.v1":
+        raise CatalogError("schema must be bima-workflow-catalog.v1")
     if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise CatalogError("schema_version must be the integer 1")
     workflows = document["workflows"]

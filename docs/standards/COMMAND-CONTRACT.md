@@ -10,6 +10,8 @@ Name: `Taskfile.yml`. Stability: **experimental**. Purpose: give humans, CI, and
 |---|---|---|---|
 | `task test` | Python 3.11+ | unittest console output; CI preserves `tests.log` | any failed/error test or timeout |
 | `task contracts` | Python 3.11+ | per-contract pass lines and a final `local-contracts: PASS; contracts=<n>; failed=0` summary | any fixture result mismatch, unexpected blocked/unblocked state, subprocess error, or timeout |
+| `task catalog` | Python 3.11+ | `workflow-catalog: pass; workflows=<n>` | missing workflow or docs file, missing `workflow_call:`, SHA-256 mismatch, or invalid entry shape |
+| `task fleet-plan` | Python 3.11+ | `.artifacts/fleet/evidence.json` with every dispatch `planned` | invalid list, duplicate JSON key, non-finite number, unsafe path, or unsafe ref |
 | `task audit` | Python 3.11+, Git | `.artifacts/audit/result.json` and `report.md` | audit finding, configuration error, or timeout |
 | `task evidence` | Python 3.11+ and audit result | canonical JSON, execution metadata, and canonical SHA-256 | missing, malformed, oversized, or incompatible audit result |
 | `task agent-packet` | Python 3.11+ and canonical evidence | bounded packet JSON and SHA-256 only for non-pass evidence | invalid, non-canonical, oversized, or incompatible evidence |
@@ -17,7 +19,7 @@ Name: `Taskfile.yml`. Stability: **experimental**. Purpose: give humans, CI, and
 | `task artifact-verify` | Python 3.11+, `ARTIFACT_MANIFEST`, `ARTIFACT_ROOT` | `.artifacts/artifact-identity/verification.json` | changed, missing, unsafe, malformed, or unverifiable artifact |
 | `task preflight` | prek 0.5.7, action-validator 0.9.0, pinact 4.1.1, zizmor 1.31.1, Git | hook names/status and tool versions; CI preserves `prek.log` | invalid config/schema/path glob, mutable Action ref, workflow-security finding, unsafe filename/content, missing tool, or timeout |
 | `task workflow-lint` | actionlint 1.7.12 | version and findings; CI preserves `actionlint.log` | lint finding, missing tool, or timeout |
-| `task check` | dependencies above | combined pre-flight, test, contracts, audit, canonical evidence, optional failure packet, and lint results | any component fails |
+| `task check` | dependencies above | combined pre-flight, test, contracts, catalog, fleet plan, audit, canonical evidence, optional failure packet, and lint results | any component fails |
 | `task diff-check` | Git | command status | staged or unstaged whitespace error |
 | `task verify` | dependencies above | deterministic local subset of the verification result | check or diff-check fails |
 

@@ -141,3 +141,17 @@ Added `fleet/repos.json` as the whole scope of the fleet: an explicit `owner/nam
 The dispatch call sends the ref as a JSON body. The API deployment used here answered `204` with no run details, so the tool now records the newest manual run before the call and compares afterwards to attach the run link; the first attempt in this session recorded `run_id=null` for both entries.
 
 Local verification: 6 fleet tests passed; the dry-run plan reported `repositories=2`; `--apply` triggered `40637742495` in AI-COLOR-COMPARE and `40637756778` in the fixture, both `workflow_dispatch` runs with a successful `audit / audit` job. Hosted run `40638462572` ran 190 tests per OS, planned the fleet on Ubuntu and Windows, and audited 204 files with zero findings. Exact evidence is in the [fleet dispatch validation record](audits/VALIDATION-2026-10-28-FLEET-DISPATCH.md).
+
+## 2026-10-28 — Phase 3 contract hardening
+
+Closed the local gaps found by the Phase 4 audit. This entry records local proof only; hosted and consumer proof stay pending.
+
+Strictness: `fleet_dispatch.py` and `dashboard.py` now reject duplicate JSON keys and non-finite numbers, matching `workflow_catalog.py`. `dashboard.yml` installs Python `3.13.15` through the same reviewed `setup-python` commit as CI and runs `python -I`; every heredoc helper in `ci.yml` runs isolated too.
+
+Contracts: `catalog/workflows.json`, `fleet/repos.json`, the fleet evidence, the dashboard status and the release evidence now carry an explicit `schema` discriminator. Added five Draft 2020-12 schemas and registered their field sets in `tests/test_schema_contract_parity.py`; `release.json` stays a documented exception because jq writes it and no Python validator owns its field set. `local_contracts.py` grew from 8 to 10 checks, `Taskfile.yml` exposes `task catalog` and `task fleet-plan`, and `ci.yml` validates the catalog before planning the fleet. The audit policy limit rose from 100 to 128 required files because the new contracts no longer fit.
+
+Template: `templates/project/` now ships `.gitattributes` (LF for JSON, Markdown and YAML) and `.gitignore` (`.artifacts/`). `test_project_template.py` rejects CRLF in every generated file. `GKI-0001` moved to `Mitigated`, not `Resolved`: existing consumers still need their own reviewed rule.
+
+Tests: `test_policy_gate.py` now builds a temporary Git subject instead of using the repository root, so the suite no longer needs a `.git` directory in an exported tree.
+
+Local verification: 192 tests ran with 2 skips; `local-contracts: PASS; contracts=10; failed=0`; `workflow-catalog: pass; workflows=4`; `fleet-dispatch: pass; mode=dry-run; repositories=2; failed=0`; `repository-audit: pass; files=212; findings=0`. Hosted proof followed in pull request #46: run `40675725560` passed workflow lint, 192 tests per OS, catalog validation, fleet planning and the repository audit on `ubuntu-24.04` and `windows-2025` with zero findings; dashboard run `40675725801` and trusted-audit proof `40675725794` also passed.
