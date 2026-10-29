@@ -152,7 +152,7 @@ Hosted run `40700810094` failed after the launcher printed `ALLOW; reason=MATCHE
 
 Root cause: `.github/workflows/trusted-launcher-proof.yml` pins `trusted-repository-audit.yml@49e7424e88f2512d4a5ef753730e6dfe293a8fbd`. That revision's `repository_audit.py` rejects a policy with more than 100 required files, while `main`'s `.bima/audit.json` already has 106. The launcher correctly propagated the verifier error as exit `2`; the stale pin, not the launcher decision, was the defect.
 
-The proof pin must move to a revision whose verifier accepts the current policy. After this change the policy has 132 required files, so the pin must include the 160-file capacity in this record. Re-pinning and the hosted re-run require the commit and push containing this change; they are not claimed here.
+The proof pin must move to a revision whose verifier accepts the current policy. After this change the policy has 132 required files, so the pin moved from `49e7424e88f2512d4a5ef753730e6dfe293a8fbd` to `2393301dd53106c4786ad2bf3f10e394346cddb2`, the commit that adds the 160-file capacity. The hosted re-run for this pin is pending and is not claimed here.
 
 ## Compatibility notes
 
