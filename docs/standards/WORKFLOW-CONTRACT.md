@@ -1,6 +1,6 @@
 # Reusable Workflow Contract
 
-Every reusable workflow added to B.I.M.A-DEV-INFRA must document the following.
+Every reusable workflow added to B.I.M.A-DEV-INFRA must document the following. `automation/workflow_catalog.py` enforces every section below as a non-empty level-two heading in the cataloged documentation; a missing or empty section fails `task catalog`. A heading may cover two labels when it names both, such as `Outputs and evidence`.
 
 ## Required contract
 

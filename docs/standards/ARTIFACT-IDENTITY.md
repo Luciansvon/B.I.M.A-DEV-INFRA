@@ -94,9 +94,23 @@ manifest creation. Test and publication adapters must receive the same
 retain both verification reports. Any byte change requires a new manifest and
 re-verification; copying a filename is not identity proof.
 
+## Release publication integration
+
+`.github/workflows/release.yml` accepts an optional `artifact-manifest`
+(caller-workspace relative) and `artifact-root` (relative to the downloaded
+release assets). With a manifest, the template checks out its own called
+revision, runs `verify` against the downloaded assets, and fails before creating
+a draft release unless the verdict is `PASS`; `verification.json` joins the
+release evidence. Callers that leave the input empty are unaffected.
+
+The manifest must be produced after the final byte-changing step, and the root
+must contain every declared file at its declared relative path. A manifest
+created before packaging or signing, or a root that misses a declared file,
+verifies as `CHANGED` or `MISSING` and publication stops by design.
+
 ## Compatibility
 
 This is additive. Existing evidence/result contracts and consumer pins remain
 unchanged. A consumer opts in only after its final artifact path and lifecycle
-are known. Release, signing, attestation, and remote-publication adapters remain
-separate future capabilities with their own authorization and evidence.
+are known. Signing, attestation, and non-release remote-publication adapters
+remain separate future capabilities with their own authorization and evidence.

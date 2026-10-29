@@ -82,6 +82,29 @@ class FailureRecordTests(unittest.TestCase):
         with self.assertRaises(records_module.FailureRecordError):
             records_module.validate_record_set(records)
 
+    def test_duplicate_unaudited_and_unevidenced_records_fail_closed(self):
+        records = copy.deepcopy(self.records)
+        duplicate = copy.deepcopy(records["records"][0])
+        duplicate["id"] = "fixture-active-copy"
+        records["records"].insert(1, duplicate)
+        with self.assertRaises(records_module.FailureRecordError):
+            records_module.validate_record_set(records)
+
+        records = copy.deepcopy(self.records)
+        records["records"][0]["review"]["reviewed_by"] = "FIXTURE-OWNER"
+        with self.assertRaises(records_module.FailureRecordError):
+            records_module.validate_record_set(records)
+
+        records = copy.deepcopy(self.records)
+        records["records"][0]["review"]["reviewed_at"] = "2026-09-09T23:59:59Z"
+        with self.assertRaises(records_module.FailureRecordError):
+            records_module.validate_record_set(records)
+
+        records = copy.deepcopy(self.records)
+        records["records"][0]["case_kind"] = "real"
+        with self.assertRaises(records_module.FailureRecordError):
+            records_module.summarize(records)
+
     def test_cli_exports_canonical_records_and_summary(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "output"
@@ -95,6 +118,42 @@ class FailureRecordTests(unittest.TestCase):
             self.assertEqual(exported, records_module.canonical_bytes(self.records))
             summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["real_verified_records"], 0)
+
+    def test_draft_is_deterministic_and_stays_unreviewed(self):
+        signature = "1" * 64
+        with tempfile.TemporaryDirectory() as temporary:
+            drafts = []
+            for name in ("first", "second"):
+                output = Path(temporary) / name
+                run = subprocess.run(
+                    [sys.executable, "-I", str(SCRIPT), "--draft",
+                     "--case-kind", "real", "--signature-sha256", signature,
+                     "--repository", "example/project", "--output", str(output)],
+                    capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual(run.returncode, 0, run.stderr)
+                self.assertIn("reviewed=false", run.stdout)
+                drafts.append(json.loads(
+                    (output / "draft.json").read_text(encoding="utf-8")))
+            self.assertEqual(drafts[0]["id"], drafts[1]["id"])
+            self.assertEqual(drafts[0]["review"]["reviewed_by"], "")
+            with self.assertRaises(records_module.FailureRecordError):
+                records_module.validate_record(drafts[0])
+            other = records_module.draft_id("real", "2" * 64, "example/project")
+            self.assertNotEqual(drafts[0]["id"], other)
+
+    def test_draft_cannot_be_created_as_reviewed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "output"
+            run = subprocess.run(
+                [sys.executable, "-I", str(SCRIPT), "--draft",
+                 "--case-kind", "real", "--signature-sha256", "1" * 64,
+                 "--repository", "example/project",
+                 "--reviewed-by", "someone", "--output", str(output)],
+                capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(run.returncode, 2)
+            self.assertFalse((output / "draft.json").exists())
 
 
 if __name__ == "__main__":

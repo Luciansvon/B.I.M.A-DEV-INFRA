@@ -34,6 +34,11 @@ class FailureMemoryBenchmarkTests(unittest.TestCase):
             record["id"] = f"case-{index:03d}"
             record["case_kind"] = "real"
             record["failure"]["signature_sha256"] = f"{index + 1:064x}"
+            reference = f"https://github.com/example/corpus/commit/{index + 1:040x}"
+            record["failure"]["reproduction_refs"] = [reference]
+            record["cause"]["evidence_refs"] = [reference]
+            record["fix"]["verification_refs"] = [reference]
+            record["fix"]["revision"] = f"{index + 1:040x}"
             record["cause"]["summary"] = f"Unique retrieval token needle{index:03d}."
             records.append(record)
         records[99]["access"] = {
@@ -104,6 +109,11 @@ class FailureMemoryBenchmarkTests(unittest.TestCase):
             record["id"] = f"case-{index:03d}"
             record["case_kind"] = "real"
             record["failure"]["signature_sha256"] = f"{index + 1:064x}"
+            reference = f"https://github.com/example/corpus/commit/{index + 1:040x}"
+            record["failure"]["reproduction_refs"] = [reference]
+            record["cause"]["evidence_refs"] = [reference]
+            record["fix"]["verification_refs"] = [reference]
+            record["fix"]["revision"] = f"{index + 1:040x}"
             record["cause"]["summary"] = f"Unique retrieval token needle{index:03d}."
             records.append(record)
         corpus = {

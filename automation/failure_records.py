@@ -15,6 +15,7 @@ IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REVISION = re.compile(r"^[0-9a-f]{40}$")
 UTC_TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+REFERENCE = re.compile(r"^[a-z][a-z0-9+.-]*://\S+$")
 RECORD_FIELDS = {
     "schema", "id", "case_kind", "status", "scope", "failure", "cause",
     "fix", "review", "access", "supersedes", "superseded_by",
@@ -34,6 +35,8 @@ def _exact(value, fields, label):
 def _string(value, label, maximum=512):
     if not isinstance(value, str) or not value or len(value) > maximum:
         raise FailureRecordError(f"{label} is invalid")
+    if value != value.strip() or any(ord(character) < 32 for character in value):
+        raise FailureRecordError(f"{label} contains control or padding whitespace")
 
 
 def _identifier(value, label):
@@ -61,6 +64,15 @@ def _bounded_unique_strings(value, label, minimum=0, maximum=32):
         _string(item, label)
     if value != sorted(set(value)):
         raise FailureRecordError(f"{label} must be unique and sorted")
+
+
+def _references(value, label, minimum=1, maximum=32, require_https=False):
+    _bounded_unique_strings(value, label, minimum, maximum)
+    for item in value:
+        if not REFERENCE.fullmatch(item):
+            raise FailureRecordError(f"{label} must contain absolute references")
+        if require_https and not item.startswith("https://"):
+            raise FailureRecordError(f"{label} must use https for real records")
 
 
 def strict_json(raw):
@@ -92,6 +104,72 @@ def load_document(path):
 def canonical_bytes(value):
     return (json.dumps(value, ensure_ascii=True, allow_nan=False, sort_keys=True,
                        separators=(",", ":")) + "\n").encode("utf-8")
+
+
+DRAFT_TIMESTAMP = "1970-01-01T00:00:00Z"
+DRAFT_REFERENCE = "https://example.invalid/replace-me"
+
+
+def draft_id(case_kind, signature_sha256, repository):
+    seed = {"case_kind": case_kind, "signature_sha256": signature_sha256,
+            "repositories": [repository]}
+    return "draft-" + hashlib.sha256(canonical_bytes(seed)).hexdigest()[:16]
+
+
+def draft_record(case_kind, signature_sha256, repository):
+    """Return an intentionally invalid record that still needs human review."""
+    if case_kind not in {"real", "synthetic"}:
+        raise FailureRecordError("draft case_kind is invalid")
+    if not isinstance(signature_sha256, str) or not SHA256.fullmatch(signature_sha256):
+        raise FailureRecordError("draft signature must be SHA-256")
+    _string(repository, "draft repository", 256)
+    return {
+        "schema": "bima-failure-record.v1",
+        "id": draft_id(case_kind, signature_sha256, repository),
+        "case_kind": case_kind,
+        "status": "ACTIVE",
+        "scope": {
+            "kind": "project",
+            "promotion_basis": "project",
+            "project_id": "replace-me",
+            "repositories": [repository],
+            "command_ref": "replace-me",
+            "rule_version": "replace-me",
+            "environment": {
+                "os": "replace-me",
+                "arch": "replace-me",
+                "toolchain": "replace-me",
+            },
+        },
+        "failure": {
+            "observed_at": DRAFT_TIMESTAMP,
+            "reason_code": "replace-me",
+            "signature_sha256": signature_sha256,
+            "reproduction_refs": [DRAFT_REFERENCE],
+        },
+        "cause": {
+            "summary": "replace-me",
+            "confirmed_at": DRAFT_TIMESTAMP,
+            "evidence_refs": [DRAFT_REFERENCE],
+        },
+        "fix": {
+            "summary": "replace-me",
+            "revision": "0" * 40,
+            "verification_refs": [DRAFT_REFERENCE],
+        },
+        # Empty reviewer is deliberate: validation fails until a human reviews it.
+        "review": {
+            "owner": "replace-me",
+            "reviewed_by": "",
+            "reviewed_at": DRAFT_TIMESTAMP,
+            "last_revalidated_at": DRAFT_TIMESTAMP,
+        },
+        "access": {"classification": "internal", "allowed_projects": []},
+        "supersedes": [],
+        "superseded_by": None,
+        "invalidation_reason": None,
+        "expires_at": None,
+    }
 
 
 def _environment(value, label):
@@ -133,6 +211,7 @@ def validate_record(value):
     _identifier(value["id"], "record id")
     if value["case_kind"] not in {"real", "synthetic"}:
         raise FailureRecordError("record case_kind is invalid")
+    real = value["case_kind"] == "real"
     if value["status"] not in {
             "ACTIVE", "SUPERSEDED", "EXPIRED", "INVALIDATED",
             "REVALIDATION_REQUIRED"}:
@@ -142,36 +221,43 @@ def validate_record(value):
     _exact(value["failure"], {
         "observed_at", "reason_code", "signature_sha256", "reproduction_refs",
     }, "record failure")
-    _timestamp(value["failure"]["observed_at"], "failure observed_at")
+    observed_at = _timestamp(value["failure"]["observed_at"], "failure observed_at")
     _string(value["failure"]["reason_code"], "failure reason_code", 128)
     if not isinstance(value["failure"]["signature_sha256"], str) or not SHA256.fullmatch(
             value["failure"]["signature_sha256"]):
         raise FailureRecordError("failure signature must be SHA-256")
-    _bounded_unique_strings(value["failure"]["reproduction_refs"], "reproduction refs", 1)
+    _references(value["failure"]["reproduction_refs"], "reproduction refs",
+                require_https=real)
 
     _exact(value["cause"], {"summary", "confirmed_at", "evidence_refs"}, "record cause")
     _string(value["cause"]["summary"], "cause summary", 1024)
-    _timestamp(value["cause"]["confirmed_at"], "cause confirmed_at")
-    _bounded_unique_strings(value["cause"]["evidence_refs"], "cause evidence refs", 1)
+    confirmed_at = _timestamp(value["cause"]["confirmed_at"], "cause confirmed_at")
+    if confirmed_at < observed_at:
+        raise FailureRecordError("cause confirmation cannot precede the observed failure")
+    _references(value["cause"]["evidence_refs"], "cause evidence refs",
+                require_https=real)
 
     _exact(value["fix"], {"summary", "revision", "verification_refs"}, "record fix")
     _string(value["fix"]["summary"], "fix summary", 1024)
     if not isinstance(value["fix"]["revision"], str) or not REVISION.fullmatch(value["fix"]["revision"]):
         raise FailureRecordError("fix revision must be a full Git SHA")
-    _bounded_unique_strings(value["fix"]["verification_refs"], "fix verification refs", 1)
+    _references(value["fix"]["verification_refs"], "fix verification refs",
+                require_https=real)
 
     _exact(value["review"], {
         "owner", "reviewed_by", "reviewed_at", "last_revalidated_at",
     }, "record review")
     _string(value["review"]["owner"], "review owner", 256)
     _string(value["review"]["reviewed_by"], "reviewed_by", 256)
-    if value["review"]["owner"] == value["review"]["reviewed_by"]:
+    if value["review"]["owner"].casefold() == value["review"]["reviewed_by"].casefold():
         raise FailureRecordError("reviewer must be independent from the record owner")
     reviewed_at = _timestamp(value["review"]["reviewed_at"], "reviewed_at")
     revalidated_at = _timestamp(
         value["review"]["last_revalidated_at"], "last_revalidated_at")
     if revalidated_at < reviewed_at:
         raise FailureRecordError("last revalidation cannot precede review")
+    if reviewed_at < confirmed_at:
+        raise FailureRecordError("review cannot precede the confirmed cause")
 
     _exact(value["access"], {"classification", "allowed_projects"}, "record access")
     if value["access"]["classification"] not in {"public", "internal", "restricted"}:
@@ -189,6 +275,8 @@ def validate_record(value):
     if value["invalidation_reason"] is not None:
         _string(value["invalidation_reason"], "invalidation_reason")
     expires_at = _nullable_timestamp(value["expires_at"], "expires_at")
+    if expires_at is not None and expires_at <= revalidated_at:
+        raise FailureRecordError("expires_at must follow the last revalidation")
 
     if value["status"] == "ACTIVE" and (
             value["superseded_by"] is not None or value["invalidation_reason"] is not None):
@@ -210,9 +298,18 @@ def validate_record_set(value):
     if not isinstance(value["records"], list) or len(value["records"]) > MAX_RECORDS:
         raise FailureRecordError("record set is outside its item bounds")
     ids = []
+    signatures = set()
     for record in value["records"]:
         validate_record(record)
         ids.append(record["id"])
+        signature = (
+            record["case_kind"],
+            record["failure"]["signature_sha256"],
+            tuple(record["scope"]["repositories"]),
+        )
+        if signature in signatures:
+            raise FailureRecordError("duplicate failure records are not allowed")
+        signatures.add(signature)
     if ids != sorted(set(ids)):
         raise FailureRecordError("record IDs must be unique and sorted")
     known = set(ids)
@@ -258,9 +355,38 @@ def summarize(value):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument(
+        "--draft", action="store_true",
+        help="write an unreviewed draft record instead of validating a record set")
+    parser.add_argument("--case-kind")
+    parser.add_argument("--signature-sha256")
+    parser.add_argument("--repository")
+    parser.add_argument("--input", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.draft:
+        missing = [
+            name.replace("_", "-") for name in
+            ("case_kind", "signature_sha256", "repository")
+            if getattr(args, name) is None
+        ]
+        if missing:
+            parser.error("the following arguments are required: "
+                         + ", ".join(f"--{name}" for name in missing))
+        try:
+            record = draft_record(args.case_kind, args.signature_sha256, args.repository)
+            destination = args.output / "draft.json"
+            if destination.exists():
+                raise FailureRecordError(f"draft output already exists: {destination}")
+            args.output.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(canonical_bytes(record))
+        except (FailureRecordError, OSError) as exc:
+            print(f"failure-records: error; {exc}", file=sys.stderr)
+            return 2
+        print(f"failure-records: draft; id={record['id']}; reviewed=false")
+        return 0
+    if args.input is None:
+        parser.error("--input is required unless --draft is used")
     try:
         records = validate_record_set(load_document(args.input))
         args.output.mkdir(parents=True, exist_ok=True)

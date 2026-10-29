@@ -36,7 +36,8 @@
     {
       "project_id": "fixture-a",
       "repository": "example/fixture-a",
-      "requirement_ref": "fixture://fixture-a/requirement",
+      "capability": "graphify-context",
+      "requirement_ref": "example/fixture-a#1",
       "reviewed_by": "fixture-reviewer"
     }
   ]

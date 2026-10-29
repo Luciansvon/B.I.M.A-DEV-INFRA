@@ -102,6 +102,12 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           task test 2>&1 | tee .artifacts/tests.log
+      - name: Validate roadmap work availability
+        shell: bash
+        run: |
+          mkdir -p .artifacts
+          set -o pipefail
+          python -I automation/roadmap_audit.py 2>&1 | tee .artifacts/roadmap.log
       - name: Verify result normalization action
         id: normalize-result
         uses: ./.github/actions/normalize-rust-libtest # zizmor: ignore[self-repository] actionlint 1.7.12 does not support $/ references
@@ -319,6 +325,7 @@ jobs:
           name: infra-ci-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .artifacts/tests.log
+            .artifacts/roadmap.log
             .artifacts/result-normalization/result.json
             .artifacts/verification-plan/plan.json
             .artifacts/verification-aggregate/aggregate.json
@@ -351,3 +358,11 @@ jobs:
       artifact-name: security-supply-chain-self-test
       # This repository has no dependency manifests, so dependency review has nothing to compare.
       dependency-review: false
+
+  trusted-repository-audit-self-call:
+    name: Trusted repository audit self-call
+    permissions:
+      contents: read
+    uses: ./.github/workflows/trusted-repository-audit.yml # zizmor: ignore[self-repository]
+    with:
+      artifact-name: trusted-self-audit

@@ -293,5 +293,63 @@ class TrustedPolicyLauncherTests(unittest.TestCase):
                 self.load_evidence(evidence)["reason_code"], "SUBJECT_REPOSITORY_MISMATCH")
 
 
+    def run_check(self, infra):
+        return subprocess.run(
+            [sys.executable, "-I", str(infra / LAUNCHER_RELATIVE),
+             "--check", "--infra-root", str(infra)],
+            capture_output=True, text=True, timeout=60,
+        )
+
+    def fresh_infra(self, temporary):
+        infra = Path(temporary) / "infra"
+        self.copy_checkout(infra)
+        return infra
+
+    def test_check_passes_for_committed_bundles(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = self.run_check(self.fresh_infra(temporary))
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertEqual(run.stdout.strip(), "trust-bundles: pass; bundles=1")
+
+    def test_check_rejects_tampered_policy_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra = self.fresh_infra(temporary)
+            policy_path = infra / "policies/repository-audit/dev-infra.v1.json"
+            policy_path.write_bytes(policy_path.read_bytes() + b"\n")
+            run = self.run_check(infra)
+            self.assertEqual(run.returncode, 2, run.stdout)
+            self.assertIn("TRUSTED_POLICY_HASH_MISMATCH", run.stderr)
+
+    def test_check_rejects_missing_trusted_workflow(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra = self.fresh_infra(temporary)
+            (infra / ".github/workflows/trusted-repository-audit.yml").unlink()
+            run = self.run_check(infra)
+            self.assertEqual(run.returncode, 2, run.stdout)
+            self.assertIn("trusted workflow", run.stderr)
+
+    def test_check_rejects_unknown_bundle_operation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra = self.fresh_infra(temporary)
+            bundle_path = infra / "policies/trust-bundles" / f"{BUNDLE_ID}.json"
+            bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+            bundle["operation_id"] = "unknown-operation"
+            bundle_path.write_text(json.dumps(bundle), encoding="utf-8")
+            run = self.run_check(infra)
+            self.assertEqual(run.returncode, 2, run.stdout)
+            self.assertIn("POLICY_OPERATION_MISSING", run.stderr)
+
+    def test_check_rejects_path_escape(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            infra = self.fresh_infra(temporary)
+            bundle_path = infra / "policies/trust-bundles" / f"{BUNDLE_ID}.json"
+            bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+            bundle["policy_path"] = "../outside.json"
+            bundle_path.write_text(json.dumps(bundle), encoding="utf-8")
+            run = self.run_check(infra)
+            self.assertEqual(run.returncode, 2, run.stdout)
+            self.assertIn("INVALID_TRUST_PATH", run.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

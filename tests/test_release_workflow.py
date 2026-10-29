@@ -49,6 +49,46 @@ class ReleaseWorkflowTests(unittest.TestCase):
         self.assertIn("if-no-files-found: warn", text)
         self.assertIn("release.json", text)
 
+    def test_artifact_identity_inputs_are_optional_and_default_empty(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        inputs = text.split("    inputs:\n", 1)[1].split("    outputs:\n", 1)[0]
+        manifest, root = inputs.split("      artifact-manifest:\n", 1)[1].split(
+            "      artifact-root:\n", 1)
+        for block in (manifest, root):
+            self.assertIn("        required: false", block)
+            self.assertIn("        type: string", block)
+            self.assertIn("        default: ''", block)
+        self.assertIn("    outputs:\n      release-url:\n", text)
+        self.assertIn("      evidence-artifact-id:\n", text)
+
+    def test_artifact_identity_verification_runs_before_publication(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        download = text.index("- name: Download release artifacts")
+        verify = text.index("bima-infra/automation/artifact_identity.py verify")
+        validate = text.index("- name: Validate inputs and tag policy")
+        publish = text.index("- name: Create and publish release")
+        self.assertLess(download, verify)
+        self.assertLess(verify, validate)
+        self.assertLess(verify, publish)
+        self.assertNotIn("continue-on-error", text)
+        self.assertIn("if: ${{ inputs.artifact-manifest != '' }}", text)
+        self.assertIn("repository: ${{ job.workflow_repository }}", text)
+        self.assertIn("ref: ${{ job.workflow_sha }}", text)
+        self.assertIn("path: bima-infra", text)
+        self.assertIn('--output "$RUNNER_TEMP/artifact-identity"', text)
+
+    def test_supplied_manifest_cannot_skip_verification_or_evidence(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertNotIn("always()", text)
+        self.assertIn(
+            "if: ${{ !cancelled() && inputs.artifact-manifest != '' }}", text)
+        self.assertIn("artifact identity verification evidence is missing", text)
+        self.assertIn("artifact-manifest must be a regular file inside the caller checkout", text)
+        self.assertIn("artifact-root must resolve inside the downloaded release assets", text)
+        self.assertIn(
+            "${{ runner.temp }}/artifact-identity/verification.json", text)
+        self.assertIn("if-no-files-found: warn", text)
+
     def test_self_test_calls_the_template_with_dry_run(self):
         text = SELF_TEST.read_text(encoding="utf-8")
         self.assertIn("uses: ./.github/workflows/release.yml # zizmor: ignore[self-repository]", text)

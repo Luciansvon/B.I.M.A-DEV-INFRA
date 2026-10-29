@@ -2,7 +2,13 @@
   "schema_version": 1,
   "required_files": [
     "README.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "INCIDENTS.md",
+    ".gitattributes",
+    ".gitignore",
+    ".bima/audit.json",
+    ".github/workflows/bima-shared-audit.yml"
   ],
   "max_file_bytes": 1048576
 }

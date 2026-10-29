@@ -1,0 +1,24 @@
+{
+  "schema": "bima-release-evidence.v1",
+  "schema_version": 1,
+  "tag": "v1.2.3",
+  "title": "Fixture release v1.2.3",
+  "target_sha": "0123456789abcdef0123456789abcdef01234567",
+  "prerelease": false,
+  "dry_run": true,
+  "published": false,
+  "release_url": null,
+  "run_url": "https://github.com/example/fixture/actions/runs/12345678901",
+  "assets": [
+    {
+      "name": "fixture-linux-x86_64.tar.gz",
+      "size": 23456,
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "name": "fixture-windows-x86_64.zip",
+      "size": 12345,
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ]
+}

@@ -22,6 +22,8 @@ Name: `.github/workflows/release.yml`. Purpose: publish one GitHub release from 
 | `prerelease` | no | boolean | `false` | Mark the release as a prerelease |
 | `dry-run` | no | boolean | `false` | Validate inputs, artifacts and tag policy without creating a release or tag |
 | `artifact-name` | no | string | `release-evidence` | Unique evidence artifact prefix per call |
+| `artifact-manifest` | no | string | | Caller-workspace-relative `bima-artifact-manifest.v1` file to verify before any release write; empty skips verification |
+| `artifact-root` | no | string | | Directory holding the declared artifact files, relative to the downloaded release assets; empty means the whole downloaded assets root |
 
 ## Outputs
 
@@ -44,11 +46,23 @@ The caller's publishing job must grant `contents: write`. The called workflow de
 
 ## Evidence
 
-`release.json` records the tag, title, target SHA, prerelease flag, dry-run flag, published flag, release URL, run URL, and each asset's name, size and SHA-256. `release-validation.txt` records the selected asset count, resolved notes path and tag status. Both are retained for 14 days. The upload uses `if-no-files-found: warn` so an earlier failure is not masked by a missing artifact.
+`release.json` records the tag, title, target SHA, prerelease flag, dry-run flag, published flag, release URL, run URL, and each asset's name, size and SHA-256. `release-validation.txt` records the selected asset count, resolved notes path and tag status. When `artifact-manifest` is supplied, `artifact-identity/verification.json` is retained with them. All are retained for 14 days. The upload uses `if-no-files-found: warn` so an earlier failure is not masked by a missing artifact; the evidence-required step above still fails a run that supplied a manifest without a verification report.
+
+## Artifact identity
+
+`artifact-manifest` is optional. When it is empty, nothing about publication changes. When it is set, the template verifies Artifact Identity v1 between the artifact download and the first release write:
+
+- it checks out its own called revision (`job.workflow_sha`) into `bima-infra`, so the verifier is the reviewed one, not caller code;
+- it resolves `artifact-manifest` with `realpath` and rejects anything outside `$GITHUB_WORKSPACE`, or a non-regular file;
+- it resolves `artifact-root` against the downloaded assets root and rejects anything outside `$RUNNER_TEMP/release-assets`, so the verified bytes are exactly the bytes it publishes;
+- it runs `python -I bima-infra/automation/artifact_identity.py verify --manifest ... --root ... --output "$RUNNER_TEMP/artifact-identity"` and fails the job on any non-zero exit.
+
+A changed, missing, unsafe or malformed input therefore stops the job before `Create and publish release`; there is no `continue-on-error`. `verification.json` joins the release evidence, and a separate `Require artifact identity evidence` step fails the job if the manifest was supplied but `verification.json` is absent, so the evidence upload's `if-no-files-found: warn` cannot hide a skipped verification.
 
 ## Failure contract
 
 - Invalid tag, target SHA or notes path, no selected assets, duplicate asset names, or empty assets fail before any write.
+- A supplied `artifact-manifest` that fails verification, or a missing verification report, fails before any release or tag is created.
 - An existing tag fails closed; release tags are never overwritten.
 - `gh` and API failures fail closed, including an unreadable tag status.
 - Dry-run performs every validation and writes evidence, but creates no release or tag.
@@ -61,6 +75,7 @@ The caller's publishing job must grant `contents: write`. The called workflow de
 - `persist-credentials: false`; release writes use the job-scoped `GITHUB_TOKEN`.
 - Artifacts are downloaded from the same run, hashed, and uploaded as evidence; no downloaded file is executed.
 - `release.json` is the `bima-release-evidence.v1` document described by `schemas/bima-release-evidence.v1.schema.json`.
+- With `artifact-manifest`, the verifier comes from the called workflow revision and only reads declared relative paths inside the downloaded assets; no downloaded file is executed.
 - The template does not sign, attest, rebuild or prove artifact provenance.
 
 ## Compatibility
@@ -83,9 +98,11 @@ publish:
     artifact-pattern: '*-v1.2.3'
 ```
 
+Add `artifact-manifest: .artifacts/artifact-identity/manifest.json` (and `artifact-root` when the declared files sit in a subdirectory of the downloaded assets) to opt into identity verification.
+
 ## Boundaries
 
-This template does not build or test, bump versions, generate notes, sign or notarize binaries, produce SBOMs or attestations, verify that asset names match the tag, or enforce that the caller ran from a protected ref. It publishes exactly the artifacts selected from the calling run and cannot prove which commit produced them. The SHA-256 values in `release.json` are evidence, not a signed checksum manifest.
+This template does not build or test, bump versions, generate notes, sign or notarize binaries, produce SBOMs or attestations, verify that asset names match the tag, or enforce that the caller ran from a protected ref. It publishes exactly the artifacts selected from the calling run; a verified manifest binds those bytes to a declaration but still does not prove who produced them. The SHA-256 values in `release.json` are evidence, not a signed checksum manifest. The template also does not create manifests: the caller produces one after its final byte-changing step.
 
 ## Self-test
 

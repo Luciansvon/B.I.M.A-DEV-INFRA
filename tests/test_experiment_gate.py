@@ -20,13 +20,14 @@ class ExperimentGateTests(unittest.TestCase):
     def setUp(self):
         self.request = gate.load_document(FIXTURE)
 
-    def add_second_project(self, request=None):
+    def add_second_project(self, request=None, capability=None):
         request = copy.deepcopy(request or self.request)
         request["demand_evidence"].append({
             "project_id": "fixture-b",
             "repository": "example/fixture-b",
-            "requirement_ref": "fixture://fixture-b/requirement",
-            "reviewed_by": "fixture-reviewer",
+            "capability": capability or request["capability"],
+            "requirement_ref": "example/fixture-b#2",
+            "reviewed_by": "fixture-reviewer-b",
         })
         return request
 
@@ -37,17 +38,55 @@ class ExperimentGateTests(unittest.TestCase):
         self.assertFalse(decision["execution_started"])
         self.assertTrue(decision["requires_policy_authorization"])
 
-    def test_two_distinct_projects_make_non_model_experiment_ready(self):
-        decision = gate.evaluate(self.add_second_project())
+    def test_two_projects_with_matching_capability_are_ready(self):
+        request = self.add_second_project()
+        request["demand_evidence"][1]["requirement_ref"] = (
+            "https://github.com/example/fixture-b/issues/2")
+        decision = gate.evaluate(request)
         self.assertEqual(decision["status"], "READY")
         self.assertEqual(decision["distinct_projects"], 2)
+        self.assertEqual(
+            {item["capability"] for item in request["demand_evidence"]},
+            {request["capability"]})
         self.assertFalse(decision["execution_started"])
+
+    def test_two_projects_with_different_capabilities_fail(self):
+        with self.assertRaises(gate.ExperimentGateError):
+            gate.evaluate(self.add_second_project(capability="release-proof"))
+
+    def test_unknown_capability_fails_closed(self):
+        request = copy.deepcopy(self.request)
+        request["capability"] = "teleport"
+        request["demand_evidence"][0]["capability"] = "teleport"
+        with self.assertRaises(gate.ExperimentGateError):
+            gate.validate_request(request)
+
+    def test_duplicate_repository_and_requirement_fail(self):
+        request = copy.deepcopy(self.request)
+        duplicate = copy.deepcopy(request["demand_evidence"][0])
+        duplicate["project_id"] = "second-project"
+        request["demand_evidence"].append(duplicate)
+        with self.assertRaisesRegex(gate.ExperimentGateError, "repository and requirement"):
+            gate.validate_request(request)
+
+    def test_placeholder_reviewer_and_requirement_ref_fail(self):
+        for reviewer in ("", "TBD", " reviewer "):
+            request = copy.deepcopy(self.request)
+            request["demand_evidence"][0]["reviewed_by"] = reviewer
+            with self.subTest(reviewed_by=reviewer), self.assertRaises(gate.ExperimentGateError):
+                gate.validate_request(request)
+        for reference in ("", "TBD", "fixture://fixture-a/requirement",
+                          "https://", "example/fixture-a"):
+            request = copy.deepcopy(self.request)
+            request["demand_evidence"][0]["requirement_ref"] = reference
+            with self.subTest(requirement_ref=reference), self.assertRaises(gate.ExperimentGateError):
+                gate.validate_request(request)
 
     def test_duplicate_project_or_repository_cannot_inflate_demand(self):
         request = copy.deepcopy(self.request)
         second = copy.deepcopy(request["demand_evidence"][0])
         second["project_id"] = "second-project"
-        second["requirement_ref"] = "issue://second-project/1"
+        second["requirement_ref"] = "example/second-project#3"
         second["reviewed_by"] = "second-reviewer"
         request["demand_evidence"].append(second)
         with self.assertRaises(gate.ExperimentGateError):
@@ -56,15 +95,17 @@ class ExperimentGateTests(unittest.TestCase):
         request = copy.deepcopy(self.request)
         second = copy.deepcopy(request["demand_evidence"][0])
         second["repository"] = "example/second-project"
-        second["requirement_ref"] = "issue://second-project/1"
+        second["requirement_ref"] = "example/second-project#3"
         second["reviewed_by"] = "second-reviewer"
         request["demand_evidence"].append(second)
         with self.assertRaises(gate.ExperimentGateError):
             gate.evaluate(request)
 
     def test_local_slm_requires_1000_verified_held_out_cases(self):
-        request = self.add_second_project()
+        request = copy.deepcopy(self.request)
         request["capability"] = "local-qa-slm"
+        request["demand_evidence"][0]["capability"] = "local-qa-slm"
+        request = self.add_second_project(request)
         request["dataset"]["verified_cases"] = 999
         decision = gate.evaluate(request)
         self.assertEqual(decision["reason_code"], "MODEL_BENCHMARK_GATE_UNMET")

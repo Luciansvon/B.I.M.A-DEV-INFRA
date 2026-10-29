@@ -41,6 +41,7 @@ BUNDLE_FIELDS = {
     "schema", "bundle_id", "workflow_repository", "workflow_path",
     "policy_path", "policy_sha256", "operation_id", "decision_ttl_seconds",
 }
+BUNDLE_DIR = "policies/trust-bundles"
 
 
 class LauncherError(ValueError):
@@ -184,6 +185,60 @@ def validate_bundle(value, bundle_id):
     return value
 
 
+def _check_bundle(infra_root, bundle_id):
+    """Prove one committed bundle is internally consistent, without running anything."""
+    bundle_file = _safe_file(
+        infra_root, f"{BUNDLE_DIR}/{bundle_id}.json", "trust bundle")
+    try:
+        bundle = validate_bundle(
+            policy_gate.strict_json(bundle_file.read_bytes()), bundle_id)
+    except policy_gate.ContractError as exc:
+        raise LauncherError("INVALID_TRUST_BUNDLE", "trust bundle is not strict JSON") from exc
+
+    workflow_file = _safe_file(infra_root, bundle["workflow_path"], "trusted workflow")
+    if "workflow_call:" not in workflow_file.read_text(encoding="utf-8"):
+        raise LauncherError(
+            "WORKFLOW_NOT_REUSABLE", "trusted workflow does not declare workflow_call")
+
+    policy_file = _safe_file(infra_root, bundle["policy_path"], "trusted policy")
+    policy_raw = policy_file.read_bytes()
+    if hashlib.sha256(policy_raw).hexdigest() != bundle["policy_sha256"]:
+        raise LauncherError(
+            "TRUSTED_POLICY_HASH_MISMATCH", "trusted policy bytes do not match the bundle")
+    try:
+        policy = policy_gate.validate_policy(policy_gate.strict_json(policy_raw))
+    except policy_gate.ContractError as exc:
+        raise LauncherError("INVALID_TRUSTED_POLICY", "trusted policy violates its contract") from exc
+    if bundle["operation_id"] not in {entry["id"] for entry in policy["operations"]}:
+        raise LauncherError(
+            "POLICY_OPERATION_MISSING", "trusted policy does not declare the bundle operation")
+
+
+def check_bundles(infra_root):
+    """Validate every committed trust bundle without launching a verifier."""
+    infra_root = Path(infra_root).resolve()
+    directory = infra_root / BUNDLE_DIR
+    if directory.is_symlink() or (hasattr(directory, "is_junction") and directory.is_junction()):
+        raise LauncherError("UNSAFE_TRUST_PATH", "trust bundle directory is a link or junction")
+    if not directory.is_dir():
+        raise LauncherError("TRUST_FILE_MISSING", "trust bundle directory is missing")
+    bundles = sorted(path for path in directory.glob("*.json") if path.is_file())
+    if not bundles:
+        raise LauncherError("TRUST_FILE_MISSING", "no trust bundles are committed")
+    for path in bundles:
+        try:
+            if not IDENTIFIER.fullmatch(path.stem):
+                raise LauncherError("INVALID_BUNDLE_ID", "bundle file name is not a valid bundle ID")
+            _check_bundle(infra_root, path.stem)
+        except LauncherError as exc:
+            raise LauncherError(
+                exc.reason_code, f"{BUNDLE_DIR}/{path.name}: {exc}") from exc
+        except (OSError, ValueError) as exc:
+            raise LauncherError(
+                "INVALID_TRUST_BUNDLE", f"{BUNDLE_DIR}/{path.name}: {exc}") from exc
+    return len(bundles)
+
+
 def _required_environment(environment):
     missing = sorted(name for name in REQUIRED_ENV if not environment.get(name))
     if missing:
@@ -322,12 +377,34 @@ def launch(infra_root, subject_root, bundle_id, project_path, environment, now=N
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--infra-root", type=Path, required=True)
-    parser.add_argument("--subject-root", type=Path, required=True)
-    parser.add_argument("--bundle-id", required=True)
+    parser.add_argument(
+        "--check", action="store_true",
+        help="validate every committed trust bundle without launching a verifier")
+    parser.add_argument("--infra-root", type=Path)
+    parser.add_argument("--subject-root", type=Path)
+    parser.add_argument("--bundle-id")
     parser.add_argument("--project-path", default=".bima/project.json")
-    parser.add_argument("--evidence-output", type=Path, required=True)
+    parser.add_argument("--evidence-output", type=Path)
     args = parser.parse_args()
+    if args.check:
+        try:
+            count = check_bundles(args.infra_root or Path(__file__).resolve().parents[1])
+        except LauncherError as exc:
+            print(f"trust-bundles: fail: {exc.reason_code}: {exc}", file=sys.stderr)
+            return 2
+        except OSError as exc:
+            print(f"trust-bundles: fail: {exc}", file=sys.stderr)
+            return 2
+        print(f"trust-bundles: pass; bundles={count}")
+        return 0
+    missing = [
+        name.replace("_", "-") for name in
+        ("infra_root", "subject_root", "bundle_id", "evidence_output")
+        if getattr(args, name) is None
+    ]
+    if missing:
+        parser.error("the following arguments are required: "
+                     + ", ".join(f"--{name}" for name in missing))
     environment = {name: os.environ.get(name, "") for name in REQUIRED_ENV | OPTIONAL_ENV}
     output = None
     try:
