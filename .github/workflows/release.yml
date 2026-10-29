@@ -38,6 +38,16 @@ on:
         required: false
         type: string
         default: release-evidence
+      artifact-manifest:
+        description: Caller-workspace-relative bima-artifact-manifest.v1 file that must verify before any release write
+        required: false
+        type: string
+        default: ''
+      artifact-root:
+        description: Directory holding the declared artifact files, relative to the downloaded release assets root
+        required: false
+        type: string
+        default: ''
     outputs:
       release-url:
         description: Published release URL; empty on dry-run
@@ -71,6 +81,64 @@ jobs:
           pattern: ${{ inputs.artifact-pattern }}
           path: ${{ runner.temp }}/release-assets
           merge-multiple: true
+      - name: Checkout the exact called workflow revision
+        if: ${{ inputs.artifact-manifest != '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: bima-infra
+          persist-credentials: false
+      - name: Prepare artifact identity verifier
+        if: ${{ inputs.artifact-manifest != '' }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13.15'
+      - name: Verify artifact identity before publishing
+        if: ${{ inputs.artifact-manifest != '' }}
+        shell: bash
+        env:
+          MANIFEST_INPUT: ${{ inputs.artifact-manifest }}
+          ROOT_INPUT: ${{ inputs.artifact-root }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+
+          workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          manifest="$(realpath -- "$MANIFEST_INPUT")" || {
+            echo "artifact-manifest does not resolve to a file" >&2
+            exit 2
+          }
+          if [[ "$manifest" != "$workspace"/* || ! -f "$manifest" || -L "$MANIFEST_INPUT" ]]; then
+            echo "artifact-manifest must be a regular file inside the caller checkout" >&2
+            exit 2
+          fi
+
+          assets_root="$(realpath -- "$RUNNER_TEMP/release-assets")"
+          if [[ -z "$ROOT_INPUT" ]]; then
+            root="$assets_root"
+          elif [[ "$ROOT_INPUT" == /* ]]; then
+            root="$(realpath -- "$ROOT_INPUT")"
+          else
+            root="$(realpath -- "$assets_root/$ROOT_INPUT")"
+          fi
+          if [[ "$root" != "$assets_root" && "$root" != "$assets_root"/* ]]; then
+            echo "artifact-root must resolve inside the downloaded release assets" >&2
+            exit 2
+          fi
+
+          python -I bima-infra/automation/artifact_identity.py verify \
+            --manifest "$manifest" \
+            --root "$root" \
+            --output "$RUNNER_TEMP/artifact-identity"
+      - name: Require artifact identity evidence
+        if: ${{ !cancelled() && inputs.artifact-manifest != '' }}
+        shell: bash
+        run: |
+          if [[ ! -f "$RUNNER_TEMP/artifact-identity/verification.json" ]]; then
+            echo "artifact identity verification evidence is missing" >&2
+            exit 1
+          fi
       - name: Validate inputs and tag policy
         id: validate
         shell: bash
@@ -210,5 +278,6 @@ jobs:
           path: |
             ${{ runner.temp }}/release-validation.txt
             ${{ runner.temp }}/release/release.json
+            ${{ runner.temp }}/artifact-identity/verification.json
           if-no-files-found: warn
           retention-days: 14

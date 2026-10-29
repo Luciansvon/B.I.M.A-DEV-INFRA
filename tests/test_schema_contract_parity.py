@@ -54,6 +54,10 @@ FIELD_SET_PARITY = {
     "bima-normalization-config.v1.schema.json": (
         ("result_normalizer", "CONFIG_FIELDS", ()),
     ),
+    "bima-release-evidence.v1.schema.json": (
+        ("release_evidence", "EVIDENCE_FIELDS", ()),
+        ("release_evidence", "ASSET_FIELDS", ("$defs", "asset")),
+    ),
     "bima-trust-bundle.v1.schema.json": (
         ("trusted_policy_launcher", "BUNDLE_FIELDS", ()),
     ),
@@ -130,9 +134,6 @@ EXPLICIT_EXCEPTIONS = {
     ("bima-project.v1.schema.json", ()):
         "policy_gate.validate_project inlines the top-level set; "
         "no exported field-set constant exists.",
-    ("bima-release-evidence.v1.schema.json", ()):
-        "release.yml writes this document from its jq block in the "
-        "'Create and publish release' step; no exported field-set constant exists.",
     ("bima-trusted-launcher-decision.v1.schema.json", ()):
         "trusted_policy_launcher._decision assembles the decision inline; "
         "no exported field-set constant exists.",

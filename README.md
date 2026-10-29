@@ -12,9 +12,11 @@ This repository is a laboratory and shared foundation for discovering, validatin
 
 The accepted target is the [capability-based verification architecture](docs/architecture/ARCHITECTURE.md), established in [ADR-0009](docs/decisions/ADR-0009-capability-verification-architecture.md). Its [design contract](docs/architecture/CAPABILITY-CONTRACT.md) and [single delivery order](docs/NEXT.md) reconcile the prior plans. The [plan audit](docs/audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md) distinguishes accepted design from implemented capabilities.
 
+`docs/NEXT.md` is now a state board with an always-non-empty actionable lane. `task roadmap` fails when locally completable work disappears, when a gated item has no local precursor, or when a review date expires. `task roadmap-candidates` derives new work from repository state.
+
 The capability map below contains both shipped contracts and gated research. The executable core now includes beta repository hygiene, a trusted reusable launcher for that audit, canonical evidence, bounded failure routing, fail-closed required-check aggregation, deterministic artifact-byte identity, portable reviewed failure records, a rebuildable SQLite/FTS5 index gate, and a deterministic experiment-readiness gate.
 
-The first Policy Gate increment is executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only `repository-audit.v1`. A reusable trusted launcher now binds the caller checkout to a protected DEV-INFRA workflow SHA and a checked-in policy hash. It has no generic command/provider loader, network access, credentials or model calls. Hosted launcher proof passed in run `34707376819`; no project consumer pin changed.
+The first Policy Gate increment is executable: strict `bima-project.v1`, `bima-policy.v1`, `bima-operation-request.v1` and `bima-decision.v1` contracts authorize only `repository-audit.v1`. A reusable trusted launcher now binds the caller checkout to a protected DEV-INFRA workflow SHA and a checked-in policy hash. It has no generic command/provider loader, network access, credentials or model calls. Hosted launcher proof passed in run `40625331457`; `ci.yml` now also self-calls the launcher on every push and pull request, with the first hosted self-call run still pending. No project consumer pin changed.
 
 An additive result-normalization pilot parses bounded Rust libtest summaries into `bima-verification-result.v2`. Missing summaries, count mismatches and exit/result disagreement remain `UNKNOWN`. DEV-INFRA hosted action proof passed on Ubuntu and Windows in run `34470140936`. The AI-COLOR migration is closed without a consumer change; v1 pins remain active. A separate known-failure classifier requires an exact owner-reviewed expiring signature and never authorizes retry.
 
@@ -67,6 +69,7 @@ Failure memory is not active: the portable production set remains below the acti
 - [Failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORDS.md)
 - [Sixth failure-record activation validation](docs/audits/VALIDATION-2026-09-13-FAILURE-RECORD-006.md)
 - [Repository governance validation](docs/audits/VALIDATION-2026-09-12-REPOSITORY-GOVERNANCE.md)
+- [Roadmap work-availability validation](docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md)
 - [Historical verification control plane RFC](docs/rfcs/RFC-0001-verification-control-plane.md)
 - [Security and runner baseline](docs/standards/SECURITY-BASELINE.md)
 - [Implementation decision](docs/decisions/ADR-0001-executable-repository-hygiene.md)
@@ -78,18 +81,31 @@ Failure memory is not active: the portable production set remains below the acti
 - [Agent packet routing decision](docs/decisions/ADR-0008-agent-packet-routing.md)
 - [Next steps](docs/NEXT.md)
 
-Current deterministic entry points use [Task](https://taskfile.dev/):
+Current deterministic entry points use [Task](https://taskfile.dev/), listed
+below as roadmap/contracts, evidence, release/artifact, and verification:
 
 ```text
 task test
+task contracts
+task catalog
+task roadmap
+task roadmap-candidates
+task coverage
+task trust-bundles
+task workflow-refs
+task pin-freshness
 task audit
 task evidence
 task agent-packet
+task release-evidence
+task schema-lint
+task fleet-plan
 task artifact-manifest ARTIFACT_REQUEST=... ARTIFACT_ROOT=...
 task artifact-verify ARTIFACT_MANIFEST=... ARTIFACT_ROOT=...
 task preflight
 task workflow-lint
 task check
+task diff-check
 task verify
 ```
 
@@ -448,6 +464,8 @@ Also avoid workflows that simply add another network hop without improving safet
 ---
 
 # Initial roadmap
+
+> Historical phase view. Do not use these checkboxes for current status; [`docs/NEXT.md`](docs/NEXT.md) is the live state board and the only authoritative delivery order.
 
 ### Phase 0 — Research foundation
 

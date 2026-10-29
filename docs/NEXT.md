@@ -1,120 +1,74 @@
 # Next implementation and activation steps
 
-Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), updated by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md) and [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md). Status refreshed 2026-10-28 against `main` at `b4fea628f8b725f4afc1f716b25e9c0995688857` plus the Phase 3 hardening increment; Artifact Identity is complete at contract level but has no real build/release consumer.
+Authoritative delivery order: [ADR-0009](decisions/ADR-0009-capability-verification-architecture.md), amended by [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md), [ADR-0011](decisions/ADR-0011-artifact-identity-before-release.md) and the 2026-10-28 roadmap-availability amendment in ADR-0010.
+
+This file is a **state board**, not a phase checklist. `task roadmap` enforces the work-availability contract:
+
+- Lane 1 must never be empty; locally completable work is always available.
+- A blocked item must name a concrete external gate, a locally completable precursor, and a review date within 90 days.
+- A done item must link evidence that exists in the repository.
+- Stale review dates fail the build, so a gate cannot be parked indefinitely.
+
+`task roadmap-candidates` derives new work from repository state when Lane 1 starts to empty. The roadmap is intentionally ordered by evidence value, not by phase number.
+
+## Lane 1 — Actionable now
+
+| id | why | state | gate | precursor | verify | evidence | done when | review-by |
+|---|---|---|---|---|---|---|---|---|
+| P3-02 | The template audit policy is a hand-maintained list that can drift when a scaffold file is added | actionable | - | - | task test | - | Adding a template file without a matching required entry fails the template test | 2027-01-20 |
+
+## Lane 2 — Gated
+
+Each row names the exact external artifact that would unblock it and the local precursor that reduces its risk. A row whose precursor is not actionable, active, or done must be deleted, not parked.
+
+| id | why | state | gate | precursor | verify | evidence | done when | review-by |
+|---|---|---|---|---|---|---|---|---|
+| P4-20 | Dependency review and trusted-audit adoption need a real manifest-bearing consumer | blocked | consumer: a repository with real manifests and an adopted caller | P4-10 | task test | - | A consumer pull request shows dependency-review and trusted-audit verdicts | 2027-01-20 |
+| P4-21 | Cross-repository pin drift needs consumers that actually pin this catalog | blocked | consumer: at least two pinned consumer callers | P4-11 | task pin-freshness | - | Read-only drift report covers real consumer pins without mutating them | 2027-01-20 |
+| P4-22 | Artifact identity has contract proof but no real release consumer | blocked | hosted-run: AI-COLOR-COMPARE `main` release using Artifact Identity v1 | P4-09 | task test | - | The release path publishes only after manifest verification and records the verdict | 2027-01-20 |
+| P4-23 | Failure memory needs a real corpus and held-out queries before retrieval is meaningful | blocked | corpus: 100 reviewed real records and 10 held-out queries | P4-13 | task contracts | - | The SQLite/FTS5 BM25 benchmark runs on the reviewed corpus and publishes metrics | 2027-01-20 |
+| P4-24 | Graphify, ReleaseProof, Spec Kit, sandbox, database, durable, vector, and telemetry providers need measured demand | blocked | provider: two-project reviewed demand and `experiment_gate.py` READY | P4-12 | task test | - | One experiment has a pinned baseline, dataset, thresholds, costs, and rollback | 2027-01-20 |
+| P4-25 | The local SLM remains last behind a verified-case and held-out gate | blocked | corpus: 1000 verified cases with a protected held-out split | P4-12 | task contracts | - | Untuned rules and lexical retrieval are benchmarked before any training | 2027-01-20 |
+
+## Done — last 90 days
+
+Rows move here only with committed evidence. Older history stays in Git and in the linked audit records.
+
+| id | why | state | gate | precursor | verify | evidence | done when | review-by |
+|---|---|---|---|---|---|---|---|---|
+| P2-01 | The workflow contract existed as prose while the catalog checked only input and output names | done | - | - | task catalog | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Every cataloged workflow documents all required sections and the catalog fails when one is missing or empty | - |
+| P3-01 | The project template omitted shipped scaffold files from its own audit policy | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Deleting a shipped template file fails the generated project audit | - |
+| P4-01 | `required_files` omitted the audit verifier and contract docs | done | - | - | task coverage | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Every automation, schema, workflow, standard, architecture, and catalog path is protected | - |
+| P4-02 | The catalog did not require every reusable workflow or input/output to be documented | done | - | - | task catalog | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Reverse completeness, input/output docs, and consumer proof fail closed | - |
+| P4-03 | README, Taskfile, and the command contract disagreed | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | One test compares all three command surfaces and fails on drift | - |
+| P4-04 | Trust bundles were only checked during a hosted launch | done | - | - | task trust-bundles | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Bundle, workflow path, policy hash, and operation id validate locally | - |
+| P4-05 | Caller pin pairs and referenced revisions were reviewed by eye | done | - | - | task workflow-refs | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Mismatched pairs, absent revisions, and missing paths fail locally | - |
+| P4-06 | Release evidence had a schema but no validator or field-set parity | done | - | - | task release-evidence | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | A produced document validates and schema fields match the writer | - |
+| P4-07 | Schemas had no structural lint beyond top-level field parity | done | - | - | task schema-lint | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | `required`, `$ref`, `pattern`, `const`, and `$defs` are checked | - |
+| P4-08 | The project template self-test never audited its scaffold | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | The generated project is committed and passes its own audit | - |
+| P4-09 | Release publication did not verify artifact identity before publishing | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | A manifest is verified before publish and a changed byte fails closed | - |
+| P4-10 | The trusted audit launcher had no in-repo caller besides its proof job | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | `ci.yml` calls the trusted launcher with the checked-in project policy | - |
+| P4-11 | Local caller pins could drift from the reviewed catalog silently | done | - | - | task pin-freshness | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Local caller pins and catalog hashes are compared read-only | - |
+| P4-12 | The experiment gate counted repositories without checking capability identity | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Demand records name one capability and two distinct reviewed projects | - |
+| P4-13 | The failure corpus accepted duplicate or unaudited records toward the 100-case gate | done | - | - | task contracts | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Duplicate records, fixture evidence posing as real, and self-review fail validation | - |
+| P4-14 | Recording the remaining reviewed cases is manual, so the 100-case corpus gate is expensive to approach | done | - | - | task contracts | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | A draft generator emits an unreviewed template with a deterministic ID and refuses to mark it reviewed | - |
+| P4-15 | A done row accepted any existing evidence path, even one that never mentions the item | done | - | - | task roadmap | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | Evidence must name the done item ID and an unrelated document fails | - |
+| P4-16 | Pin freshness could only inspect this repository, not a local consumer checkout | done | - | - | task test | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | `--consumer-root` compares consumer pins with the catalog and fails on stale or unknown pins | - |
+| P4-18 | `required_files` did not protect accepted ADRs or incident guidance | done | - | - | task coverage | docs/audits/VALIDATION-2026-10-29-ROADMAP-GROWTH.md | ADR and incident files are covered and a deleted ADR fails the policy check | - |
+
+## Not roadmap
+
+These are constraints, not tasks. They must not be re-added as checkboxes.
+
+- The 100-record and 10-query failure-memory thresholds are evidence gates; they are not lowered or satisfied with synthetic records.
+- The local SLM stays optional and last; it cannot create PASS, authorize retries, or become a required dependency.
+- No provider, sandbox, database, durable workflow, vector store, or telemetry installation without two-project demand and a READY experiment decision.
+- Spec Kit and domain templates stay parked until they have capability identities, a real consumer, and a gate that can express their prerequisites.
+- Generic `build` and `nightly` commands stay absent until a project-agnostic implementation and evidence contract exist.
+- Publication, consumer changes, and hosted claims require the separate authorization described in the capability contract.
 
 ## Completed baseline
 
-- [x] Immediate #3 P0 sequence: Task, prek, action-validator, pinact, zizmor, canonical evidence and bounded agent packet.
-- [x] External fixture with reviewed matching pins and inspected [evidence](audits/VALIDATION-2026-09-09-CONSUMER-FIXTURE.md).
-- [x] Historical [AI-COLOR-COMPARE consumer](audits/VALIDATION-2026-09-09-AI-COLOR-CONSUMER.md), paired v1 pins and canonical evidence. The proposed v2 migration is closed without a consumer change.
-- [x] Audit #3/#8/#9/#15/#17 and RFC-0001; select capability-based architecture and document [contracts](architecture/CAPABILITY-CONTRACT.md). This completes the design decision only.
-- [x] Phase 3 cross-repository infrastructure: project template and bootstrap, hash-pinned workflow catalog, workflow-status dashboard on GitHub Pages, and explicit fleet dispatch with a dry-run default.
-
-## 0. Governance activation — owner decisions
-
-- [x] Select Apache-2.0 for permissive cross-project reuse with an explicit patent grant and change-notice obligations.
-- [x] Activate main protection with solo-maintainer approval count `0`. Require workflow-lint and Ubuntu/Windows checks, strict update, admin enforcement, linear history and conversation resolution; prevent force-push/deletion. API state inspected 2026-09-10.
-- [x] Verify compatibility and activate repository-level SHA enforcement. Live Actions permissions reported `sha_pinning_required=true` on 2026-09-12; pinact 4.1.1 passes all current workflows/actions.
-- [x] Require the trusted repository audit proof as a merge context: `Trusted repository audit proof / audit` was added to `main` protection on 2026-10-28, bound to the GitHub Actions app.
-- [x] Enable immutable releases and an active tag ruleset (`Protect release tags`) blocking tag deletion and non-fast-forward updates under `refs/tags/*` with no bypass actors. Verified 2026-10-28.
-
-These decisions gate claims of protected/governed publication, not unprivileged local design or validation work. Retain Dagger PR #2 on its existing closed/deferred branch.
-
-## 1. Small executable project and policy contract
-
-- [x] Implement strict versioned JSON project/policy/request/decision schemas and pure deterministic validation.
-- [x] Record trusted policy source, exact operation scope, approval reference, obligations and budget; unknown policy fails closed.
-- [x] Integrate `repository-audit.v1` with revision/cleanliness checks, output containment, subprocess timeout and decision evidence. No generic provider loader or permanent service.
-- [x] Publish hosted Ubuntu/Windows evidence for this increment: run `34442172182`, 49 tests per OS, matching canonical evidence and zero findings. Consumer pins remain unchanged pending real-consumer compatibility proof.
-- [x] Implement a trusted reusable launcher that binds separate subject/infra checkouts, exact called-workflow SHA, trusted policy bundle/hash and runner identity.
-- [x] Prove locally that subject policy shadowing, scope elevation, workflow-ref substitution, committed policy tampering, repository spoofing and overlapping checkouts fail closed.
-- [x] Publish hosted proof for the new trusted launcher workflow: run `34707376819` returned launcher/policy `ALLOW`, launched the verifier and produced a passing 144-file audit. Run `34707376740` separately passed workflow lint plus the Ubuntu/Windows matrix. No consumer pin changed.
-- [x] Re-pin `trusted-launcher-proof.yml` to the PR #34 merge SHA `67736411bf55c4d7b1559b3f473a2da8f92475ba` and prove it in hosted run `40622237968` (`ALLOW`, `verifier_launched=true`).
-- [x] Decide the subject audit-policy trust boundary in [ADR-0012](decisions/ADR-0012-subject-audit-policy-trust.md) before treating the required audit as a security gate. ADR-0012 is accepted and implemented; proof run `40625331457` at merge SHA `49e7424e88f2512d4a5ef753730e6dfe293a8fbd` read the base `.bima/audit.json` and returned `ALLOW` with `verifier_launched=true`.
-
-Exit evidence: bounded positive/negative fixtures, decision report and one enforced operation; documentation alone is not Policy Gate completion.
-
-## 2. Real failure normalization and explicit result migration
-
-- [x] Select AI-COLOR-COMPARE Rust libtest output plus a bounded, sanitized TypeScript diagnostic format from real successful/failed workflow runs.
-- [x] Preserve per-attempt outcomes, source/command/policy/environment identity, expected test counts and missing-output semantics in additive local v2 evidence.
-- [x] Implement a narrow exact-match known-failure registry with mandatory owner/reviewer, maximum 90-day expiry and explicit `automatic_retry_allowed=false`; DEV-INFRA hosted cross-platform regression passes. Consumer integration remains pending.
-- [x] Validate the additive v2 adapter/action in DEV-INFRA hosted run `34470140936`: Ubuntu and Windows both returned `PASS`, `ALL_EXPECTED_TESTS_PASSED`, `29/29`, at the same source and policy hashes.
-- [x] Close AI-COLOR v2 migration without a consumer change. Keep v1 readers and pins active; no opt-in/rollback exercise is required unless a future consumer need reopens migration.
-- [x] Implement additive `bima-verification-plan.v1` and `bima-verification-aggregate.v1` contracts with deterministic `FAIL > BLOCKED > UNKNOWN > PASS` precedence, missing-result detection, flaky protection, and visible optional non-pass results.
-- [x] Publish and inspect hosted Ubuntu/Windows aggregate artifacts in run `34753773782`. Both report `PASS`, `ALL_REQUIRED_CHECKS_PASSED`, required `1/1`, and no unresolved required check. No consumer pin changed.
-- [x] Implement additive Artifact Identity v1 request, manifest, and verification contracts. Exact final bytes are bound to subject/policy, role, ownership, retention metadata, size, and SHA-256; missing, changed, or unsafe files fail closed.
-- [ ] Integrate Artifact Identity into a real build/release consumer only after its final byte-changing step and project-owned behavior expectations are known. The DEV-INFRA fixture is contract proof, not release proof.
-
-Exit evidence: successful and failing real examples, malicious/malformed/missing-result fixtures, equivalent-retry classification and compatibility report. Start verified case collection here.
-
-## 3. Reviewed memory and lexical retrieval
-
-- [x] Define portable versioned failure records with causal evidence, review, ownership, supersession and invalidation.
-- [x] Implement a rebuildable single-writer SQLite + FTS5 index gated to local storage outside repositories, synchronization folders and network paths.
-- [x] Prove canonical import/export, invalidation exclusion, access filtering and integrity-checked backup/rebuild with synthetic contract fixtures.
-- [x] Implement a held-out lexical benchmark gate with deterministic recall@k, MRR, false-match and stale-hit metrics.
-- [ ] Collect at least 100 real failure/fix cases for the first meaningful retrieval pilot; 6 independently reviewed shared-infrastructure cases are canonical, while the held-out query set remains empty.
-- [ ] Run and publish the production retrieval benchmark after both the 100-real-case and 10-held-out-query gates are satisfied.
-
-Current activation: `BLOCKED`, below the `100`-record and `10`-query thresholds. No database is created below the gate.
-
-History audit: [five technically eligible candidates](audits/FAILURE-MEMORY-HISTORY-AUDIT-2026-09-13.md) were independently reviewed by Bima in PR #27 and converted to canonical active records. A sixth shared-workflow failure from that activation was independently reviewed in PR #28 and converted separately. The corpus remains below the `100`-record threshold; held-out queries remain empty.
-
-Exit evidence: exact-match + BM25 baseline, recall/false-match/stale-hit metrics and retained verification references. Schema collection does not wait for 100 cases; advanced database adoption does.
-
-## 4. Independent experiments — no mutual dependency
-
-| Experiment | Prerequisite | Required evidence before adoption |
-|---|---|---|
-| Graphify context | Pinned candidate, measured native-search tasks and allowed data scope | A/B on DEV-INFRA + AI-COLOR-COMPARE; task success, missing edges, total context/time/build cost; code-only first |
-| ReleaseProof | #8's competitor/reuse/demand gate and one project-owned release case | Same-artifact provenance + installer behavior; one format and explicit expectations |
-| Spec Kit authoring adapter | Two distinct reviewed project demands, pinned stable release, native baseline tasks and approved thresholds | Read-only artifact/composition validator first; paired traceability, missing-artifact, acceptance, false-block, security, time/token and upgrade evidence; per-project opt-in only |
-
-Graphify does not block memory or ReleaseProof. ReleaseProof does not block test normalization. Model runtime/training is moved to the final roadmap stage; a single audit consumer is not itself a build-log benchmark corpus.
-
-- [x] Implement a deterministic experiment request/decision gate with pinned baseline, dataset identity, thresholds, budget, permissions, reject criteria, rollback and reviewed demand evidence.
-- [x] Require at least two distinct reviewed project repositories for `READY`.
-- [ ] Run any experiment. None is currently authorized or active.
-
-Spec Kit was audited against stable `v1.0.6` in the [adapter architecture audit](audits/SPEC-KIT-ADAPTER-AUDIT-2026-09-13.md) using a [74-source ledger](research/SOURCES-SPEC-KIT-ADAPTER-2026-09-13.md). It remains a provider-neutral authoring candidate: no package, preset, workflow, adapter or consumer is installed. B.I.M.A governance, Policy Gate, reviewed verifiers and canonical evidence remain authoritative.
-
-## 5. Additional providers only with a measured consumer need
-
-- [ ] Sandbox pilot only after an enforceable execution/cleanup contract and actual workload; compare local/GitHub baseline.
-- [ ] Database sandbox/verifier only for a database consumer; disposable local DB before hosted branching.
-- [ ] Durable workflow, security-response UI, external project control, graph/vector storage and fleet telemetry only after recorded unmet requirements and comparative cost evidence.
-
-All provider categories are represented by the experiment-readiness contract. That is a gate implementation, not provider installation or activation.
-
-Every experiment declares baseline, dataset/task identity, acceptance thresholds before execution, costs, reject criteria, permissions and rollback/removal. No provider list is an installation plan. See the [audit matrix](audits/ARCHITECTURE-PLAN-AUDIT-2026-09-10.md).
-
-## 6. Final optional stage — local SLM
-
-- [x] Encode the minimum `1,000` verified-case readiness threshold in the
-  deterministic experiment gate. This is a blocker contract, not SLM
-  implementation or activation.
-- [ ] Reconsider a local QA SLM only after the deterministic control plane,
-  useful non-model adapters, Failure Memory baseline, and relevant consumer
-  evidence are mature.
-- [ ] Retain the minimum gate: deterministic preprocessing, a real relevant
-  consumer, and at least 1,000 verified benchmark cases with a protected
-  held-out split.
-- [ ] Benchmark rules plus lexical retrieval against untuned candidate models
-  before any training. Reject on false-green, fabricated evidence, permission
-  bypass, worse task success, or worse total cost.
-- [ ] Keep the SLM optional. It cannot create PASS, authorize retries, or become
-  a mandatory dependency of shared infrastructure.
-
-This is intentionally the last roadmap stage under [ADR-0010](decisions/ADR-0010-verification-aggregate-and-slm-last.md).
-
-## 7. Phase 4 — consumer convergence, provenance and governed intelligence
-
-The Phase 3 hardening increment closed the local contract gaps; the remaining
-work needs real consumers, hosted runs or accumulated reviewed cases.
-
-- [ ] End-to-end artifact identity in release workflows: verify `Artifact Identity v1` against the downloaded release assets before draft publication, prove the fail-closed path on a changed byte, and prove the `AI-COLOR-COMPARE` `main` (`0.3.11+`) release path.
-- [ ] Fleet-wide supply-chain and trusted-audit adoption: prove `security-supply-chain.yml` dependency review on a consumer with real manifests, expand `trusted-repository-audit.yml` callers, and record proven consumers in the catalog.
-- [ ] Read-only fleet pin freshness: compare consumer workflow pins with reviewed catalog entries and surface drift without mutating consumer repositories.
-- [ ] Reviewed failure-memory corpus and lexical retrieval pilot: reach `>=100` independently reviewed real records and `>=10` held-out queries, then publish the SQLite/FTS5 BM25 baseline. Both gates stay blocking; no record is split to inflate the count.
-- [ ] Demand-gated domain templates and two-project experiments: `Spec Kit` read-only validator, `Graphify` code-only A/B, `ReleaseProof`, and the remaining Phase 2 domain templates only after `experiment_gate.py` returns `READY`; the local SLM remains last behind `>=1,000` verified cases.
+- Capability-based verification architecture, Policy Gate v1, trusted launcher, result normalization v2, verification aggregate v1, artifact identity v1, known-failure registry, failure-memory gates, experiment gate, project template, workflow catalog, dashboard, fleet dispatch, and release template contracts are implemented.
+- Hosted proof exists for the audit, launcher, normalization, aggregate, artifact-identity fixture, release template, dashboard, and fleet increments; each claim names its run in the linked audit.
+- The previous phase checklist is preserved in Git history before this state-board conversion.

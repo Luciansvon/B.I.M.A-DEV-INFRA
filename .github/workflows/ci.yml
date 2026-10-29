@@ -102,6 +102,12 @@ jobs:
           mkdir -p .artifacts
           set -o pipefail
           task test 2>&1 | tee .artifacts/tests.log
+      - name: Validate roadmap work availability
+        shell: bash
+        run: |
+          mkdir -p .artifacts
+          set -o pipefail
+          python -I automation/roadmap_audit.py 2>&1 | tee .artifacts/roadmap.log
       - name: Verify result normalization action
         id: normalize-result
         uses: ./.github/actions/normalize-rust-libtest # zizmor: ignore[self-repository] actionlint 1.7.12 does not support $/ references
@@ -319,6 +325,7 @@ jobs:
           name: infra-ci-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .artifacts/tests.log
+            .artifacts/roadmap.log
             .artifacts/result-normalization/result.json
             .artifacts/verification-plan/plan.json
             .artifacts/verification-aggregate/aggregate.json
@@ -351,3 +358,13 @@ jobs:
       artifact-name: security-supply-chain-self-test
       # This repository has no dependency manifests, so dependency review has nothing to compare.
       dependency-review: false
+
+  trusted-repository-audit-self-call:
+    name: Trusted repository audit self-call
+    permissions:
+      contents: read
+    # The launcher requires the called workflow ref to be a full SHA, so a
+    # local `./` reference can never satisfy the trust boundary.
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/trusted-repository-audit.yml@2393301dd53106c4786ad2bf3f10e394346cddb2 # v1
+    with:
+      artifact-name: trusted-self-audit

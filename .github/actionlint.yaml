@@ -7,3 +7,6 @@ paths:
   .github/workflows/security-supply-chain.yml:
     ignore:
       - 'property "workflow_(repository|ref|sha)" is not defined in object type'
+  .github/workflows/release.yml:
+    ignore:
+      - 'property "workflow_(repository|ref|sha)" is not defined in object type'

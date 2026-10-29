@@ -43,6 +43,18 @@ This decision changes roadmap order, not SLM safety thresholds. It does not
 claim that arbitrary application build/test commands, sandboxes, ReleaseProof,
 or model runtime are implemented.
 
+## Amendment 2026-10-28 — Roadmap work availability
+
+`docs/NEXT.md` is organized as state lanes, not phases. Every item carries a
+local verification command and retained evidence. An item blocked on external
+proof must name that proof, link a locally completable precursor, and carry a
+review date of at most 90 days. An empty "Actionable now" lane fails repository
+validation, and expired review dates fail it as well.
+
+This encodes decision 4's deterministic-first rule. It grants no new execution,
+consumer-change, or publication authority, and it does not lower any evidence
+gate.
+
 ## Evidence
 
 - [Capability result and aggregation rules](../architecture/CAPABILITY-CONTRACT.md#4-result-axes-and-aggregation)

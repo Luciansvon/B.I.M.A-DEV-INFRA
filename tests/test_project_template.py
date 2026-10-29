@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -8,13 +9,23 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "automation" / "bootstrap_project.py"
+AUDIT = ROOT / "automation" / "repository_audit.py"
 SHA = "a" * 40
+SPEC = importlib.util.spec_from_file_location("repository_audit", AUDIT)
+audit = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(audit)
 
 
 def run(*arguments):
     return subprocess.run(
         [sys.executable, "-I", str(SCRIPT), *arguments],
         cwd=ROOT, capture_output=True, text=True)
+
+
+def git(root, *arguments):
+    return subprocess.run(
+        ["git", "-C", str(root), *arguments],
+        check=True, capture_output=True, text=True, timeout=30)
 
 
 class ProjectBootstrapTests(unittest.TestCase):
@@ -52,6 +63,36 @@ class ProjectBootstrapTests(unittest.TestCase):
             for entry in manifest["files"]:
                 data = (target / entry["path"]).read_bytes()
                 self.assertNotIn(b"\r\n", data, entry["path"])
+
+            git(target, "init", "-q")
+            git(target, "add", ".")
+            git(target, "-c", "user.name=Test",
+                "-c", "user.email=test@example.invalid",
+                "-c", "commit.gpgsign=false", "commit", "-qm", "scaffold")
+            result = audit.audit(target, ".bima/audit.json")
+            self.assertEqual(result["status"], "pass", result["findings"])
+            self.assertEqual(result["files_checked"], len(manifest["files"]))
+
+    def test_deleting_a_shipped_template_file_fails_the_project_audit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "project"
+            result = run("--target", str(target), "--infra-ref", SHA,
+                         "--project-name", "Sample Project")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            git(target, "init", "-q")
+            git(target, "add", ".")
+            git(target, "-c", "user.name=Test",
+                "-c", "user.email=test@example.invalid",
+                "-c", "commit.gpgsign=false", "commit", "-qm", "scaffold")
+            (target / "ARCHITECTURE.md").unlink()
+            git(target, "add", "-A")
+            git(target, "-c", "user.name=Test",
+                "-c", "user.email=test@example.invalid",
+                "-c", "commit.gpgsign=false", "commit", "-qm", "delete")
+            result = audit.audit(target, ".bima/audit.json")
+            self.assertEqual(result["status"], "fail", result["findings"])
+            self.assertIn(
+                "required-file", [item["code"] for item in result["findings"]])
 
     def test_invalid_sha_writes_nothing(self):
         with tempfile.TemporaryDirectory() as temporary:

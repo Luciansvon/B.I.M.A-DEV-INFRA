@@ -11,6 +11,12 @@ import sys
 MAX_INPUT_BYTES = 1024 * 1024
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+GITHUB_REF = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+#[1-9][0-9]*$")
+HTTPS_REF = re.compile(r"^https://[^\s]+$")
+PLACEHOLDERS = {
+    "tbd", "todo", "n/a", "na", "none", "null", "placeholder", "unknown",
+    "xxx", "-",
+}
 CAPABILITIES = {
     "graphify-context", "release-proof", "local-qa-slm", "sandbox",
     "database-verifier", "durable-workflow", "security-response",
@@ -58,6 +64,19 @@ def _relative_path(value, label):
     path = PurePosixPath(value)
     if path.is_absolute() or ".." in path.parts or ".git" in path.parts:
         raise ExperimentGateError(f"{label} leaves its allowed root")
+
+
+def _identity(value, label):
+    _string(value, label, 128)
+    if value != value.strip() or value.lower() in PLACEHOLDERS:
+        raise ExperimentGateError(f"{label} must be a reviewer identity")
+
+
+def _requirement_ref(value, label):
+    _string(value, label, 512)
+    if not (GITHUB_REF.fullmatch(value) or HTTPS_REF.fullmatch(value)):
+        raise ExperimentGateError(
+            f"{label} must be owner/repo#number or an https URL")
 
 
 def strict_json(raw):
@@ -158,20 +177,32 @@ def validate_request(value):
     if not isinstance(demands, list) or len(demands) > 32:
         raise ExperimentGateError("demand evidence is outside its item bounds")
     keys = []
+    pairs = []
     project_ids = []
     repositories = []
     for demand in demands:
         _exact(demand, {
-            "project_id", "repository", "requirement_ref", "reviewed_by",
+            "project_id", "repository", "capability", "requirement_ref",
+            "reviewed_by",
         }, "demand evidence")
         _identifier(demand["project_id"], "demand project_id")
-        for field in ("repository", "requirement_ref", "reviewed_by"):
-            _string(demand[field], f"demand {field}")
+        if demand["capability"] not in CAPABILITIES:
+            raise ExperimentGateError("demand capability is unsupported")
+        if demand["capability"] != value["capability"]:
+            raise ExperimentGateError(
+                "demand capability does not match the request capability")
+        _string(demand["repository"], "demand repository")
+        _requirement_ref(demand["requirement_ref"], "demand requirement_ref")
+        _identity(demand["reviewed_by"], "demand reviewed_by")
         keys.append((demand["project_id"], demand["repository"]))
+        pairs.append((demand["repository"], demand["requirement_ref"]))
         project_ids.append(demand["project_id"])
         repositories.append(demand["repository"])
     if keys != sorted(set(keys)):
         raise ExperimentGateError("demand evidence must be unique and sorted")
+    if len(pairs) != len(set(pairs)):
+        raise ExperimentGateError(
+            "duplicate demand for the same repository and requirement")
     if len(project_ids) != len(set(project_ids)) or len(repositories) != len(set(repositories)):
         raise ExperimentGateError("each demand must identify a distinct project and repository")
     return value

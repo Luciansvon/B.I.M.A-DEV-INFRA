@@ -40,6 +40,56 @@ tasks:
         --output "{{.EVIDENCE_DIR}}/fleet"
     timeout: 1m
 
+  roadmap:
+    desc: Validate docs/NEXT.md lanes, gates, and review dates
+    cmds:
+      - '"{{.PYTHON}}" -I automation/roadmap_audit.py'
+    timeout: 1m
+
+  roadmap-candidates:
+    desc: Derive new local roadmap candidates from repository state
+    cmds:
+      - '"{{.PYTHON}}" -I automation/roadmap_audit.py --candidates'
+    timeout: 1m
+
+  coverage:
+    desc: Assert required_files covers automation, schemas, workflows, and standards
+    cmds:
+      - '"{{.PYTHON}}" -I automation/policy_coverage.py'
+    timeout: 1m
+
+  trust-bundles:
+    desc: Check policy trust bundles against the current workflow and policy bytes
+    cmds:
+      - '"{{.PYTHON}}" -I automation/trusted_policy_launcher.py --check'
+    timeout: 1m
+
+  workflow-refs:
+    desc: Verify reusable-workflow pin pairing and referenced revisions locally
+    cmds:
+      - '"{{.PYTHON}}" -I automation/workflow_refs.py'
+    timeout: 1m
+
+  release-evidence:
+    desc: Validate a release evidence document against its schema fields
+    cmds:
+      - >-
+        "{{.PYTHON}}" -I automation/release_evidence.py validate
+        --input "{{default "tests/fixtures/release/evidence-dry-run.json" .RELEASE_EVIDENCE}}"
+    timeout: 1m
+
+  schema-lint:
+    desc: Lint schemas for required/properties drift and broken local references
+    cmds:
+      - '"{{.PYTHON}}" -I automation/schema_lint.py'
+    timeout: 1m
+
+  pin-freshness:
+    desc: Compare local reusable-workflow pins with the reviewed catalog hashes
+    cmds:
+      - '"{{.PYTHON}}" -I automation/pin_freshness.py'
+    timeout: 1m
+
   audit:
     desc: Run repository hygiene and write JSON/Markdown evidence
     cmds:
@@ -115,14 +165,21 @@ tasks:
     cmds:
       - task: preflight
       - task: test
+      - task: roadmap
       - task: contracts
+      - task: coverage
+      - task: schema-lint
       - task: catalog
+      - task: trust-bundles
+      - task: workflow-refs
+      - task: release-evidence
+      - task: pin-freshness
       - task: fleet-plan
       - task: audit
       - task: evidence
       - task: agent-packet
       - task: workflow-lint
-    timeout: 9m
+    timeout: 12m
 
   diff-check:
     desc: Validate unstaged and staged patch whitespace

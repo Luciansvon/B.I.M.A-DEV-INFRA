@@ -30,7 +30,7 @@ python -I automation/workflow_catalog.py
 task catalog
 ```
 
-The check fails when a listed workflow or documentation file is missing, a workflow does not declare `workflow_call:`, the recorded SHA-256 does not match the file, or the entry shape is wrong. Output: `workflow-catalog: pass; workflows=<n>`.
+The check fails when a listed workflow or documentation file is missing, a workflow does not declare `workflow_call:`, a declared input or output is not named in its documentation, a required contract section is missing or empty, the recorded SHA-256 does not match the file, or the entry shape is wrong. Output: `workflow-catalog: pass; workflows=<n>`.
 
 The document shape is published as `schemas/bima-workflow-catalog.v1.schema.json` and its field sets are checked against `automation/workflow_catalog.py` by `tests/test_schema_contract_parity.py`.
 

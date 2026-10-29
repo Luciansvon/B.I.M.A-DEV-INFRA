@@ -32,7 +32,7 @@
         "Luciansvon/AI-COLOR-COMPARE"
       ],
       "summary": "Publish one release from the calling run assets with a new tag and SHA-256 evidence.",
-      "sha256": "7b02874fc5b451a88cfbc61c4da0ec8de9a90f7ca9c72e2cd14a3849103a112d"
+      "sha256": "d98509928efdd7b654a625a126ed7b1236c0636d42e326cc636745719629a359"
     },
     {
       "id": "trusted-repository-audit",

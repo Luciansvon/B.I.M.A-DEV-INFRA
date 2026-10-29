@@ -6,6 +6,10 @@ Name: `repository-audit`. Stability: **beta**. Implements the existing shared ex
 
 Implementation: [`automation/repository_audit.py`](../../automation/repository_audit.py). Reusable entry point: [workflow](../../.github/workflows/repository-audit.yml). No third-party Python packages.
 
+## Triggers
+
+The reusable workflow is invoked only through `workflow_call`. Each caller decides its own push, pull-request, schedule or manual triggers; the module has no trigger and is run as a CLI. There is no API or repository-dispatch entry point.
+
 ## Inputs
 
 | Workflow input | Required | Type | Default | Meaning |
@@ -35,7 +39,7 @@ Policy JSON has exactly these fields:
 }
 ```
 
-These are also the built-in defaults. Policy is at most 64 KiB. `required_files` has 1-128 unique safe repository-relative paths. `max_file_bytes` is an integer from 1 through 10,485,760. Unknown fields, duplicate JSON keys, non-finite numbers, booleans in integer fields, unsupported versions, and absent explicitly supplied policies fail closed. Symlinks, junctions, absolute paths, Git internals, and traversal are rejected for policy/required paths.
+These are also the built-in defaults. Policy is at most 64 KiB. `required_files` has 1-160 unique safe repository-relative paths. `max_file_bytes` is an integer from 1 through 10,485,760. Unknown fields, duplicate JSON keys, non-finite numbers, booleans in integer fields, unsupported versions, and absent explicitly supplied policies fail closed. Symlinks, junctions, absolute paths, Git internals, and traversal are rejected for policy/required paths.
 
 ## Checks and boundaries
 
@@ -79,7 +83,7 @@ The workflow also runs the repository-audit adapter for [`bima-evidence.v1`](EVI
 - Pass/fail/error audit outcomes all produce reports. An invalid CLI, unwritable output, cancelled job, checkout/setup failure, or process kill may prevent reports; CI must not treat missing reports as success.
 - No warning-only pass, automatic retries, automatic agent invocation, or silent policy fallback.
 
-## Runner, permissions, and limits
+## Runner, permissions, and execution limits
 
 GitHub-hosted Ubuntu 24.04; Git, Bash, and pinned Python 3.13.15. No hardware/device requirements. `contents: read` only, no OIDC or external credentials. Ten-minute job timeout; individual Git commands time out at 30 seconds. Expected runtime: seconds for the script on a small documentation repository, plus hosted runner/setup/upload time.
 
