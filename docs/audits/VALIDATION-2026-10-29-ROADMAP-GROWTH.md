@@ -152,7 +152,7 @@ Hosted run `40700810094` failed after the launcher printed `ALLOW; reason=MATCHE
 
 Root cause: `.github/workflows/trusted-launcher-proof.yml` pins `trusted-repository-audit.yml@49e7424e88f2512d4a5ef753730e6dfe293a8fbd`. That revision's `repository_audit.py` rejects a policy with more than 100 required files, while `main`'s `.bima/audit.json` already has 106. The launcher correctly propagated the verifier error as exit `2`; the stale pin, not the launcher decision, was the defect.
 
-The proof pin must move to a revision whose verifier accepts the current policy. After this change the policy has 132 required files, so the pin moved from `49e7424e88f2512d4a5ef753730e6dfe293a8fbd` to `2393301dd53106c4786ad2bf3f10e394346cddb2`, the commit that adds the 160-file capacity. The hosted re-run for this pin is pending and is not claimed here.
+The proof pin must move to a revision whose verifier accepts the current policy. After this change the policy has 132 required files, so the pin moved from `49e7424e88f2512d4a5ef753730e6dfe293a8fbd` to `2393301dd53106c4786ad2bf3f10e394346cddb2`, the commit that adds the 160-file capacity. Pull request #47 run `40808029751` then returned `ALLOW`, `verifier_launched=true` and exit `0`; the push-to-main path is only provable after merge.
 
 ## Pull-request CI defects found by the first push
 
@@ -162,7 +162,7 @@ Pull request #47 run `40807120864` surfaced two defects that local checks did no
 
 `Trusted repository audit self-call` was denied with `WORKFLOW_REF_MISMATCH`. The job called `./.github/workflows/trusted-repository-audit.yml`, so GitHub reported `BIMA_WORKFLOW_REF` as `...@refs/pull/47/merge` while the launcher requires `...@<40-hex-sha>`. The local reference could never satisfy the launcher on any event. The self-call now pins `2393301dd53106c4786ad2bf3f10e394346cddb2`, the same revision as the proof.
 
-The proof run `40807120922` passed with `ALLOW`, `verifier_launched=true` and exit `0`; the re-run after these two fixes is pending.
+The proof run `40807120922` passed with `ALLOW`, `verifier_launched=true` and exit `0`. After these two fixes, Infrastructure CI run `40808029703` passed workflow lint, both test matrices, the repository audit and the trusted self-call, and proof run `40808029751` passed again. Pull request #47 is mergeable with every required check green.
 
 ## Compatibility notes
 
