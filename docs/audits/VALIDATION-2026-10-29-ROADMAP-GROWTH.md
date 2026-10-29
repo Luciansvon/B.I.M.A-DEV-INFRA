@@ -154,6 +154,16 @@ Root cause: `.github/workflows/trusted-launcher-proof.yml` pins `trusted-reposit
 
 The proof pin must move to a revision whose verifier accepts the current policy. After this change the policy has 132 required files, so the pin moved from `49e7424e88f2512d4a5ef753730e6dfe293a8fbd` to `2393301dd53106c4786ad2bf3f10e394346cddb2`, the commit that adds the 160-file capacity. The hosted re-run for this pin is pending and is not claimed here.
 
+## Pull-request CI defects found by the first push
+
+Pull request #47 run `40807120864` surfaced two defects that local checks did not cover.
+
+`Workflow lint` failed because `release.yml` reads `job.workflow_repository` and `job.workflow_sha`, fields that actionlint 1.7.12 does not know. `.github/actionlint.yaml` now suppresses the exact diagnostic for `release.yml`, matching the existing entries for the trusted audit and supply-chain workflows.
+
+`Trusted repository audit self-call` was denied with `WORKFLOW_REF_MISMATCH`. The job called `./.github/workflows/trusted-repository-audit.yml`, so GitHub reported `BIMA_WORKFLOW_REF` as `...@refs/pull/47/merge` while the launcher requires `...@<40-hex-sha>`. The local reference could never satisfy the launcher on any event. The self-call now pins `2393301dd53106c4786ad2bf3f10e394346cddb2`, the same revision as the proof.
+
+The proof run `40807120922` passed with `ALLOW`, `verifier_launched=true` and exit `0`; the re-run after these two fixes is pending.
+
 ## Compatibility notes
 
 - `release.yml` adds optional inputs only; callers that do not pass a manifest are unchanged. The catalog hash was updated to `d98509928efdd7b654a625a126ed7b1236c0636d42e326cc636745719629a359`.

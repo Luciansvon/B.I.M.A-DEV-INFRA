@@ -363,6 +363,8 @@ jobs:
     name: Trusted repository audit self-call
     permissions:
       contents: read
-    uses: ./.github/workflows/trusted-repository-audit.yml # zizmor: ignore[self-repository]
+    # The launcher requires the called workflow ref to be a full SHA, so a
+    # local `./` reference can never satisfy the trust boundary.
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/trusted-repository-audit.yml@2393301dd53106c4786ad2bf3f10e394346cddb2 # v1
     with:
       artifact-name: trusted-self-audit
